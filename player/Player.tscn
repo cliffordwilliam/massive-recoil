@@ -402,6 +402,7 @@ hframes = 9
 vframes = 8
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Sprite"]
+visible = false
 position = Vector2( 64, 0 )
 update_rotation = false
 update_scale = false

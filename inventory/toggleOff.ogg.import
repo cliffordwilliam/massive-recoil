@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/toggleOff.ogg-eb5a7d4faf8573dce16220f8ce84623d.oggstr"
+
+[deps]
+
+source_file="res://inventory/toggleOff.ogg"
+dest_files=[ "res://.import/toggleOff.ogg-eb5a7d4faf8573dce16220f8ce84623d.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0
