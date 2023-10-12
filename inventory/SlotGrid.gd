@@ -2,7 +2,6 @@ extends GridContainer
 var start_pos: Vector2
 var last_pos: Vector2
 var is_clicked: bool
-onready var slot_size: int = get_child(0).rect_size.x
 onready var rows: int = get_child_count()/columns
 
 signal selection_changed
@@ -35,7 +34,7 @@ func _reset_active_slots():
 	for slot in get_children():
 		slot._set_focus(false)
 	
-func _get_slot(x: float, y: float):
+func _get_slot(x: float, y: float) -> Slot:
 	var index: int = y * columns + x
 	return get_children()[index]
 
@@ -50,7 +49,7 @@ func _set_active_slots(start: Vector2, end: Vector2):
 
 func _get_mouse_slot_position():
 	var mouse_pos = self.get_local_mouse_position()
-	return Vector2(mouse_pos.x / slot_size, mouse_pos.y / slot_size).floor()
+	return Vector2(mouse_pos.x / Shared.SLOT_SIZE, mouse_pos.y / Shared.SLOT_SIZE).floor()
 
 func _on_click():
 	start_pos = _get_mouse_slot_position()

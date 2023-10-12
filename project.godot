@@ -8,6 +8,46 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Node",
+"class": "Inventory",
+"language": "GDScript",
+"path": "res://inventory/Inventory.gd"
+}, {
+"base": "Node2D",
+"class": "InventoryItem",
+"language": "GDScript",
+"path": "res://item/InventoryItem.gd"
+}, {
+"base": "Node",
+"class": "InventoryItemFactory",
+"language": "GDScript",
+"path": "res://item/InventoryItemFactory.gd"
+}, {
+"base": "Node2D",
+"class": "Item",
+"language": "GDScript",
+"path": "res://item/Item.gd"
+}, {
+"base": "TextureRect",
+"class": "ItemTexture",
+"language": "GDScript",
+"path": "res://item/ItemTexture.gd"
+}, {
+"base": "Panel",
+"class": "Slot",
+"language": "GDScript",
+"path": "res://inventory/Slot.gd"
+} ]
+_global_script_class_icons={
+"Inventory": "",
+"InventoryItem": "",
+"InventoryItemFactory": "",
+"Item": "",
+"ItemTexture": "",
+"Slot": ""
+}
+
 [application]
 
 config/name="Massive Recoil"
