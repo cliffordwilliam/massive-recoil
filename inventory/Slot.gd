@@ -20,7 +20,7 @@ func _get_stylebox(hovered: bool):
 	var style: StyleBoxTexture = StyleBoxTexture.new()
 	style.texture = texture
 	style.region_rect = Rect2(0, 0, 58, 58)
-	style.modulate_color.a = 1.0 if hovered else 0.5
+	style.modulate_color.a = 1.0 if hovered else 0.3
 	return style
 
 func _set_focus(focus: bool):

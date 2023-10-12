@@ -19,3 +19,7 @@ func _initItemList():
 	var content = file.get_as_text()
 	var json = JSON.parse(content)
 	item_db = json.result
+
+var inventory_items = []
+
+signal refresh_gui

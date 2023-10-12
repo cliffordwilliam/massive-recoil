@@ -1,7 +1,5 @@
 class_name InventoryItem extends Node2D
 
-onready var inventory = load("res://inventory/Inventory.tscn")
-
 const ITEM_SPRITE_MARGIN = Vector2(10, 10)
 var item: Item
 var pos: Vector2
