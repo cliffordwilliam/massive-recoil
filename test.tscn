@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c1c1d365hvn75"]
+
+[ext_resource type="Texture2D" uid="uid://diucb5vnk3l72" path="res://body.png" id="1_37kl0"]
+
+[node name="Test" type="Node" unique_id=271786120]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1444640975]
+texture = ExtResource("1_37kl0")
+centered = false
