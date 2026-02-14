@@ -19,11 +19,21 @@ extends EditorScript
 ##         "duration": 83
 ##       },
 ##       ...
-##     ]
+##     ],
+##     "meta": {
+##       "frameTags": [
+##         { "name": "idle", "from": 0, "to": 11, "direction": "forward" },
+##         { "name": "stop", "from": 32, "to": 35, "direction": "forward", "repeat": "1" }
+##       ]
+##     }
 ##   }
 ##
 ## Filename parsing:
 ##   - Last dash splits name/index  ("idle-0" -> anim "idle", frame 0)
+##
+## Loop detection (from frameTags):
+##   - No "repeat" field  -> loops (default)
+##   - "repeat" present   -> does not loop
 ##
 ## Duration math:
 ##   base_fps   = 1000.0 / shortest_frame_duration_ms
@@ -69,6 +79,7 @@ func _run():
 			success_count += 1
 
 	print("Done. Generated ", success_count, "/", json_files.size(), " .tres files.")
+	EditorInterface.get_resource_filesystem().scan()
 
 
 func _import_spritesheet(json_path: String, png_path: String, tres_path: String) -> bool:
@@ -87,7 +98,7 @@ func _import_spritesheet(json_path: String, png_path: String, tres_path: String)
 	var data = json.data
 
 	# 2. Load spritesheet
-	var spritesheet: Texture2D = load(png_path)
+	var spritesheet: Texture2D = ResourceLoader.load(png_path, "", ResourceLoader.CACHE_MODE_REPLACE)
 	if not spritesheet:
 		printerr("  Could not load: ", png_path)
 		return false
@@ -98,7 +109,15 @@ func _import_spritesheet(json_path: String, png_path: String, tres_path: String)
 		printerr("  Expected \"frames\" to be an Array in: ", json_path)
 		return false
 
-	# 4. Group frames by animation name
+	# 4. Build loop lookup from frameTags
+	#    No "repeat" field -> loops (default Aseprite behavior)
+	#    "repeat" present  -> one-shot (no loop)
+	var loop_lookup := {}
+	if data.has("meta") and data["meta"].has("frameTags"):
+		for tag in data["meta"]["frameTags"]:
+			loop_lookup[tag["name"]] = not tag.has("repeat")
+
+	# 5. Group frames by animation name
 	var anims := {}
 	for frame_data in frames_array:
 		var filename: String = frame_data["filename"]
@@ -126,7 +145,7 @@ func _import_spritesheet(json_path: String, png_path: String, tres_path: String)
 	for anim_name in anims:
 		anims[anim_name].sort_custom(func(a, b): return a["index"] < b["index"])
 
-	# 5. Build SpriteFrames
+	# 6. Build SpriteFrames
 	var sprite_frames = SpriteFrames.new()
 
 	if sprite_frames.has_animation(&"default"):
@@ -141,10 +160,11 @@ func _import_spritesheet(json_path: String, png_path: String, tres_path: String)
 				min_duration_ms = f["duration_ms"]
 
 		var base_fps := 1000.0 / min_duration_ms
+		var should_loop: bool = loop_lookup.get(anim_name, true)
 
 		sprite_frames.add_animation(anim_name)
 		sprite_frames.set_animation_speed(anim_name, base_fps)
-		sprite_frames.set_animation_loop(anim_name, true)
+		sprite_frames.set_animation_loop(anim_name, should_loop)
 
 		for f in frames:
 			var atlas := AtlasTexture.new()
@@ -154,11 +174,16 @@ func _import_spritesheet(json_path: String, png_path: String, tres_path: String)
 			var multiplier := float(f["duration_ms"]) / min_duration_ms
 			sprite_frames.add_frame(anim_name, atlas, multiplier)
 
-		print("  ", anim_name, ": ", frames.size(), " frames @ ", snapped(base_fps, 0.01), " fps")
+		var loop_label := "loop" if should_loop else "once"
+		print("  ", anim_name, ": ", frames.size(), " frames @ ", snapped(base_fps, 0.01), " fps [", loop_label, "]")
 
-	# 6. Save
-	var result = ResourceSaver.save(sprite_frames, tres_path)
+	# 7. Save
+	var result = ResourceSaver.save(sprite_frames, tres_path, ResourceSaver.FLAG_REPLACE_SUBRESOURCE_PATHS)
 	if result == OK:
+		# Refresh any existing cached instance from disk
+		var refreshed = ResourceLoader.load(tres_path, "", ResourceLoader.CACHE_MODE_REPLACE_DEEP)
+		if refreshed:
+			refreshed.emit_changed()
 		print("  Saved: ", tres_path)
 		return true
 	else:

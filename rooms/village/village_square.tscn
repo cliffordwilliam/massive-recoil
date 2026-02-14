@@ -1,12 +1,17 @@
 [gd_scene format=3 uid="uid://ugdkrlwxbvao"]
 
 [ext_resource type="TileSet" uid="uid://cfpvgo5eio3ne" path="res://assets/textures/tile_sets/world_tile_set.tres" id="1_l5nai"]
+[ext_resource type="Texture2D" uid="uid://qvlk7l1jkjh0" path="res://assets/textures/backgrounds/greybox_background.png" id="1_sne4k"]
 [ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://entities/player/player.tscn" id="2_sne4k"]
 
 [node name="VillageSquare" type="Node" unique_id=453802044]
 
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1337451625]
+texture = ExtResource("1_sne4k")
+centered = false
+
 [node name="Player" parent="." unique_id=407663167 instance=ExtResource("2_sne4k")]
-position = Vector2(48, 128)
+position = Vector2(32, 128)
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=164805402]
 tile_map_data = PackedByteArray(0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0)

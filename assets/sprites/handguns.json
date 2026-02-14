@@ -324,7 +324,7 @@
     "duration": 66
    },
    {
-    "filename": "crouch-0",
+    "filename": "to_crouch-0",
     "frame": { "x": 192, "y": 192, "w": 64, "h": 64 },
     "rotated": false,
     "trimmed": false,
@@ -333,7 +333,7 @@
     "duration": 50
    },
    {
-    "filename": "crouch-1",
+    "filename": "crouch-0",
     "frame": { "x": 256, "y": 192, "w": 64, "h": 64 },
     "rotated": false,
     "trimmed": false,
@@ -342,7 +342,7 @@
     "duration": 50
    },
    {
-    "filename": "crouch-2",
+    "filename": "crouch_to_idle-0",
     "frame": { "x": 320, "y": 192, "w": 64, "h": 64 },
     "rotated": false,
     "trimmed": false,
@@ -351,7 +351,7 @@
     "duration": 50
    },
    {
-    "filename": "crouch-3",
+    "filename": "crouch_to_idle-1",
     "frame": { "x": 384, "y": 192, "w": 64, "h": 64 },
     "rotated": false,
     "trimmed": false,
@@ -360,7 +360,7 @@
     "duration": 66
    },
    {
-    "filename": "crouch-4",
+    "filename": "crouch_to_idle-2",
     "frame": { "x": 448, "y": 192, "w": 64, "h": 64 },
     "rotated": false,
     "trimmed": false,
@@ -699,6 +699,23 @@
   "image": "handguns.png",
   "format": "RGBA8888",
   "size": { "w": 704, "h": 448 },
-  "scale": "1"
+  "scale": "1",
+  "frameTags": [
+   { "name": "idle", "from": 0, "to": 11, "direction": "forward", "color": "#000000ff" },
+   { "name": "walk", "from": 12, "to": 19, "direction": "forward", "color": "#000000ff" },
+   { "name": "to_run", "from": 20, "to": 21, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "run", "from": 22, "to": 31, "direction": "forward", "color": "#000000ff" },
+   { "name": "stop", "from": 32, "to": 35, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "to_crouch", "from": 36, "to": 36, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "crouch", "from": 37, "to": 37, "direction": "forward", "color": "#000000ff" },
+   { "name": "crouch_to_idle", "from": 38, "to": 40, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "turn", "from": 41, "to": 44, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "up", "from": 45, "to": 47, "direction": "forward", "color": "#000000ff" },
+   { "name": "to_fall", "from": 48, "to": 49, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "down", "from": 50, "to": 52, "direction": "forward", "color": "#000000ff" },
+   { "name": "land", "from": 53, "to": 56, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "aim", "from": 57, "to": 75, "direction": "forward", "color": "#000000ff" },
+   { "name": "hurt", "from": 76, "to": 76, "direction": "forward", "repeat": "1", "color": "#000000ff" }
+  ]
  }
 }
