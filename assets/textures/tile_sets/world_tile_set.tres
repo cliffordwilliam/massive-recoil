@@ -1,0 +1,13 @@
+[gd_resource type="TileSet" format=3 uid="uid://cfpvgo5eio3ne"]
+
+[ext_resource type="Texture2D" uid="uid://b4r4bh3xsp2fe" path="res://assets/textures/tile_sets/greybox_tileset.png" id="1_su2qm"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_dq1ng"]
+texture = ExtResource("1_su2qm")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[resource]
+physics_layer_0/collision_layer = 1
+physics_layer_0/collision_mask = 0
+sources/0 = SubResource("TileSetAtlasSource_dq1ng")
