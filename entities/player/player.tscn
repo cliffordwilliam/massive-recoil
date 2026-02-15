@@ -7,6 +7,9 @@
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://entities/player/states/idle.gd" id="5_8fjmc"]
 [ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://entities/player/states/run.gd" id="6_8fjmc"]
 [ext_resource type="Script" uid="uid://bbqt8pmmhv087" path="res://entities/player/states/crouch.gd" id="7_qiwj3"]
+[ext_resource type="Script" uid="uid://fk5fbfwd0ins" path="res://entities/player/states/fall.gd" id="8_wvtmh"]
+[ext_resource type="Script" uid="uid://hnn7iu3qmm87" path="res://entities/player/states/jump.gd" id="9_7thud"]
+[ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/player/states/walk.gd" id="10_a1qjk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_symyc"]
 size = Vector2(8, 24)
@@ -50,3 +53,15 @@ metadata/_custom_type_script = "uid://b8egebvgtmh"
 [node name="PlayerCrouchState" type="Node" parent="StateMachine" unique_id=1667583221]
 script = ExtResource("7_qiwj3")
 metadata/_custom_type_script = "uid://bbqt8pmmhv087"
+
+[node name="PlayerFallState" type="Node" parent="StateMachine" unique_id=1419500640]
+script = ExtResource("8_wvtmh")
+metadata/_custom_type_script = "uid://fk5fbfwd0ins"
+
+[node name="PlayerJumpState" type="Node" parent="StateMachine" unique_id=529339112]
+script = ExtResource("9_7thud")
+metadata/_custom_type_script = "uid://hnn7iu3qmm87"
+
+[node name="PlayerWalkState" type="Node" parent="StateMachine" unique_id=1485626066]
+script = ExtResource("10_a1qjk")
+metadata/_custom_type_script = "uid://b6g5bmy2a0qva"
