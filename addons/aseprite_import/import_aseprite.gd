@@ -1,5 +1,5 @@
 @tool
-extends EditorScript
+extends EditorPlugin
 
 ## Batch-converts spritesheets into Godot SpriteFrames resources.
 ##
@@ -41,7 +41,13 @@ extends EditorScript
 ##
 const SPRITES_DIR := "res://assets/sprites/"
 
-func _run():
+func _shortcut_input(event: InputEvent):
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_I and event.ctrl_pressed and event.shift_pressed:
+			_import_all()
+			get_viewport().set_input_as_handled()
+
+func _import_all():
 	var dir = DirAccess.open(SPRITES_DIR)
 	if not dir:
 		printerr("Could not open directory: ", SPRITES_DIR)
