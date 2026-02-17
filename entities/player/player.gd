@@ -11,6 +11,7 @@ const JUMP_SPEED: float = 240.0
 const NORMAL_GRAVITY: float = 600.0
 const FALL_GRAVITY: float = 2400.0
 
+# TODO: Autoload stores all dynamic vars, everything here is FE that uses it, dump to disk later
 var current_weapon_index: int = 0
 
 @onready var body: AnimatedSprite = $Body
