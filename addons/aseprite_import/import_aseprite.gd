@@ -3,7 +3,7 @@ extends EditorPlugin
 
 ## Batch-converts spritesheets into Godot SpriteFrames resources.
 ##
-## Usage: Open this script in the editor, press Ctrl+Shift+X (or File > Run).
+## Usage: Open this script in the editor, press Ctrl+Shift+I (or File > Run).
 ##
 ## Expected setup:
 ##   Place each spritesheet export (JSON + PNG) in SPRITES_DIR below.

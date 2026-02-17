@@ -3,12 +3,15 @@ extends Node
 
 @onready var current_state: State = get_child(0)
 
+
 func _ready() -> void:
 	await owner.ready
 	current_state.enter("")
 
+
 func _physics_process(delta: float) -> void:
 	current_state.process_physics(delta)
+
 
 func transition_to(target_state_name: String) -> void:
 	var next_state = get_node_or_null(target_state_name)

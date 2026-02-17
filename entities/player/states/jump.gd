@@ -5,6 +5,7 @@ func enter(_prev_state: String) -> void:
 	owner.animated_sprite.play("up")
 	owner.velocity.y -= owner.JUMP_SPEED
 
+
 func process_physics(delta: float) -> void:
 	owner.velocity.x = Input.get_axis("ui_left", "ui_right") * (
 		owner.WALK_SPEED if Input.is_action_pressed("ui_accept") else owner.RUN_SPEED
