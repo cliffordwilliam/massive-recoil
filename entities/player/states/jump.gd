@@ -1,6 +1,7 @@
 class_name PlayerJumpState
 extends State
 
+
 func enter(_prev_state: StringName) -> void:
 	owner.body.play("up")
 	owner.velocity.y -= owner.JUMP_SPEED
@@ -17,4 +18,4 @@ func process_physics(delta: float) -> void:
 	owner.move_and_slide()
 
 	if not owner.velocity.y < 0:
-		return parent_node.transition_to("PlayerFallState")
+		parent_node.transition_to("PlayerFallState")

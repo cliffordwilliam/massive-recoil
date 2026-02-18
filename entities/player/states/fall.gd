@@ -1,6 +1,7 @@
 class_name PlayerFallState
 extends PlayerState
 
+
 func enter(_prev_state: StringName) -> void:
 	owner.body.play("to_fall")
 
@@ -14,4 +15,4 @@ func process_physics(delta: float) -> void:
 	owner.move_and_slide()
 
 	if owner.is_on_floor():
-		return parent_node.transition_to(resolve_grounded_transition())
+		parent_node.transition_to(resolve_grounded_transition())

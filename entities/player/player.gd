@@ -11,11 +11,8 @@ const JUMP_SPEED: float = 240.0
 const NORMAL_GRAVITY: float = 600.0
 const FALL_GRAVITY: float = 2400.0
 
-# TODO: Autoload stores all dynamic vars, everything here is FE that uses it, dump to disk later
-var current_weapon_index: int = 0
-
 @onready var body: AnimatedSprite = $Body
-@onready var arms: AnimatedSprite = $Arms
+@onready var arms: AnimatedSprite = $Body/Arms
 
 
 func _ready() -> void:
@@ -26,13 +23,8 @@ func _ready() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_left"):
-		switch_weapon(0)
+		arms.sprite_frames = ARMS
 	elif event.is_action_pressed("ui_right"):
-		switch_weapon(1)
-	elif event.is_action_pressed("ui_up"):
-		switch_weapon(2)
-
-
-func switch_weapon(index: int) -> void:
-	current_weapon_index = index
-	arms.sprite_frames = [ARMS, HANDGUNS, RIFLES][index]
+		arms.sprite_frames = HANDGUNS
+	elif event.is_action_pressed("ui_down"):
+		arms.sprite_frames = RIFLES

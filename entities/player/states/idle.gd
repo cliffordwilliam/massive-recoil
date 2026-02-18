@@ -1,6 +1,7 @@
 class_name PlayerIdleState
 extends PlayerState
 
+
 func enter(prev_state: StringName) -> void:
 	owner.body.play(
 		{
@@ -13,5 +14,4 @@ func enter(prev_state: StringName) -> void:
 
 
 func process_physics(_delta: float) -> void:
-	if try_grounded_transition("PlayerIdleState"):
-		return
+	try_grounded_transition("PlayerIdleState")

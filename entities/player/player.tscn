@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://561ep14ey5sv" path="res://entities/player/player.gd" id="1_abrql"]
 [ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
 [ext_resource type="Script" uid="uid://skmpd278tn72" path="res://entities/animated_sprite/animated_sprite.gd" id="3_sglur"]
-[ext_resource type="SpriteFrames" uid="uid://bd23x5s463v8v" path="res://assets/sprites/rifles.tres" id="4_7thud"]
+[ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://entities/state/state_machine.gd" id="4_fkugw"]
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://entities/player/states/idle.gd" id="5_8fjmc"]
 [ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://entities/player/states/run.gd" id="6_8fjmc"]
@@ -35,8 +35,7 @@ transitions = Dictionary[StringName, StringName]({
 })
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
-[node name="Arms" type="AnimatedSprite2D" parent="." unique_id=869633070]
-position = Vector2(0, -21)
+[node name="Arms" type="AnimatedSprite2D" parent="Body" unique_id=869633070]
 sprite_frames = ExtResource("4_7thud")
 animation = &"idle"
 speed_scale = 0.0

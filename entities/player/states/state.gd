@@ -1,6 +1,7 @@
 class_name PlayerState
 extends State
 
+
 func try_grounded_transition(current: String) -> bool:
 	var next: String = resolve_grounded_transition()
 	if next != current:
