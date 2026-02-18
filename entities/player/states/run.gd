@@ -17,7 +17,6 @@ func exit() -> void:
 func process_physics(_delta: float) -> void:
 	if try_grounded_transition("PlayerRunState"):
 		return
-
 	owner.body.set_flip(Input.get_axis("left", "right") < 0.0)
 	owner.velocity.x = Input.get_axis("left", "right") * owner.RUN_SPEED
 	owner.move_and_slide()

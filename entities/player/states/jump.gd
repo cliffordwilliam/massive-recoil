@@ -16,6 +16,5 @@ func process_physics(delta: float) -> void:
 	)
 	owner.velocity.y = min(owner.velocity.y, owner.MAX_FALL_SPEED)
 	owner.move_and_slide()
-
-	if not owner.velocity.y < 0:
+	if not owner.velocity.y < 0.0:
 		parent_node.transition_to("PlayerFallState")
