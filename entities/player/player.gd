@@ -13,6 +13,7 @@ const FALL_GRAVITY: float = 2400.0
 
 @onready var body: AnimatedSprite = $Body
 @onready var arms: AnimatedSprite = $Body/Arms
+@onready var aim_pivot: Node2D = $AimPivot
 
 
 func _ready() -> void:
