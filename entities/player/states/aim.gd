@@ -17,8 +17,6 @@ func process_physics(_delta: float) -> void:
 			return
 	var local_mouse: Vector2 = owner.aim_pivot.get_local_mouse_position()
 	owner.body.set_flip(local_mouse.x < 0.0)
-	if owner.body.flip_h:
-		local_mouse.x *= -1
-	var clamped_angle: float = clamp(local_mouse.angle(), -PI / 2.0, PI / 2.0)
+	local_mouse.x *= -1 if owner.body.flip_h else 1
 	var total_frames: int = owner.body.sprite_frames.get_frame_count("aim")
-	owner.body.frame = int(round(remap(clamped_angle, PI / 2.0, -PI / 2.0, 0, total_frames - 1)))
+	owner.body.frame = int(remap(local_mouse.angle(), PI / 2.0, -PI / 2.0, 0, total_frames - 1))
