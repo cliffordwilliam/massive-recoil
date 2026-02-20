@@ -18,5 +18,4 @@ func process_physics(delta: float) -> void:
 	if not Input.is_action_pressed("aim"):
 		if try_grounded_transition("PlayerAimState"):
 			return
-	var input_dir: float = Input.get_axis("up", "down")
-	aim_angle = clampf(aim_angle + input_dir * owner.AIM_SPEED * delta, -PI / 2.0, PI / 2.0)
+	aim_angle = aim_angle + Input.get_axis("up", "down") * owner.AIM_SPEED * delta
