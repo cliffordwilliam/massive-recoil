@@ -14,10 +14,7 @@ func _physics_process(delta: float) -> void:
 
 
 func transition_to(target_state_name: String) -> void:
-	var next_state: State = get_node_or_null(target_state_name)
-	if next_state == null or next_state == current_state:
-		return
 	current_state.exit()
 	var prev_name: StringName = current_state.name
-	current_state = next_state
+	current_state = get_node(target_state_name)
 	current_state.enter(prev_name)

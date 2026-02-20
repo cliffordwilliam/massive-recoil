@@ -1,8 +1,6 @@
 class_name State
 extends Node
 
-@onready var parent_node: StateMachine = get_parent()
-
 
 func enter(_prev_state: StringName) -> void:
 	pass

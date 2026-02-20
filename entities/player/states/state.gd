@@ -6,17 +6,15 @@ func try_grounded_transition(current: String) -> bool:
 	var next: String = ""
 	if Input.is_action_pressed("aim") and owner.arms.sprite_frames != owner.ARMS:
 		next = "PlayerAimState"
-	elif Input.is_action_pressed("crouch"):
-		next = "PlayerCrouchState"
-	elif Input.is_action_just_pressed("jump"):
-		next = "PlayerJumpState"
 	elif not Input.get_axis("left", "right"):
 		next = "PlayerIdleState"
-	elif Input.get_axis("left", "right") and Input.is_action_pressed("walk"):
-		next = "PlayerWalkState"
-	elif Input.get_axis("left", "right"):
+	elif (Input.get_axis("left", "right") > 0) != not owner.body.flip_h:
+		next = "PlayerTurnState"
+	elif Input.is_action_pressed("run"):
 		next = "PlayerRunState"
+	else:
+		next = "PlayerWalkState"
 	if next != current:
-		parent_node.transition_to(next)
+		get_parent().transition_to(next)
 		return true
 	return false

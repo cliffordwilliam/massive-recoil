@@ -6,10 +6,7 @@ const HANDGUNS = preload("uid://c6ackeixi1emi")
 const RIFLES = preload("uid://bd23x5s463v8v")
 const WALK_SPEED: float = 28.0
 const RUN_SPEED: float = 90.0
-const MAX_FALL_SPEED: float = 480.0
-const JUMP_SPEED: float = 240.0
-const NORMAL_GRAVITY: float = 600.0
-const FALL_GRAVITY: float = 2400.0
+const AIM_SPEED: float = 2.0
 
 @onready var body: AnimatedSprite = $Body
 @onready var arms: AnimatedSprite = $Body/Arms

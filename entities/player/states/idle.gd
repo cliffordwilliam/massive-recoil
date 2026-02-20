@@ -3,13 +3,7 @@ extends PlayerState
 
 
 func enter(prev_state: StringName) -> void:
-	owner.body.play(
-		{
-			"PlayerRunState": "stop",
-			"PlayerCrouchState": "crouch_to_idle",
-			"PlayerFallState": "land",
-		}.get(prev_state, "idle"),
-	)
+	owner.body.play("stop" if prev_state == "PlayerRunState" else "idle")
 	owner.velocity.x = 0.0
 
 
