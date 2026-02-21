@@ -67,6 +67,12 @@ aim={
 ]
 }
 
+[layer_names]
+
+2d_physics/layer_1="player"
+2d_physics/layer_2="loot"
+2d_physics/layer_3="solid"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
