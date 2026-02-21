@@ -2,7 +2,15 @@ extends Node
 
 signal weapon_equipped
 
+# Player states
+var money: int = 0
+var weapons: Dictionary = {
+	"arms": true,
+	"handgun": false,
+	"rifle": false,
+}
 var equipped_weapon: StringName = "arms"
+# Weapon states
 var weapon_stats: Dictionary = {
 	"arms": {
 		"sprite_frames": preload("uid://bwtavvs3i1wy2"),

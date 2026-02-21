@@ -1,0 +1,25 @@
+[gd_scene format=4 uid="uid://pd60uol54sl"]
+
+[ext_resource type="PackedScene" uid="uid://1ajdrqx8b0uo" path="res://rooms/room.tscn" id="1_ke2ty"]
+[ext_resource type="Script" uid="uid://clgm6e3n0s3p1" path="res://rooms/village/village_entrance.gd" id="2_am8c5"]
+[ext_resource type="Texture2D" uid="uid://qvlk7l1jkjh0" path="res://assets/textures/backgrounds/greybox_background.png" id="2_rqp8j"]
+[ext_resource type="TileSet" uid="uid://cfpvgo5eio3ne" path="res://assets/textures/tile_sets/world_tile_set.tres" id="4_ib2mq"]
+[ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://entities/player/player.tscn" id="5_qt7ss"]
+[ext_resource type="PackedScene" uid="uid://c1msn5wqmhv3n" path="res://entities/shop/shop.tscn" id="6_8a7uk"]
+
+[node name="VillageEntrance" unique_id=1331696587 instance=ExtResource("1_ke2ty")]
+script = ExtResource("2_am8c5")
+
+[node name="Sprite2D" type="Sprite2D" parent="." index="1" unique_id=435325097]
+texture = ExtResource("2_rqp8j")
+centered = false
+
+[node name="Shop" parent="." index="2" unique_id=999179484 instance=ExtResource("6_8a7uk")]
+position = Vector2(128, 144)
+
+[node name="Player" parent="." index="3" unique_id=407663167 instance=ExtResource("5_qt7ss")]
+position = Vector2(32, 144)
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." index="4" unique_id=1277955691]
+tile_map_data = PackedByteArray("AAAAAP//AAAAAAAAAAABAP//AAAAAAAAAAACAP//AAAAAAAAAAADAP//AAAAAAAAAAAEAP//AAAAAAAAAAAFAP//AAAAAAAAAAAGAP//AAAAAAAAAAAHAP//AAAAAAAAAAAIAP//AAAAAAAAAAAJAP//AAAAAAAAAAAKAP//AAAAAAAAAAALAP//AAAAAAAAAAAMAP//AAAAAAAAAAANAP//AAAAAAAAAAAOAP//AAAAAAAAAAAPAP//AAAAAAAAAAAQAP//AAAAAAAAAAARAP//AAAAAAAAAAASAP//AAAAAAAAAAATAP//AAAAAAAAAAATAAkAAAAAAAAAAAASAAkAAAAAAAAAAAARAAkAAAAAAAAAAAAQAAkAAAAAAAAAAAAPAAkAAAAAAAAAAAAOAAkAAAAAAAAAAAANAAkAAAAAAAAAAAAMAAkAAAAAAAAAAAALAAkAAAAAAAAAAAAKAAkAAAAAAAAAAAAJAAkAAAAAAAAAAAAIAAkAAAAAAAAAAAAHAAkAAAAAAAAAAAAGAAkAAAAAAAAAAAAFAAkAAAAAAAAAAAAEAAkAAAAAAAAAAAADAAkAAAAAAAAAAAACAAkAAAAAAAAAAAABAAkAAAAAAAAAAAAAAAkAAAAAAAAAAAD//wAAAAAAAAAAAAD//wEAAAAAAAAAAAD//wIAAAAAAAAAAAD//wMAAAAAAAAAAAD//wQAAAAAAAAAAAD//wUAAAAAAAAAAAD//wYAAAAAAAAAAAD//wcAAAAAAAAAAAD//wgAAAAAAAAAAAAUAAAAAAAAAAAAAAAUAAEAAAAAAAAAAAAUAAIAAAAAAAAAAAAUAAMAAAAAAAAAAAAUAAQAAAAAAAAAAAAUAAUAAAAAAAAAAAAUAAYAAAAAAAAAAAAUAAcAAAAAAAAAAAAUAAgAAAAAAAAAAAA=")
+tile_set = ExtResource("4_ib2mq")

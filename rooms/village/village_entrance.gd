@@ -1,11 +1,10 @@
-extends Node
+class_name VillageEntrance
+extends Room
 
 
 func _input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_down"):
-		spawn_loot("handgun", Vector2(102.0, 144.0))
-	if Input.is_action_just_pressed("ui_up"):
-		spawn_loot("rifle", Vector2(250.0, 144.0))
+	if Input.is_action_just_pressed("ui_left"):
+		spawn_loot("money", Vector2(250.0, 120.0))
 
 
 func spawn_loot(type: StringName, pos: Vector2) -> void:

@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://c1msn5wqmhv3n"]
+
+[ext_resource type="Texture2D" uid="uid://bffb0g87hve8y" path="res://assets/textures/props/shop.png" id="1_2ycb8"]
+[ext_resource type="Script" uid="uid://cnk4b0ou1evf1" path="res://entities/shop/shop.gd" id="1_r86ss"]
+[ext_resource type="Texture2D" uid="uid://btkebmdidkp0o" path="res://assets/textures/props/white.png" id="2_7u6ib"]
+[ext_resource type="Texture2D" uid="uid://bv8pm7s3f3phc" path="res://assets/textures/backgrounds/shop_background.png" id="3_7u6ib"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_y8b7r"]
+
+[node name="Shop" type="Area2D" unique_id=999179484]
+collision_layer = 0
+monitorable = false
+script = ExtResource("1_r86ss")
+
+[node name="PulseBackground" type="Sprite2D" parent="." unique_id=198424185]
+position = Vector2(-19, -43)
+scale = Vector2(32.999996, 29.999998)
+texture = ExtResource("2_7u6ib")
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1063732466]
+texture_repeat = 2
+position = Vector2(0, -28)
+texture = ExtResource("3_7u6ib")
+region_enabled = true
+region_rect = Rect2(40, 16, 48, 32)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1160446401]
+position = Vector2(0, -24)
+texture = ExtResource("1_2ycb8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1409843619]
+shape = SubResource("CircleShape2D_y8b7r")

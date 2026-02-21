@@ -9,6 +9,10 @@ friction = 0.03
 bounce = 0.85
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_a2pmq"]
+radius = 6.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jgv4d"]
+radius = 6.0
 
 [node name="Loot" type="RigidBody2D" unique_id=159875600]
 collision_layer = 0
@@ -26,3 +30,12 @@ metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=238545048]
 shape = SubResource("CircleShape2D_a2pmq")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=525765688]
+collision_layer = 0
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=90381465]
+shape = SubResource("CircleShape2D_jgv4d")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]

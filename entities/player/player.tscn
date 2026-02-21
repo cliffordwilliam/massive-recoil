@@ -15,7 +15,6 @@
 size = Vector2(8, 24)
 
 [node name="Player" type="CharacterBody2D" unique_id=407663167]
-collision_layer = 0
 collision_mask = 4
 script = ExtResource("1_abrql")
 

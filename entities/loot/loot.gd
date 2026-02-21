@@ -1,9 +1,21 @@
 class_name Loot
 extends RigidBody2D
 
+var type: StringName
 
-func init(type: StringName, pos: Vector2) -> void:
+
+func init(given_type: StringName, pos: Vector2) -> void:
+	type = given_type
 	$AnimatedSprite.play(type)
 	position = pos
-	var angle: float = randf_range(deg_to_rad(-120.0), deg_to_rad(-60.0))
-	linear_velocity = Vector2(cos(angle), sin(angle)) * randf_range(100.0, 250.0)
+	linear_velocity = Vector2.UP.rotated(randf_range(-PI / 4, PI / 4)) * randf_range(100.0, 150.0)
+
+
+func _on_area_2d_body_entered(_body: Node2D) -> void:
+	match type:
+		"money":
+			GameState.money += 1
+		"handgun", "rifle":
+			GameState.weapons[type] = true
+			GameState.equip(type)
+	queue_free()
