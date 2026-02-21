@@ -4,7 +4,7 @@ extends State
 
 func try_grounded_transition(current: String) -> bool:
 	var next: String = ""
-	if Input.is_action_pressed("aim") and owner.arms.sprite_frames != owner.ARMS:
+	if Input.is_action_pressed("aim") and GameState.equipped_weapon != "arms":
 		next = "PlayerAimState"
 	elif not Input.get_axis("left", "right"):
 		next = "PlayerIdleState"
