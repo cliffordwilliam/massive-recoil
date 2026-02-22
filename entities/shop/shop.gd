@@ -5,10 +5,8 @@ extends Area2D
 func _ready() -> void:
 	set_process_unhandled_input(false)
 	var tween: Tween = create_tween().set_loops()
-	tween.tween_property($PulseBackground, "modulate", Color.WHITE, 1.0)
-	tween.tween_property($PulseBackground, "modulate", Color.BLACK, 1.0)
-	create_tween().set_loops(). \
-	tween_method(func(x: float) -> void: $Background.region_rect.position.x = x, 0.0, 128.0, 12.8)
+	tween.tween_property($BlackOverlay, "modulate:a", 0.0, 1.0)
+	tween.tween_property($BlackOverlay, "modulate:a", 1.0, 1.0)
 	body_entered.connect(func(_body: Player) -> void: set_process_unhandled_input(true))
 	body_exited.connect(func(_body: Player) -> void: set_process_unhandled_input(false))
 
