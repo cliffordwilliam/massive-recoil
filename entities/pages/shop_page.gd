@@ -1,8 +1,4 @@
-extends Control
-
-
-func _ready() -> void:
-	$Label.text = "Money: " + str(GameState.money)
+extends Sprite2D
 
 
 func _unhandled_input(_event: InputEvent) -> void:
