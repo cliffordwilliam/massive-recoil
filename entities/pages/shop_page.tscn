@@ -2,8 +2,15 @@
 
 [ext_resource type="Script" uid="uid://b3bwa8s5texb6" path="res://entities/pages/shop_page.gd" id="1_iv7bs"]
 [ext_resource type="Texture2D" uid="uid://rq8lmf03gap8" path="res://assets/textures/ui/buy_page.png" id="1_owu1h"]
+[ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://entities/number_display/number_display.tscn" id="3_2gvrl"]
 
 [node name="ShopPage" type="Sprite2D" unique_id=319899825]
 texture = ExtResource("1_owu1h")
 centered = false
 script = ExtResource("1_iv7bs")
+
+[node name="NumberDisplay" parent="." unique_id=1731197946 instance=ExtResource("3_2gvrl")]
+position = Vector2(295, 14)
+right_aligned = true
+no_pad = true
+digits = 8

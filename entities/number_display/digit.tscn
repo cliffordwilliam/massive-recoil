@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://d0b0oqbpc3v0b"]
+
+[ext_resource type="Texture2D" uid="uid://niv2jm4dc55p" path="res://assets/textures/ui/numbers.png" id="1_hsuoa"]
+
+[node name="Digit" type="Sprite2D" unique_id=2071634848]
+texture = ExtResource("1_hsuoa")
+centered = false
+hframes = 10

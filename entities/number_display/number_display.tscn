@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://db7dgie868s33"]
+
+[ext_resource type="Script" uid="uid://xo8t3pf6rc6o" path="res://entities/number_display/number_display.gd" id="1_gr045"]
+
+[node name="NumberDisplay" type="Node2D" unique_id=1731197946]
+script = ExtResource("1_gr045")

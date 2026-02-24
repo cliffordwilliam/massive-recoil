@@ -1,4 +1,9 @@
+class_name ShopPage
 extends Sprite2D
+
+
+func _ready() -> void:
+	$NumberDisplay.display_number(GameState.money)
 
 
 func _unhandled_input(_event: InputEvent) -> void:
