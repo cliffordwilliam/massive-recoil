@@ -20,10 +20,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("down"):
-		_move(1)
-	elif Input.is_action_just_pressed("up"):
-		_move(-1)
+	if Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
+		_move(int(Input.get_axis("up", "down")))
 	elif Input.is_action_just_pressed("accept"):
 		item_selected.emit(items.get_child(offset + cursor_row).name, offset + cursor_row)
 
@@ -31,25 +29,15 @@ func _unhandled_input(_event: InputEvent) -> void:
 func refresh() -> void:
 	for i in items.get_child_count():
 		var pg_i: int = i - offset
-		var in_window: bool = pg_i >= 0 and pg_i < page_size
-		items.get_child(i).visible = in_window
-		if in_window:
+		items.get_child(i).visible = pg_i >= 0 and pg_i < page_size
+		if pg_i >= 0 and pg_i < page_size:
 			items.get_child(i).position = Vector2(0, pg_i * items.get_child(0).get_rect().size.y)
 	cursor.position = Vector2(0, cursor_row * items.get_child(0).get_rect().size.y)
 
 
 func _move(dir: int) -> void:
-	if cursor_row + dir < 0:
-		if offset > 0:
-			offset -= 1
-			refresh()
-			index_changed.emit(items.get_child(offset + cursor_row).name, offset + cursor_row)
-	elif cursor_row + dir >= min(page_size, items.get_child_count() - offset):
-		if offset + page_size < items.get_child_count():
-			offset += 1
-			refresh()
-			index_changed.emit(items.get_child(offset + cursor_row).name, offset + cursor_row)
-	else:
-		cursor_row += dir
-		cursor.position = Vector2(0, cursor_row * items.get_child(0).get_rect().size.y)
-		index_changed.emit(items.get_child(offset + cursor_row).name, offset + cursor_row)
+	var absolute_index: int = clamp(offset + cursor_row + dir, 0, items.get_child_count() - 1)
+	offset = clamp(absolute_index - cursor_row, 0, max(0, items.get_child_count() - page_size))
+	cursor_row = absolute_index - offset
+	refresh()
+	index_changed.emit(items.get_child(absolute_index).name, absolute_index)
