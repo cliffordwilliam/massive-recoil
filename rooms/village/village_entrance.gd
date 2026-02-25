@@ -7,7 +7,7 @@ func _input(_event: InputEvent) -> void:
 		spawn_loot("money", Vector2(250.0, 120.0))
 
 
-func spawn_loot(type: StringName, pos: Vector2) -> void:
+func spawn_loot(type: String, pos: Vector2) -> void:
 	var loot: Loot = preload("res://entities/loot/loot.tscn").instantiate()
 	loot.init(type, pos)
 	add_child(loot)

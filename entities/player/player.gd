@@ -18,3 +18,8 @@ func _ready() -> void:
 	body.animation_changed.connect(func() -> void: arms.animation = body.animation)
 	body.frame_changed.connect(func() -> void: arms.frame = body.frame)
 	body.flip_h_changed.connect(func() -> void: arms.flip_h = body.flip_h)
+
+
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("inventory"):
+		owner.page_router.open_page(preload("uid://cenchx8ug57g2"))

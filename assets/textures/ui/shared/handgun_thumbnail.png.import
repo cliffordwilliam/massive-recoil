@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rq8lmf03gap8"
-path="res://.godot/imported/buy_page.png-f8bec3c0364020fda7bc627de385111c.ctex"
+uid="uid://8ibmk0y17sbf"
+path="res://.godot/imported/handgun_thumbnail.png-5b7f3c8214b14d325166d5383970cf48.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/ui/buy_page.png"
-dest_files=["res://.godot/imported/buy_page.png-f8bec3c0364020fda7bc627de385111c.ctex"]
+source_file="res://assets/textures/ui/shared/handgun_thumbnail.png"
+dest_files=["res://.godot/imported/handgun_thumbnail.png-5b7f3c8214b14d325166d5383970cf48.ctex"]
 
 [params]
 

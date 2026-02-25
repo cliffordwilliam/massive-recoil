@@ -1,8 +1,8 @@
 class_name ScrollList
 extends Node2D
 
-signal item_selected(id: String, index: int)
-signal index_changed(id: String, index: int)
+signal item_selected(id: String)
+signal index_changed(id: String)
 
 @export var cursor_scene: PackedScene
 @export var page_size: int = 5
@@ -17,16 +17,22 @@ var cursor_row: int = 0
 func _ready() -> void:
 	cursor = cursor_scene.instantiate()
 	$Cursor.add_child(cursor)
+	await owner.ready
+	_move(0)
 
 
 func _unhandled_input(_event: InputEvent) -> void:
+	if not _is_active():
+		return
 	if Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
 		_move(int(Input.get_axis("up", "down")))
 	elif Input.is_action_just_pressed("accept"):
-		item_selected.emit(items.get_child(offset + cursor_row).name, offset + cursor_row)
+		item_selected.emit(items.get_child(offset + cursor_row).name)
 
 
 func refresh() -> void:
+	if not _is_active():
+		return
 	for i in items.get_child_count():
 		var pg_i: int = i - offset
 		items.get_child(i).visible = pg_i >= 0 and pg_i < page_size
@@ -36,8 +42,18 @@ func refresh() -> void:
 
 
 func _move(dir: int) -> void:
+	if not _is_active():
+		return
 	var absolute_index: int = clamp(offset + cursor_row + dir, 0, items.get_child_count() - 1)
 	offset = clamp(absolute_index - cursor_row, 0, max(0, items.get_child_count() - page_size))
 	cursor_row = absolute_index - offset
 	refresh()
-	index_changed.emit(items.get_child(absolute_index).name, absolute_index)
+	index_changed.emit(items.get_child(absolute_index).name)
+
+
+# TODO: Just always have handgun at the very start, so its impossible to be empty, remove this
+func _is_active() -> bool:
+	if not items.get_child_count():
+		cursor.visible = false
+		return false
+	return true

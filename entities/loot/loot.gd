@@ -1,10 +1,10 @@
 class_name Loot
 extends RigidBody2D
 
-var type: StringName
+var type: String
 
 
-func init(given_type: StringName, pos: Vector2) -> void:
+func init(given_type: String, pos: Vector2) -> void:
 	type = given_type
 	$AnimatedSprite.play(type)
 	position = pos

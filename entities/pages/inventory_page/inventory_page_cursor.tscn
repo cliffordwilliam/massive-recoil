@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://ctljgq72m1dac"]
+
+[ext_resource type="Texture2D" uid="uid://cgw00p2lrndo1" path="res://assets/textures/ui/inventory_page/inventory_page_cursor.png" id="1_kywwd"]
+
+[node name="InventoryPageCursor" type="Sprite2D" unique_id=1882060229]
+texture = ExtResource("1_kywwd")
+centered = false

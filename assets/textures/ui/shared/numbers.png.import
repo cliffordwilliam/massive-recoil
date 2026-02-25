@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://coky3pas3k3c8"
-path="res://.godot/imported/buy_page_rifle_list_item.png-95a89ed4358b57100397093ce4c428a2.ctex"
+uid="uid://niv2jm4dc55p"
+path="res://.godot/imported/numbers.png-1b1d517173174b7d5d14800705d7e026.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/ui/buy_page_rifle_list_item.png"
-dest_files=["res://.godot/imported/buy_page_rifle_list_item.png-95a89ed4358b57100397093ce4c428a2.ctex"]
+source_file="res://assets/textures/ui/shared/numbers.png"
+dest_files=["res://.godot/imported/numbers.png-1b1d517173174b7d5d14800705d7e026.ctex"]
 
 [params]
 

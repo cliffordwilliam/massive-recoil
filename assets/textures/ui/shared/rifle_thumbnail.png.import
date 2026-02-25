@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g1gje4e4xiwr"
-path="res://.godot/imported/buy_page_handgun_list_item.png-ae282719f16dcf26952d7c907d4062dd.ctex"
+uid="uid://dj2ky63h5gknm"
+path="res://.godot/imported/rifle_thumbnail.png-d7db8a9c6c5b6c7a34973c5354c5916e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/ui/buy_page_handgun_list_item.png"
-dest_files=["res://.godot/imported/buy_page_handgun_list_item.png-ae282719f16dcf26952d7c907d4062dd.ctex"]
+source_file="res://assets/textures/ui/shared/rifle_thumbnail.png"
+dest_files=["res://.godot/imported/rifle_thumbnail.png-d7db8a9c6c5b6c7a34973c5354c5916e.ctex"]
 
 [params]
 
