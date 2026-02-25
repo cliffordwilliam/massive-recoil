@@ -13,7 +13,7 @@ const AIM_SPEED: float = 2.0
 func _ready() -> void:
 	GameState.weapon_equipped.connect(
 		func() -> void:
-			arms.sprite_frames = GameState.weapon_stats[GameState.equipped_weapon]["sprite_frames"]
+			arms.sprite_frames = GameState.weapons[GameState.equipped_weapon]["player_sprites"]
 	)
 	body.animation_changed.connect(func() -> void: arms.animation = body.animation)
 	body.frame_changed.connect(func() -> void: arms.frame = body.frame)

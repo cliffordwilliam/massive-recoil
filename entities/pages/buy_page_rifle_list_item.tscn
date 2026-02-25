@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c8ix6738cu5kk"]
+
+[ext_resource type="Texture2D" uid="uid://coky3pas3k3c8" path="res://assets/textures/ui/buy_page_rifle_list_item.png" id="1_fnvoh"]
+
+[node name="BuyPageRifleListItem" type="Sprite2D" unique_id=1811125134]
+texture = ExtResource("1_fnvoh")
+centered = false

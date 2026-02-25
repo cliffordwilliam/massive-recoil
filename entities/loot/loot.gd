@@ -16,6 +16,5 @@ func _on_area_2d_body_entered(_body: Node2D) -> void:
 		"money":
 			GameState.money += 1
 		"handgun", "rifle":
-			GameState.weapons[type] = true
 			GameState.equip(type)
 	queue_free()

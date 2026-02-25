@@ -12,5 +12,5 @@ func _ready() -> void:
 
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("ui_accept"):
+	if Input.is_action_just_pressed("accept"):
 		get_tree().current_scene.page_router.open_page(preload("uid://euoup28876nb"))
