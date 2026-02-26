@@ -75,7 +75,7 @@ func get_weapons() -> Array:
 
 func get_weapons_buy_page_list_item_instances() -> Array:
 	return get_weapons().map(
-		func(d: Dictionary) -> Sprite2D:
+		func(d: Dictionary) -> BuyPageListItem:
 			return d.w.buy_page_list_item_scene \
 			.instantiate().zet_name(d.i).set_tag(not d.w.was_bought, d.w.is_owned)
 	)
@@ -83,7 +83,7 @@ func get_weapons_buy_page_list_item_instances() -> Array:
 
 func get_weapons_inv_page_list_item_instances() -> Array:
 	return get_owned_weapons().map(
-		func(d: Dictionary) -> Sprite2D:
+		func(d: Dictionary) -> InventoryPageListItem:
 			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i)
 	)
 
