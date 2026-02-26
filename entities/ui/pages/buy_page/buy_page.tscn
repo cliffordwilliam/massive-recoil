@@ -17,7 +17,7 @@ right_aligned = true
 no_pad = true
 digits = 8
 
-[node name="Thumbnail" type="Sprite2D" parent="." unique_id=141714602]
+[node name="Icon" type="Sprite2D" parent="." unique_id=141714602]
 position = Vector2(9, 32)
 centered = false
 

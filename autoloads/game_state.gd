@@ -16,7 +16,7 @@ var weapons: Dictionary[StringName, Dictionary] = {
 	},
 	"handgun": {
 		"arms_sprite": preload("uid://c6ackeixi1emi"),
-		"thumbnail_sprite": preload("uid://8ibmk0y17sbf"),
+		"icon_sprite": preload("uid://8ibmk0y17sbf"),
 		"buy_page_list_item_scene": preload("uid://c80k1dw0o4xun"),
 		"inv_page_list_item_scene": preload("uid://cln5lsvnj1a8x"),
 		"is_owned": true,
@@ -25,7 +25,7 @@ var weapons: Dictionary[StringName, Dictionary] = {
 	},
 	"rifle": {
 		"arms_sprite": preload("uid://bd23x5s463v8v"),
-		"thumbnail_sprite": preload("uid://dj2ky63h5gknm"),
+		"icon_sprite": preload("uid://dj2ky63h5gknm"),
 		"buy_page_list_item_scene": preload("uid://dwrd7ddvl26x3"),
 		"inv_page_list_item_scene": preload("uid://dnb2k8vk62fni"),
 		"is_owned": false,
@@ -36,6 +36,14 @@ var weapons: Dictionary[StringName, Dictionary] = {
 
 
 # Service/repo layer
+func get_weapon_by_id(id: StringName) -> Dictionary:
+	return weapons[id]
+
+
+func get_all_money() -> int:
+	return money
+
+
 func add_money() -> void:
 	GameState.money += 1
 

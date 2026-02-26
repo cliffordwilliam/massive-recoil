@@ -1,3 +1,4 @@
+# TODO: Make this handle empty list
 class_name ScrollList
 extends Node2D
 
