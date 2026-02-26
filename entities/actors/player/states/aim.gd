@@ -14,9 +14,7 @@ func enter(_prev_state: StringName) -> void:
 	aim_angle = 0.0
 
 
-# TODO: Dedicate arms to throwable weapons, so need to make aim slingshot animation for it!
 func process_physics(delta: float) -> void:
-	if (not Input.is_action_pressed("aim") or GameState.equipped_weapon_id == "arms") \
-	and try_grounded_transition("PlayerAimState"):
+	if not Input.is_action_pressed("aim") and try_grounded_transition("PlayerAimState"):
 		return
 	aim_angle = aim_angle + Input.get_axis("up", "down") * owner.AIM_SPEED * delta

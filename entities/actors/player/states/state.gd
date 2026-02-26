@@ -4,8 +4,7 @@ extends State
 
 func try_grounded_transition(current: String) -> bool:
 	var next: String = ""
-	# TODO: Dedicate arms to throwable weapons, so need to make aim slingshot animation for it!
-	if Input.is_action_pressed("aim") and GameState.equipped_weapon_id != "arms":
+	if Input.is_action_pressed("aim"):
 		next = "PlayerAimState"
 	elif not Input.get_axis("left", "right"):
 		next = "PlayerIdleState"

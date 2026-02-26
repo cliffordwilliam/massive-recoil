@@ -11,9 +11,6 @@ var money: int = 10
 var equipped_weapon_id: StringName = "handgun"
 # Weapons
 var weapons: Dictionary[StringName, Dictionary] = {
-	"arms": {
-		"arms_sprite": preload("uid://bwtavvs3i1wy2"),
-	},
 	"handgun": {
 		"arms_sprite": preload("uid://c6ackeixi1emi"),
 		"icon_sprite": preload("uid://8ibmk0y17sbf"),
@@ -22,6 +19,9 @@ var weapons: Dictionary[StringName, Dictionary] = {
 		"is_owned": true,
 		"was_bought": true,
 		"price": 5,
+		"magazine_size": 10,
+		"magazine_current": 10,
+		"reserve_ammo": 20,
 	},
 	"rifle": {
 		"arms_sprite": preload("uid://bd23x5s463v8v"),
@@ -31,6 +31,9 @@ var weapons: Dictionary[StringName, Dictionary] = {
 		"is_owned": false,
 		"was_bought": false,
 		"price": 10,
+		"magazine_size": 30,
+		"magazine_current": 30,
+		"reserve_ammo": 30,
 	},
 }
 
@@ -65,14 +68,14 @@ func get_equipped_weapon() -> Dictionary:
 
 
 func get_weapons() -> Array:
-	return weapons.keys().filter(func(id: StringName) -> bool: return id != "arms").map(
+	return weapons.keys().map(
 		func(id: StringName) -> Dictionary: return { "i": id, "w": weapons[id] }
 	)
 
 
 func get_weapons_buy_page_list_item_instances() -> Array:
 	return get_weapons().map(
-		func(d: Dictionary) -> BuyPageListItem:
+		func(d: Dictionary) -> Sprite2D:
 			return d.w.buy_page_list_item_scene \
 			.instantiate().zet_name(d.i).set_tag(not d.w.was_bought, d.w.is_owned)
 	)
@@ -80,7 +83,7 @@ func get_weapons_buy_page_list_item_instances() -> Array:
 
 func get_weapons_inv_page_list_item_instances() -> Array:
 	return get_owned_weapons().map(
-		func(d: Dictionary) -> InventoryPageListItem:
+		func(d: Dictionary) -> Sprite2D:
 			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i)
 	)
 
