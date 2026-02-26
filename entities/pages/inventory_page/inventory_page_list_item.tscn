@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://b2e671142m82j"]
-
-[ext_resource type="Script" uid="uid://ckfs6ydrgqnih" path="res://entities/pages/inventory_page/inventory_page_list_item.gd" id="1_n7511"]
-
-[node name="InventoryPageListItem" type="Sprite2D" unique_id=1433133373]
-centered = false
-script = ExtResource("1_n7511")

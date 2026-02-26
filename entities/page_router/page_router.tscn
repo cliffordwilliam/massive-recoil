@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://b4s6l0e5om1e6"]
-
-[ext_resource type="Script" uid="uid://d00jmugb2068d" path="res://entities/page_router/page_router.gd" id="1_wpstq"]
-
-[node name="PageRouter" type="CanvasLayer" unique_id=1385969563]
-process_mode = 3
-script = ExtResource("1_wpstq")

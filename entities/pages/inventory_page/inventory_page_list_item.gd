@@ -1,2 +1,0 @@
-class_name InventoryPageListItem
-extends Sprite2D

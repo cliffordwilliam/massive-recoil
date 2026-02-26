@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://1ajdrqx8b0uo"]
 
 [ext_resource type="Script" uid="uid://bkori2t7dmgvd" path="res://rooms/room.gd" id="1_pmtbo"]
-[ext_resource type="PackedScene" uid="uid://b4s6l0e5om1e6" path="res://entities/page_router/page_router.tscn" id="2_ya37f"]
+[ext_resource type="PackedScene" uid="uid://b4s6l0e5om1e6" path="res://entities/ui/page_router/page_router.tscn" id="2_ya37f"]
 
 [node name="Room" type="Node" unique_id=1331696587]
 script = ExtResource("1_pmtbo")

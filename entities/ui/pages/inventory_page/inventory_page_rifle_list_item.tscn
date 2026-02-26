@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dnb2k8vk62fni"]
+
+[ext_resource type="PackedScene" uid="uid://b2e671142m82j" path="res://entities/ui/pages/inventory_page/inventory_page_list_item.tscn" id="1_a717a"]
+[ext_resource type="Texture2D" uid="uid://dh2haicbosdlk" path="res://assets/textures/ui/inventory_page/inventory_page_rifle_list_item.png" id="2_ie1wd"]
+
+[node name="InventoryPageListItem" unique_id=1433133373 instance=ExtResource("1_a717a")]
+texture = ExtResource("2_ie1wd")

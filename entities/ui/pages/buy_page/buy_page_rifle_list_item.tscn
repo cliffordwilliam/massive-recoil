@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dwrd7ddvl26x3"]
+
+[ext_resource type="PackedScene" uid="uid://bg3w5s0syb7ms" path="res://entities/ui/pages/buy_page/buy_page_list_item.tscn" id="1_3xyev"]
+[ext_resource type="Texture2D" uid="uid://coky3pas3k3c8" path="res://assets/textures/ui/buy_page/buy_page_rifle_list_item.png" id="2_ack7x"]
+
+[node name="BuyPageListItem" unique_id=758071222 instance=ExtResource("1_3xyev")]
+texture = ExtResource("2_ack7x")

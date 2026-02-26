@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://bg3w5s0syb7ms"]
+
+[ext_resource type="Script" uid="uid://5s5e5yn4fwc3" path="res://entities/ui/pages/buy_page/buy_page_list_item.gd" id="2_78l45"]
+[ext_resource type="Texture2D" uid="uid://c7ehe60fxnep5" path="res://assets/textures/ui/buy_page/buy_page_new_tag.png" id="3_jqt1s"]
+[ext_resource type="Texture2D" uid="uid://c048feobhlfxf" path="res://assets/textures/ui/buy_page/buy_page_out_tag.png" id="4_mffqb"]
+
+[node name="BuyPageListItem" type="Sprite2D" unique_id=758071222]
+centered = false
+script = ExtResource("2_78l45")
+
+[node name="NewTag" type="Sprite2D" parent="." unique_id=800031008]
+position = Vector2(177, 4)
+texture = ExtResource("3_jqt1s")
+centered = false
+
+[node name="OutTag" type="Sprite2D" parent="." unique_id=2103903723]
+position = Vector2(177, 4)
+texture = ExtResource("4_mffqb")
+centered = false
