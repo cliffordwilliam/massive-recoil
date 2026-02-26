@@ -21,7 +21,7 @@ script = ExtResource("1_abrql")
 [node name="Body" type="AnimatedSprite2D" parent="." unique_id=1265583741]
 position = Vector2(0, -21)
 sprite_frames = ExtResource("2_qiwj3")
-animation = &"down"
+animation = &"idle"
 script = ExtResource("3_sglur")
 trans = Dictionary[StringName, StringName]({
 &"crouch_to_idle": &"idle",

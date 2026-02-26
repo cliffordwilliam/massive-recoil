@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://d0b0oqbpc3v0b"]
 
 [ext_resource type="Texture2D" uid="uid://niv2jm4dc55p" path="res://assets/textures/ui/shared/numbers.png" id="1_hsuoa"]
+[ext_resource type="Script" uid="uid://op1qacmpymy2" path="res://entities/ui/number_display/digit.gd" id="2_dyunc"]
 
 [node name="Digit" type="Sprite2D" unique_id=2071634848]
 texture = ExtResource("1_hsuoa")
 centered = false
 hframes = 10
+script = ExtResource("2_dyunc")

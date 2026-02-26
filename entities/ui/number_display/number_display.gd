@@ -9,8 +9,7 @@ extends Node2D
 func _ready() -> void:
 	for i in digits:
 		var d: Sprite2D = preload("uid://d0b0oqbpc3v0b").instantiate()
-		d.position.x = ((i - digits) if right_aligned else i) * d.get_rect().size.x
-		add_child(d)
+		add_child(d.set_pos(((i - digits) if right_aligned else i) * d.get_rect().size.x))
 
 
 func display_number(n: int) -> void:
