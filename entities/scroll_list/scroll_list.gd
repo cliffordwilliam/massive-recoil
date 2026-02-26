@@ -22,8 +22,6 @@ func _ready() -> void:
 
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if not _is_active():
-		return
 	if Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
 		_move(int(Input.get_axis("up", "down")))
 	elif Input.is_action_just_pressed("accept"):
@@ -31,8 +29,6 @@ func _unhandled_input(_event: InputEvent) -> void:
 
 
 func refresh() -> void:
-	if not _is_active():
-		return
 	for i in items.get_child_count():
 		var pg_i: int = i - offset
 		items.get_child(i).visible = pg_i >= 0 and pg_i < page_size
@@ -42,18 +38,8 @@ func refresh() -> void:
 
 
 func _move(dir: int) -> void:
-	if not _is_active():
-		return
 	var absolute_index: int = clamp(offset + cursor_row + dir, 0, items.get_child_count() - 1)
 	offset = clamp(absolute_index - cursor_row, 0, max(0, items.get_child_count() - page_size))
 	cursor_row = absolute_index - offset
 	refresh()
 	index_changed.emit(items.get_child(absolute_index).name)
-
-
-# TODO: Just always have handgun at the very start, so its impossible to be empty, remove this
-func _is_active() -> bool:
-	if not items.get_child_count():
-		cursor.visible = false
-		return false
-	return true

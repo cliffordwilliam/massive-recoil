@@ -16,8 +16,8 @@ var weapons: Dictionary[StringName, Dictionary] = {
 		"thumbnail_sprite": preload("uid://8ibmk0y17sbf"),
 		"buy_page_list_item_scene": preload("uid://c80k1dw0o4xun"),
 		"inv_page_list_item_scene": preload("uid://cln5lsvnj1a8x"),
-		"is_owned": false,
-		"was_bought": false,
+		"is_owned": true,
+		"was_bought": true,
 		"price": 5,
 	},
 	"rifle": {
