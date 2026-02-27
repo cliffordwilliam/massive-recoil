@@ -1,3 +1,4 @@
 # massive-recoil
 
-find . -name "*.gd" -not -path "./addons/*" | xargs ~/.cache/godot/gdquest/gdscript-formatter --reorder-code
+- [ ] Give initial ammo, break box, get money, buy rifle
+- [ ] Cannot drop item, so use unarm when holding throwables items like eggs

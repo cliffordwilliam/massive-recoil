@@ -7,7 +7,7 @@ signal weapon_bought
 
 # DB tables
 # Player
-var money: int = 10
+var money: int = 15
 var equipped_weapon_id: StringName = "handgun"
 # Weapons
 var weapons: Dictionary[StringName, Dictionary] = {
@@ -39,8 +39,8 @@ var weapons: Dictionary[StringName, Dictionary] = {
 
 
 # Service/repo layer
-func get_weapon_by_id(id: StringName) -> Dictionary:
-	return weapons[id]
+func get_weapon_icon_by_id(id: StringName) -> Resource:
+	return weapons[id].icon_sprite
 
 
 func get_all_money() -> int:
@@ -63,8 +63,8 @@ func buy_weapon(id: StringName) -> void:
 		weapon_bought.emit()
 
 
-func get_equipped_weapon() -> Dictionary:
-	return weapons[equipped_weapon_id]
+func get_equipped_arm() -> Resource:
+	return weapons[equipped_weapon_id].arms_sprite
 
 
 func get_weapons() -> Array:

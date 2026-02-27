@@ -2,6 +2,7 @@ class_name Digit
 extends Sprite2D
 
 
-func set_pos(position_x: float) -> Digit:
-	position.x = position_x
+func init(i: int) -> Digit:
+	position.x = i * get_rect().size.x
+	name = StringName(str(abs(i)))
 	return self

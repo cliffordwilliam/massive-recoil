@@ -12,9 +12,8 @@ centered = false
 script = ExtResource("2_hc1hj")
 
 [node name="Money" parent="." unique_id=1731197946 instance=ExtResource("3_lkrp7")]
-position = Vector2(295, 14)
-right_aligned = true
-no_pad = true
+position = Vector2(289, 14)
+left = true
 digits = 8
 
 [node name="Icon" type="Sprite2D" parent="." unique_id=141714602]

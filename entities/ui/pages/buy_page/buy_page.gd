@@ -3,9 +3,8 @@ extends Sprite2D
 
 
 func _ready() -> void:
-	$ScrollList.index_changed.connect(
-		func(id: StringName) -> void: $Icon.texture = GameState.get_weapon_by_id(id).icon_sprite
-	)
+	$ScrollList.index_changed. \
+	connect(func(id: StringName) -> void: $Icon.texture = GameState.get_weapon_icon_by_id(id))
 	$ScrollList.item_selected.connect(func(id: StringName) -> void: GameState.buy_weapon(id))
 	GameState.weapon_bought.connect(func() -> void: _fetch_data())
 	_fetch_data()

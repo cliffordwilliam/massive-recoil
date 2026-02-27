@@ -6,6 +6,7 @@
 [ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://entities/actors/player/states/idle.gd" id="5_8fjmc"]
+[ext_resource type="Script" uid="uid://baycomm7n0mxa" path="res://entities/actors/player/arms.gd" id="5_pinno"]
 [ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://entities/actors/player/states/run.gd" id="6_8fjmc"]
 [ext_resource type="Script" uid="uid://bg1tuev4y2oo" path="res://entities/actors/player/states/turn.gd" id="9_bectd"]
 [ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/actors/player/states/walk.gd" id="10_a1qjk"]
@@ -37,7 +38,7 @@ metadata/_custom_type_script = "uid://skmpd278tn72"
 sprite_frames = ExtResource("4_7thud")
 animation = &"idle"
 speed_scale = 0.0
-script = ExtResource("3_sglur")
+script = ExtResource("5_pinno")
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="AimPivot" type="Node2D" parent="." unique_id=81915276]
