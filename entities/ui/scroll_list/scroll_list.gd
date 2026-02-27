@@ -1,4 +1,3 @@
-# TODO: Make this handle empty list, just queue free if it has no items...
 class_name ScrollList
 extends Node2D
 
@@ -32,7 +31,16 @@ func _unhandled_input(_event: InputEvent) -> void:
 func set_items(new_items: Array) -> void:
 	$Items.get_children().map(func(i: Sprite2D) -> void: i.free())
 	new_items.map(func(i: Sprite2D) -> void: $Items.add_child(i))
-	_move()
+	_set_enabled(new_items.size() > 0)
+	if new_items.size() > 0:
+		offset = min(offset, max(0, new_items.size() - page_size))
+		cursor_row = min(cursor_row, max(0, new_items.size() - 1))
+		_move()
+
+
+func _set_enabled(enabled: bool) -> void:
+	process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
+	visible = enabled
 
 
 func _move() -> void:

@@ -15,6 +15,6 @@ func enter(_prev_state: StringName) -> void:
 
 
 func process_physics(delta: float) -> void:
-	if not Input.is_action_pressed("aim") and try_grounded_transition("PlayerAimState"):
+	if false if Input.is_action_just_pressed("aim") else try_grounded_transition("PlayerAimState"):
 		return
 	aim_angle = aim_angle + Input.get_axis("up", "down") * owner.AIM_SPEED * delta

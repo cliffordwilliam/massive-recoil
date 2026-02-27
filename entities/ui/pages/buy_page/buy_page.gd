@@ -13,4 +13,4 @@ func _ready() -> void:
 
 func _fetch_data() -> void:
 	$Money.display_number(GameState.get_all_money())
-	$ScrollList.set_items(GameState.get_weapons_buy_page_list_item_instances())
+	$ScrollList.set_items(GameState.get_all_weapons_buy_list_item_instances())

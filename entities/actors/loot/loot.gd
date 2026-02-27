@@ -1,11 +1,8 @@
 class_name Loot
 extends RigidBody2D
 
-var id: StringName
 
-
-func init(given_id: StringName, pos: Vector2) -> Loot:
-	id = given_id
+func init(id: StringName, pos: Vector2) -> Loot:
 	$AnimatedSprite.play(id)
 	position = pos
 	linear_velocity = Vector2.UP.rotated(randf_range(-PI / 4, PI / 4)) * randf_range(100.0, 150.0)
@@ -13,9 +10,9 @@ func init(given_id: StringName, pos: Vector2) -> Loot:
 
 
 func _on_area_2d_body_entered(_player: Node2D) -> void:
-	match id:
+	match $AnimatedSprite.animation:
 		"money":
 			GameState.add_money()
 		"handgun", "rifle":
-			GameState.pick_up_weapon(id)
+			GameState.pick_up_weapon($AnimatedSprite.animation)
 	queue_free()

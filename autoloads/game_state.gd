@@ -73,7 +73,7 @@ func get_weapons() -> Array:
 	)
 
 
-func get_weapons_buy_page_list_item_instances() -> Array:
+func get_all_weapons_buy_list_item_instances() -> Array:
 	return get_weapons().map(
 		func(d: Dictionary) -> BuyPageListItem:
 			return d.w.buy_page_list_item_scene \
@@ -81,7 +81,7 @@ func get_weapons_buy_page_list_item_instances() -> Array:
 	)
 
 
-func get_weapons_inv_page_list_item_instances() -> Array:
+func get_owned_weapons_inv_list_item_instances() -> Array:
 	return get_owned_weapons().map(
 		func(d: Dictionary) -> InventoryPageListItem:
 			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i)
