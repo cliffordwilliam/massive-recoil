@@ -8,8 +8,7 @@ extends Node2D
 
 func _ready() -> void:
 	for i in range(digits):
-		var index: int = -i if left else i
-		add_child(preload("uid://d0b0oqbpc3v0b").instantiate().init(index))
+		add_child(preload("uid://d0b0oqbpc3v0b").instantiate().init(-i if left else i))
 
 
 func display_number(n: int) -> void:
