@@ -1,7 +1,13 @@
 [gd_scene format=3 uid="uid://b2e671142m82j"]
 
 [ext_resource type="Script" uid="uid://ckfs6ydrgqnih" path="res://entities/ui/pages/inventory_page/inventory_page_list_item.gd" id="1_n7511"]
+[ext_resource type="Texture2D" uid="uid://bhae2hyew5qnq" path="res://assets/textures/ui/inventory_page/inventory_page_equipped_tag.png" id="2_dyfv4"]
 
 [node name="InventoryPageListItem" type="Sprite2D" unique_id=1433133373]
 centered = false
 script = ExtResource("1_n7511")
+
+[node name="EquippedTag" type="Sprite2D" parent="." unique_id=914384922]
+position = Vector2(185, 4)
+texture = ExtResource("2_dyfv4")
+centered = false

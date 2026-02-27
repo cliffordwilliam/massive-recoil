@@ -29,8 +29,11 @@ func _unhandled_input(_event: InputEvent) -> void:
 
 
 func set_items(new_items: Array) -> void:
-	$Items.get_children().map(func(i: Sprite2D) -> void: i.free())
-	new_items.map(func(i: Sprite2D) -> void: $Items.add_child(i))
+	for old_item in $Items.get_children():
+		$Items.remove_child(old_item)
+		old_item.queue_free()
+	for new_item: Sprite2D in new_items:
+		$Items.add_child(new_item)
 	_set_enabled(new_items.size() > 0)
 	if new_items.size() > 0:
 		offset = min(offset, max(0, new_items.size() - page_size))

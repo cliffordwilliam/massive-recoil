@@ -15,5 +15,5 @@ func try_grounded_transition(current: String) -> bool:
 	else:
 		next = "PlayerWalkState"
 	if next != current:
-		get_parent().transition_to(next)
+		get_parent().transition_to(next, current)
 	return next != current

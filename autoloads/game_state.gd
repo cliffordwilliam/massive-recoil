@@ -2,7 +2,7 @@
 extends Node
 
 # Events
-signal weapon_equipped
+signal weapon_equipped(equipped_arm: Resource)
 signal weapon_bought
 
 # DB tables
@@ -67,33 +67,34 @@ func get_equipped_arm() -> Resource:
 	return weapons[equipped_weapon_id].arms_sprite
 
 
-func get_weapons() -> Array:
+func get_all_weapons() -> Array:
 	return weapons.keys().map(
 		func(id: StringName) -> Dictionary: return { "i": id, "w": weapons[id] }
 	)
 
 
 func get_all_weapons_buy_list_item_instances() -> Array:
-	return get_weapons().map(
+	return get_all_weapons().map(
 		func(d: Dictionary) -> BuyPageListItem:
 			return d.w.buy_page_list_item_scene \
-			.instantiate().zet_name(d.i).set_tag(not d.w.was_bought, d.w.is_owned)
+			.instantiate().zet_name(d.i).show_tags(not d.w.was_bought, d.w.is_owned)
 	)
 
 
 func get_owned_weapons_inv_list_item_instances() -> Array:
 	return get_owned_weapons().map(
 		func(d: Dictionary) -> InventoryPageListItem:
-			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i)
+			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i). \
+			show_equipped_tag(equipped_weapon_id == d.i)
 	)
 
 
 func get_owned_weapons() -> Array:
-	return get_weapons().filter(
+	return get_all_weapons().filter(
 		func(d: Dictionary) -> bool: return d.w.is_owned
 	)
 
 
 func equip_weapon(weapon_id: StringName) -> void:
 	equipped_weapon_id = weapon_id
-	weapon_equipped.emit()
+	weapon_equipped.emit(get_equipped_arm())

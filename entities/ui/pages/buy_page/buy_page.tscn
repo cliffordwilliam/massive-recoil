@@ -12,9 +12,9 @@ centered = false
 script = ExtResource("2_hc1hj")
 
 [node name="Money" parent="." unique_id=1731197946 instance=ExtResource("3_lkrp7")]
-position = Vector2(289, 14)
-left = true
-digits = 8
+position = Vector2(294, 14)
+rtl = true
+nums = 8
 
 [node name="Icon" type="Sprite2D" parent="." unique_id=141714602]
 position = Vector2(9, 32)

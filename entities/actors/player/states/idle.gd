@@ -2,7 +2,7 @@ class_name PlayerIdleState
 extends PlayerState
 
 
-func enter(prev_state: StringName) -> void:
+func enter(prev_state: String) -> void:
 	owner.body.play("stop" if prev_state == "PlayerRunState" else "idle")
 	owner.velocity.x = 0.0
 
