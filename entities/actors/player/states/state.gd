@@ -6,6 +6,8 @@ func try_grounded_transition(current: String) -> bool:
 	var next: String = ""
 	if Input.is_action_pressed("aim"):
 		next = "PlayerAimState"
+	elif Input.is_action_pressed("down"):
+		next = "PlayerWalkBackState"
 	elif not Input.get_axis("left", "right"):
 		next = "PlayerIdleState"
 	elif (Input.get_axis("left", "right") > 0) != not owner.body.flip_h:

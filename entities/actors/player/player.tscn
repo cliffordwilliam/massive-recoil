@@ -13,13 +13,14 @@
 [ext_resource type="Script" uid="uid://bg1tuev4y2oo" path="res://entities/actors/player/states/turn.gd" id="9_bectd"]
 [ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/actors/player/states/walk.gd" id="10_a1qjk"]
 [ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://entities/actors/player/states/aim.gd" id="12_a1qjk"]
+[ext_resource type="Script" uid="uid://coluh5v8a85h5" path="res://entities/actors/player/states/walk_back.gd" id="14_6jj1q"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_m436c"]
 blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_m436c"]
-offsets = PackedFloat32Array(0.2, 0.7)
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+offsets = PackedFloat32Array(0, 0.8)
+colors = PackedColorArray(1, 1, 1, 0.49803922, 0, 0, 0, 0)
 metadata/_snap_enabled = true
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_6jj1q"]
@@ -69,10 +70,10 @@ script = ExtResource("6_ps3iq")
 [node name="Line" type="Line2D" parent="Ray" unique_id=1958935439]
 points = PackedVector2Array(19, 0, 400, 0)
 width = 1.0
-default_color = Color(1, 0, 0, 0.12156863)
+default_color = Color(1, 0, 0, 0.5019608)
 
 [node name="Dot" type="Sprite2D" parent="Ray" unique_id=1255671485]
-modulate = Color(1, 1, 1, 0.12156863)
+modulate = Color(1, 1, 1, 0.5019608)
 texture = ExtResource("7_m436c")
 
 [node name="Light" type="Sprite2D" parent="Ray" unique_id=2140541421]
@@ -106,3 +107,7 @@ metadata/_custom_type_script = "uid://bg1tuev4y2oo"
 [node name="PlayerAimState" type="Node" parent="StateMachine" unique_id=1594313035]
 script = ExtResource("12_a1qjk")
 metadata/_custom_type_script = "uid://bqm28nciccrdb"
+
+[node name="PlayerWalkBackState" type="Node" parent="StateMachine" unique_id=60641086]
+script = ExtResource("14_6jj1q")
+metadata/_custom_type_script = "uid://coluh5v8a85h5"
