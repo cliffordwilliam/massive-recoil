@@ -1,4 +1,4 @@
-# GameState autoload, BE
+# GameState
 extends Node
 
 # Events

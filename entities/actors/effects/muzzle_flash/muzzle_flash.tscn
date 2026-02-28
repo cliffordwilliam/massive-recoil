@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dhv0cshyajm8r"]
+
+[ext_resource type="SpriteFrames" uid="uid://p7iyra6as41f" path="res://assets/sprites/muzzle_flash.tres" id="1_i173v"]
+[ext_resource type="Script" uid="uid://cfi68wmsgfore" path="res://entities/actors/effects/muzzle_flash/muzzle_flash.gd" id="2_17sld"]
+
+[node name="MuzzleFlash" type="AnimatedSprite2D" unique_id=1096962358]
+sprite_frames = ExtResource("1_i173v")
+animation = &"flash"
+autoplay = "flash"
+offset = Vector2(16, 0)
+script = ExtResource("2_17sld")

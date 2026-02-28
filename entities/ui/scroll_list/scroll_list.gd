@@ -18,14 +18,14 @@ func _ready() -> void:
 
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
-		var dir: int = -1 if Input.is_action_just_pressed("up") else 1
+	if Input.is_action_just_pressed("accept"):
+		item_selected.emit($Items.get_child(offset + cursor_row).name)
+	else:
+		var dir: int = int(Input.get_axis("up", "down"))
 		var abs_i: int = clamp(offset + cursor_row + dir, 0, $Items.get_child_count() - 1)
 		offset = clamp(abs_i - cursor_row, 0, max(0, $Items.get_child_count() - page_size))
 		cursor_row = abs_i - offset
 		_move()
-	elif Input.is_action_just_pressed("accept"):
-		item_selected.emit($Items.get_child(offset + cursor_row).name)
 
 
 func set_items(new_items: Array) -> void:

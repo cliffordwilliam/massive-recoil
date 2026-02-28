@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bwhu4xdomjxnx"]
+
+[ext_resource type="Script" uid="uid://dpfr3tn6h58eg" path="res://entities/actors/effects/bullet_trail/bullet_trail.gd" id="1_5d6nu"]
+
+[node name="BulletTrail" type="Line2D" unique_id=433119364]
+width = 1.0
+script = ExtResource("1_5d6nu")

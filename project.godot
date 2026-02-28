@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameState="*uid://c6vik37ew87ql"
+Spawner="*uid://dk2cbs57rw5ih"
 
 [debug]
 

@@ -14,6 +14,21 @@
 [ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/actors/player/states/walk.gd" id="10_a1qjk"]
 [ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://entities/actors/player/states/aim.gd" id="12_a1qjk"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_m436c"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_m436c"]
+offsets = PackedFloat32Array(0.2, 0.7)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+metadata/_snap_enabled = true
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6jj1q"]
+gradient = SubResource("Gradient_m436c")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+metadata/_snap_enabled = true
+metadata/_snap_count = 6
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_symyc"]
 size = Vector2(8, 24)
 
@@ -44,23 +59,25 @@ script = ExtResource("5_pinno")
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="Ray" type="RayCast2D" parent="." unique_id=2096537396]
-modulate = Color(1, 1, 1, 0.7490196)
+visible = false
 position = Vector2(0, -27)
-target_position = Vector2(0, 400)
+target_position = Vector2(400, 0)
 collision_mask = 12
 collide_with_areas = true
 script = ExtResource("6_ps3iq")
 
 [node name="Line" type="Line2D" parent="Ray" unique_id=1958935439]
-visible = false
-points = PackedVector2Array(0, 19, 0, 400)
+points = PackedVector2Array(19, 0, 400, 0)
 width = 1.0
-default_color = Color(1, 0, 0, 1)
+default_color = Color(1, 0, 0, 0.12156863)
 
 [node name="Dot" type="Sprite2D" parent="Ray" unique_id=1255671485]
-visible = false
-position = Vector2(0, 400)
+modulate = Color(1, 1, 1, 0.12156863)
 texture = ExtResource("7_m436c")
+
+[node name="Light" type="Sprite2D" parent="Ray" unique_id=2140541421]
+material = SubResource("CanvasItemMaterial_m436c")
+texture = SubResource("GradientTexture2D_6jj1q")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1611707814]
 position = Vector2(0, -12)
