@@ -8,6 +8,8 @@
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://entities/actors/player/states/idle.gd" id="5_8fjmc"]
 [ext_resource type="Script" uid="uid://baycomm7n0mxa" path="res://entities/actors/player/arms.gd" id="5_pinno"]
 [ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://entities/actors/player/states/run.gd" id="6_8fjmc"]
+[ext_resource type="Script" uid="uid://buramfqmgod7u" path="res://entities/actors/player/ray.gd" id="6_ps3iq"]
+[ext_resource type="Texture2D" uid="uid://be4x2n5epitgo" path="res://assets/textures/props/red_dot.png" id="7_m436c"]
 [ext_resource type="Script" uid="uid://bg1tuev4y2oo" path="res://entities/actors/player/states/turn.gd" id="9_bectd"]
 [ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/actors/player/states/walk.gd" id="10_a1qjk"]
 [ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://entities/actors/player/states/aim.gd" id="12_a1qjk"]
@@ -41,8 +43,24 @@ speed_scale = 0.0
 script = ExtResource("5_pinno")
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
-[node name="AimPivot" type="Node2D" parent="." unique_id=81915276]
+[node name="Ray" type="RayCast2D" parent="." unique_id=2096537396]
+modulate = Color(1, 1, 1, 0.7490196)
 position = Vector2(0, -27)
+target_position = Vector2(0, 400)
+collision_mask = 12
+collide_with_areas = true
+script = ExtResource("6_ps3iq")
+
+[node name="Line" type="Line2D" parent="Ray" unique_id=1958935439]
+visible = false
+points = PackedVector2Array(0, 19, 0, 400)
+width = 1.0
+default_color = Color(1, 0, 0, 1)
+
+[node name="Dot" type="Sprite2D" parent="Ray" unique_id=1255671485]
+visible = false
+position = Vector2(0, 400)
+texture = ExtResource("7_m436c")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1611707814]
 position = Vector2(0, -12)

@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bkmh2piygd2wa"]
+
+[ext_resource type="Script" uid="uid://dx1e1wdlf1yii" path="res://entities/actors/wooden_crate/wooden_crate.gd" id="1_ptb46"]
+[ext_resource type="Texture2D" uid="uid://dkek4lgxo8q5i" path="res://assets/textures/props/wooden_crate.png" id="1_qgcgl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ptb46"]
+size = Vector2(16, 16)
+
+[node name="WoodenCrate" type="Area2D" unique_id=1277301013]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_ptb46")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1254736618]
+position = Vector2(8, -8)
+texture = ExtResource("1_qgcgl")
+hframes = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2095967918]
+position = Vector2(8, -8)
+shape = SubResource("RectangleShape2D_ptb46")

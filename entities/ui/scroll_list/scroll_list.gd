@@ -19,7 +19,7 @@ func _ready() -> void:
 
 func _unhandled_input(_event: InputEvent) -> void:
 	if Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
-		var dir: int = int(Input.get_axis("up", "down"))
+		var dir: int = -1 if Input.is_action_just_pressed("up") else 1
 		var abs_i: int = clamp(offset + cursor_row + dir, 0, $Items.get_child_count() - 1)
 		offset = clamp(abs_i - cursor_row, 0, max(0, $Items.get_child_count() - page_size))
 		cursor_row = abs_i - offset
@@ -36,8 +36,8 @@ func set_items(new_items: Array) -> void:
 		$Items.add_child(new_item)
 	_set_enabled(new_items.size() > 0)
 	if new_items.size() > 0:
-		offset = min(offset, max(0, new_items.size() - page_size))
-		cursor_row = min(cursor_row, max(0, new_items.size() - 1))
+		offset = clamp(offset, 0, max(0, new_items.size() - page_size))
+		cursor_row = clamp(cursor_row, 0, min(new_items.size(), page_size) - 1)
 		_move()
 
 

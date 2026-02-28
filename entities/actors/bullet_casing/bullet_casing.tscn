@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://brkax245qceky"]
+
+[ext_resource type="Texture2D" uid="uid://dpvscjnfo0adj" path="res://assets/textures/props/bullet_casing.png" id="1_84ayk"]
+[ext_resource type="Script" uid="uid://m86ca75cvenv" path="res://entities/actors/bullet_casing/bullet_casing.gd" id="1_to7w3"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_to7w3"]
+bounce = 0.7
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_to7w3"]
+radius = 3.0
+
+[node name="BulletCasing" type="RigidBody2D" unique_id=835117212]
+collision_layer = 0
+collision_mask = 4
+physics_material_override = SubResource("PhysicsMaterial_to7w3")
+script = ExtResource("1_to7w3")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1821538862]
+texture = ExtResource("1_84ayk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1475544583]
+shape = SubResource("CircleShape2D_to7w3")

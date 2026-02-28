@@ -7,7 +7,7 @@ signal weapon_bought
 
 # DB tables
 # Player
-var money: int = 15
+var money: int = 9
 var equipped_weapon_id: StringName = "handgun"
 # Weapons
 var weapons: Dictionary[StringName, Dictionary] = {
@@ -39,6 +39,13 @@ var weapons: Dictionary[StringName, Dictionary] = {
 
 
 # Service/repo layer
+func consume_equipped_ammo() -> bool:
+	if weapons[equipped_weapon_id].magazine_current > 0:
+		weapons[equipped_weapon_id].magazine_current -= 1
+		return true
+	return false
+
+
 func get_weapon_icon_by_id(id: StringName) -> Resource:
 	return weapons[id].icon_sprite
 
