@@ -11,6 +11,8 @@ func _ready() -> void:
 	body_exited.connect(func(_body: Player) -> void: set_process_unhandled_input(false))
 
 
-func _unhandled_input(_event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	if event is not InputEventKey:
+		return
 	if Input.is_action_just_pressed("accept"):
 		get_tree().current_scene.page_router.open_page(preload("uid://euoup28876nb"))

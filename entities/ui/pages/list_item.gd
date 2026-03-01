@@ -2,6 +2,6 @@ class_name ListItem
 extends Sprite2D
 
 
-func zet_name(given_name: StringName) -> ListItem:
-	name = given_name
+func set_id(id: StringName) -> ListItem:
+	name = id
 	return self

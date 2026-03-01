@@ -1,11 +1,9 @@
 # GameState
 extends Node
 
-# Events
-signal new_weapon_equipped()
+signal new_weapon_equipped
 signal weapon_bought
 
-# DB tables
 # Player
 var money: int = 9
 var equipped_weapon_id: StringName = "handgun"
@@ -42,15 +40,16 @@ var weapons: Dictionary[StringName, Dictionary] = {
 }
 
 
-# Service/repo layer
-func get_all_rifle_ammo() -> int:
-	var weapon: Dictionary = weapons["rifle"]
-	return weapon.reserve_ammo
+func get_equipped_weapon_id() -> StringName:
+	return equipped_weapon_id
 
 
-func get_all_handgun_ammo() -> int:
-	var weapon: Dictionary = weapons["handgun"]
-	return weapon.reserve_ammo
+func is_weapon_exists_by_id(id: StringName) -> bool:
+	return id in weapons
+
+
+func get_weapon_reserve_ammo_by_id(id: StringName) -> int:
+	return weapons[id].reserve_ammo
 
 
 func equipped_weapon_can_reload() -> bool:
@@ -90,11 +89,11 @@ func get_all_money() -> int:
 
 
 func add_one_to_money() -> void:
-	GameState.money += 1
+	money += 1
 
 
 func pick_up_a_weapon_by_id(id: StringName) -> void:
-	GameState.weapons[id].is_owned = true
+	weapons[id].is_owned = true
 
 
 func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
@@ -103,7 +102,8 @@ func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
 		weapons[id].was_bought = true
 		weapons[id].is_owned = true
 		weapon_bought.emit()
-	return money >= weapons[id].price and not weapons[id].is_owned
+		return true
+	return false
 
 
 func get_new_equipped_weapon_arms_sprite() -> Resource:
@@ -116,25 +116,9 @@ func get_all_weapons() -> Array:
 	)
 
 
-func get_all_weapons_buy_list_item_instances() -> Array:
-	return get_all_weapons().map(
-		func(d: Dictionary) -> BuyPageListItem:
-			return d.w.buy_page_list_item_scene \
-			.instantiate().zet_name(d.i).show_tags(not d.w.was_bought, d.w.is_owned)
-	)
-
-
 func get_owned_weapons() -> Array:
 	return get_all_weapons().filter(
 		func(d: Dictionary) -> bool: return d.w.is_owned
-	)
-
-
-func get_owned_weapons_inv_list_item_instances() -> Array:
-	return get_owned_weapons().map(
-		func(d: Dictionary) -> InventoryPageListItem:
-			return d.w.inv_page_list_item_scene.instantiate().zet_name(d.i). \
-			show_equipped_tag(equipped_weapon_id == d.i).set_mag_current(d.w.magazine_current)
 	)
 
 

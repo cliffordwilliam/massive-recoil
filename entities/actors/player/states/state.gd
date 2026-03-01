@@ -10,7 +10,7 @@ func try_exit(old: String) -> bool:
 		new = "PlayerWalkBackState"
 	elif not Input.get_axis("left", "right"):
 		new = "PlayerIdleState"
-	elif (Input.get_axis("left", "right") > 0) != not owner.body.flip_h:
+	elif (Input.get_axis("left", "right") > 0) == owner.body.flip_h:
 		new = "PlayerTurnState"
 	elif Input.is_action_pressed("run"):
 		new = "PlayerRunState"

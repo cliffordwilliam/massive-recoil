@@ -2,7 +2,9 @@ class_name PageRouter
 extends CanvasLayer
 
 
-func _unhandled_input(_event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	if event is not InputEventKey:
+		return
 	if Input.is_action_just_pressed("cancel") and get_child_count():
 		return close_page()
 	if Input.is_action_just_pressed("inventory") and not get_child_count():
@@ -10,8 +12,9 @@ func _unhandled_input(_event: InputEvent) -> void:
 
 
 func open_page(new_page: PackedScene) -> void:
-	add_child(new_page.instantiate())
-	get_tree().paused = true
+	if not get_child_count():
+		add_child(new_page.instantiate())
+		get_tree().paused = true
 
 
 func close_page() -> void:

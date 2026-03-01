@@ -1,3 +1,4 @@
+class_name Arms
 extends AnimatedSprite
 
 var recoil_dist_to_cover: float = 0.0

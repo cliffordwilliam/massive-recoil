@@ -34,5 +34,8 @@ func shoot() -> void:
 			owner.body.flip_h,
 		)
 		if is_colliding():
-			if get_collider() is not TileMapLayer and get_collider().collision_layer & 8:
-				get_collider().ouch()
+			var collider: Object = get_collider()
+			if collider is TileMapLayer:
+				return
+			if collider is Node and collider.is_in_group("enemies"):
+				collider.ouch()

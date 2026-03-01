@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bkmh2piygd2wa"]
 
-[ext_resource type="Script" uid="uid://dx1e1wdlf1yii" path="res://entities/actors/wooden_crate/wooden_crate.gd" id="1_ptb46"]
+[ext_resource type="Script" uid="uid://dx1e1wdlf1yii" path="res://entities/actors/enemies/wooden_crate/wooden_crate.gd" id="1_ptb46"]
 [ext_resource type="Texture2D" uid="uid://dkek4lgxo8q5i" path="res://assets/textures/props/wooden_crate.png" id="1_qgcgl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ptb46"]

@@ -6,7 +6,7 @@
 [ext_resource type="TileSet" uid="uid://cfpvgo5eio3ne" path="res://assets/textures/tile_sets/world_tile_set.tres" id="4_ib2mq"]
 [ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://entities/actors/player/player.tscn" id="5_qt7ss"]
 [ext_resource type="PackedScene" uid="uid://c1msn5wqmhv3n" path="res://entities/actors/shop/shop.tscn" id="6_8a7uk"]
-[ext_resource type="PackedScene" uid="uid://bkmh2piygd2wa" path="res://entities/actors/wooden_crate/wooden_crate.tscn" id="7_8a7uk"]
+[ext_resource type="PackedScene" uid="uid://bkmh2piygd2wa" path="res://entities/actors/enemies/wooden_crate/wooden_crate.tscn" id="7_8a7uk"]
 
 [node name="VillageEntrance" unique_id=1331696587 instance=ExtResource("1_ke2ty")]
 script = ExtResource("2_am8c5")
