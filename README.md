@@ -6,7 +6,7 @@
 ## TODO
 - [x] Give initial ammo, break box, get money, buy rifle
 - [x] Add visual effects, muzzle flash, recoil, bullet casing, flash
-- [ ] Reload
+- [x] Reload
 - [ ] Weapon upgrade
 - [ ] Switch room
 - [ ] Save
