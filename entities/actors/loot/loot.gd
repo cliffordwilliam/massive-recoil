@@ -11,7 +11,7 @@ func init(id: StringName, pos: Vector2) -> Loot:
 
 func _on_area_2d_body_entered(_player: Node2D) -> void:
 	if $AnimatedSprite.animation == "money":
-		GameState.add_money()
+		GameState.add_one_to_money()
 	elif $AnimatedSprite.animation in GameState.weapons:
-		GameState.pick_up_weapon($AnimatedSprite.animation)
+		GameState.pick_up_a_weapon_by_id($AnimatedSprite.animation)
 	queue_free()

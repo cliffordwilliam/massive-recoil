@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://entities/actors/player/states/run.gd" id="6_8fjmc"]
 [ext_resource type="Script" uid="uid://buramfqmgod7u" path="res://entities/actors/player/ray.gd" id="6_ps3iq"]
 [ext_resource type="Texture2D" uid="uid://be4x2n5epitgo" path="res://assets/textures/props/red_dot.png" id="7_m436c"]
+[ext_resource type="Script" uid="uid://b403lgebvp86h" path="res://entities/actors/player/light.gd" id="8_jl75p"]
 [ext_resource type="Script" uid="uid://bg1tuev4y2oo" path="res://entities/actors/player/states/turn.gd" id="9_bectd"]
 [ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://entities/actors/player/states/walk.gd" id="10_a1qjk"]
 [ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://entities/actors/player/states/aim.gd" id="12_a1qjk"]
@@ -78,8 +79,10 @@ modulate = Color(1, 1, 1, 0.5019608)
 texture = ExtResource("7_m436c")
 
 [node name="Light" type="Sprite2D" parent="Ray" unique_id=2140541421]
+modulate = Color(1, 1, 1, 0)
 material = SubResource("CanvasItemMaterial_m436c")
 texture = SubResource("GradientTexture2D_6jj1q")
+script = ExtResource("8_jl75p")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1611707814]
 position = Vector2(0, -12)

@@ -2,20 +2,20 @@ class_name PlayerState
 extends State
 
 
-func try_grounded_exit(current: String) -> bool:
-	var next: String = ""
+func try_exit(old: String) -> bool:
+	var new: String = ""
 	if Input.is_action_pressed("aim"):
-		next = "PlayerAimState"
+		new = "PlayerAimState"
 	elif Input.is_action_pressed("down"):
-		next = "PlayerWalkBackState"
+		new = "PlayerWalkBackState"
 	elif not Input.get_axis("left", "right"):
-		next = "PlayerIdleState"
+		new = "PlayerIdleState"
 	elif (Input.get_axis("left", "right") > 0) != not owner.body.flip_h:
-		next = "PlayerTurnState"
+		new = "PlayerTurnState"
 	elif Input.is_action_pressed("run"):
-		next = "PlayerRunState"
+		new = "PlayerRunState"
 	else:
-		next = "PlayerWalkState"
-	if next != current:
-		get_parent().transition_to(next, current)
-	return next != current
+		new = "PlayerWalkState"
+	if new != old:
+		get_parent().exit_to(new, old)
+	return new != old

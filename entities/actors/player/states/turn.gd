@@ -2,7 +2,7 @@ class_name PlayerTurnState
 extends PlayerState
 
 
-func enter(_prev_state: String) -> void:
+func enter(_old: String) -> void:
 	owner.body.set_flip(not owner.body.flip_h)
 	owner.body.play("turn")
 	owner.velocity.x = 0.0
@@ -14,4 +14,4 @@ func exit() -> void:
 
 
 func _on_animation_finished() -> void:
-	try_grounded_exit("PlayerTurnState")
+	try_exit("PlayerTurnState")

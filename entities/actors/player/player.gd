@@ -10,5 +10,5 @@ const RECOIL_SMOOTH: float = 15.0 # Lower = slower snap
 
 @onready var arms: AnimatedSprite2D = $Body/Arms
 @onready var body: AnimatedSprite = $Body
-@onready var aim_frames: int = body.sprite_frames.get_frame_count("aim")
 @onready var ray: Ray = $Ray
+@onready var aim_frames: int = body.sprite_frames.get_frame_count("aim")

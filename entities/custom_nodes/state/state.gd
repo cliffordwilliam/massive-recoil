@@ -2,7 +2,7 @@ class_name State
 extends Node
 
 
-func enter(_prev_state: String) -> void:
+func enter(_old: String) -> void:
 	pass
 
 

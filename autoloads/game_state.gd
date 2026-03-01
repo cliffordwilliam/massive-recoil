@@ -66,7 +66,7 @@ func reload_equipped_weapon() -> void:
 	weapon.reserve_ammo -= available
 
 
-func consume_equipped_weapon_ammo() -> bool:
+func try_eat_one_equipped_weapon_ammo() -> bool:
 	if weapons[equipped_weapon_id].magazine_current > 0:
 		weapons[equipped_weapon_id].magazine_current -= 1
 		return true
@@ -89,23 +89,24 @@ func get_all_money() -> int:
 	return money
 
 
-func add_money() -> void:
+func add_one_to_money() -> void:
 	GameState.money += 1
 
 
-func pick_up_weapon(id: StringName) -> void:
+func pick_up_a_weapon_by_id(id: StringName) -> void:
 	GameState.weapons[id].is_owned = true
 
 
-func buy_weapon(id: StringName) -> void:
+func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
 	if money >= weapons[id].price and not weapons[id].is_owned:
 		money -= weapons[id].price
 		weapons[id].was_bought = true
 		weapons[id].is_owned = true
 		weapon_bought.emit()
+	return money >= weapons[id].price and not weapons[id].is_owned
 
 
-func get_equipped_weapon_arms_sprite() -> Resource:
+func get_new_equipped_weapon_arms_sprite() -> Resource:
 	return weapons[equipped_weapon_id].arms_sprite
 
 
@@ -137,6 +138,6 @@ func get_owned_weapons_inv_list_item_instances() -> Array:
 	)
 
 
-func equip_new_weapon(id: StringName) -> void:
+func equip_a_new_weapon_by_id(id: StringName) -> void:
 	equipped_weapon_id = id
 	new_weapon_equipped.emit()
