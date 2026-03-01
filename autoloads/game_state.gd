@@ -22,6 +22,7 @@ var weapons: Dictionary[StringName, Dictionary] = {
 		"magazine_size": 10,
 		"magazine_current": 10,
 		"reserve_ammo": 20,
+		"reload_speed": 1.73,
 	},
 	"rifle": {
 		"arms_sprite": preload("uid://bd23x5s463v8v"),
@@ -34,16 +35,34 @@ var weapons: Dictionary[StringName, Dictionary] = {
 		"magazine_size": 30,
 		"magazine_current": 30,
 		"reserve_ammo": 30,
+		"reload_speed": 2.37,
 	},
 }
 
 
 # Service/repo layer
+func equipped_has_ammo_for_reload_and_mag_is_not_full() -> bool:
+	var weapon: Dictionary = weapons[equipped_weapon_id]
+	return weapon.reserve_ammo > 0 and weapon.magazine_current < weapon.magazine_size
+
+
+func reload_equipped_weapon() -> void:
+	var weapon: Dictionary = weapons[equipped_weapon_id]
+	var needed: int = weapon.magazine_size - weapon.magazine_current
+	var available: int = min(needed, weapon.reserve_ammo)
+	weapon.magazine_current += available
+	weapon.reserve_ammo -= available
+
+
 func consume_equipped_ammo() -> bool:
 	if weapons[equipped_weapon_id].magazine_current > 0:
 		weapons[equipped_weapon_id].magazine_current -= 1
 		return true
 	return false
+
+
+func get_equipped_reload_speed() -> float:
+	return weapons[equipped_weapon_id].reload_speed
 
 
 func get_weapon_icon_by_id(id: StringName) -> Resource:

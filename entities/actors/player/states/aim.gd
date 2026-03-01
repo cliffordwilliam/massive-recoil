@@ -9,11 +9,11 @@ var real_angle: float = 0.0:
 		owner.ray.rotation = PI - real_angle if owner.body.flip_h else real_angle
 
 
-func enter(_prev_state: String) -> void:
+func enter(prev_state: String) -> void:
+	dest_angle = 0.0
+	real_angle = 0.6 if prev_state == "PlayerReloadState" else 0.0
 	owner.body.animation = "aim"
 	owner.velocity.x = 0.0
-	dest_angle = 0.0
-	real_angle = 0.0
 	owner.ray.set_active(true)
 
 
@@ -31,3 +31,7 @@ func process_physics(delta: float) -> void:
 	if Input.is_action_just_pressed("shoot"):
 		dest_angle -= 0.1
 		owner.ray.shoot()
+		return
+	if Input.is_action_just_pressed("reload"):
+		if GameState.equipped_has_ammo_for_reload_and_mag_is_not_full():
+			get_parent().transition_to("PlayerReloadState", "PlayerAimState")

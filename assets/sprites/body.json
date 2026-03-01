@@ -754,7 +754,7 @@
    { "name": "to_crouch", "from": 36, "to": 36, "direction": "forward", "repeat": "1", "color": "#000000ff" },
    { "name": "crouch", "from": 37, "to": 37, "direction": "forward", "color": "#000000ff" },
    { "name": "crouch_to_idle", "from": 38, "to": 40, "direction": "forward", "repeat": "1", "color": "#000000ff" },
-   { "name": "turn", "from": 41, "to": 43, "direction": "forward", "repeat": "1", "color": "#000000ff" },
+   { "name": "turn", "from": 41, "to": 43, "direction": "pingpong", "repeat": "1", "color": "#000000ff" },
    { "name": "up", "from": 44, "to": 46, "direction": "forward", "color": "#000000ff" },
    { "name": "to_fall", "from": 47, "to": 48, "direction": "forward", "repeat": "1", "color": "#000000ff" },
    { "name": "down", "from": 49, "to": 51, "direction": "forward", "color": "#000000ff" },
