@@ -21,8 +21,7 @@ func _hydrate_fe() -> void:
 func _get_all_weapons_buy_list_item_instances() -> Array:
 	return GameState.get_all_weapons().map(
 		func(d: Dictionary) -> BuyPageListItem:
-			return d.w.buy_page_list_item_scene \
-			.instantiate().set_id(d.i).show_tags(not d.w.was_bought, d.w.is_owned)
+			return (d.w.buy_page_list_item_scene.instantiate().set_id(d.i).show_tags(not d.w.was_bought, d.w.is_owned) )
 	)
 
 

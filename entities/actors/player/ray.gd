@@ -7,7 +7,7 @@ extends RayCast2D
 
 
 func _ready() -> void:
-	set_physics_process(false)
+	set_active(false)
 
 
 func _physics_process(_delta: float) -> void:
@@ -35,7 +35,5 @@ func shoot() -> void:
 		)
 		if is_colliding():
 			var collider: Object = get_collider()
-			if collider is TileMapLayer:
-				return
-			if collider is Node and collider.is_in_group("enemies"):
+			if collider and collider.has_method("ouch"):
 				collider.ouch()

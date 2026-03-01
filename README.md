@@ -2,6 +2,7 @@
 
 ## NOTE
 - Dropping item from inventory is not a thing, since inventory has no limit
+- Changing weapon mid reload would change the skin, I do not mind this
 
 ## TODO
 - [x] Give initial ammo, break box, get money, buy rifle

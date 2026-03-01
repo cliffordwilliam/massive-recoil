@@ -49,6 +49,8 @@ func is_weapon_exists_by_id(id: StringName) -> bool:
 
 
 func get_weapon_reserve_ammo_by_id(id: StringName) -> int:
+	if not is_weapon_exists_by_id(id):
+		return 0
 	return weapons[id].reserve_ammo
 
 
@@ -57,8 +59,8 @@ func equipped_weapon_can_reload() -> bool:
 	return weapon.reserve_ammo > 0 and weapon.magazine_current < weapon.magazine_size
 
 
-func reload_equipped_weapon() -> void:
-	var weapon: Dictionary = weapons[equipped_weapon_id]
+func reload_weapon_by_id(id: StringName) -> void:
+	var weapon: Dictionary = weapons[id]
 	var needed: int = weapon.magazine_size - weapon.magazine_current
 	var available: int = min(needed, weapon.reserve_ammo)
 	weapon.magazine_current += available
@@ -77,10 +79,14 @@ func get_equipped_weapon_reload_speed() -> float:
 
 
 func get_weapon_description_by_id(id: StringName) -> Resource:
+	if not is_weapon_exists_by_id(id):
+		return null
 	return weapons[id].description_sprite
 
 
 func get_weapon_icon_by_id(id: StringName) -> Resource:
+	if not is_weapon_exists_by_id(id):
+		return null
 	return weapons[id].icon_sprite
 
 
@@ -93,10 +99,14 @@ func add_one_to_money() -> void:
 
 
 func pick_up_a_weapon_by_id(id: StringName) -> void:
+	if not is_weapon_exists_by_id(id):
+		return
 	weapons[id].is_owned = true
 
 
 func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
+	if not is_weapon_exists_by_id(id):
+		return false
 	if money >= weapons[id].price and not weapons[id].is_owned:
 		money -= weapons[id].price
 		weapons[id].was_bought = true
@@ -123,5 +133,7 @@ func get_owned_weapons() -> Array:
 
 
 func equip_a_new_weapon_by_id(id: StringName) -> void:
+	if not is_weapon_exists_by_id(id):
+		return
 	equipped_weapon_id = id
 	new_weapon_equipped.emit()

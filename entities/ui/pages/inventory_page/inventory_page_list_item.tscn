@@ -15,5 +15,5 @@ centered = false
 
 [node name="MagazineCurrent" parent="." unique_id=1731197946 instance=ExtResource("3_3422r")]
 position = Vector2(54, 16)
-rtl = true
+right_aligned = true
 nums = 3

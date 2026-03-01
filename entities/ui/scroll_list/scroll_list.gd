@@ -10,6 +10,7 @@ signal index_changed(id: StringName)
 var item_h: int = 0
 var offset: int = 0
 var cursor_row: int = 0
+var current_id: StringName = ""
 
 @onready var cursor: Sprite2D = cursor_scene.instantiate()
 
@@ -22,14 +23,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
 	if Input.is_action_just_pressed("accept"):
-		item_selected.emit($Items.get_child(offset + cursor_row).name)
-	else:
+		if $Items.get_child_count():
+			item_selected.emit($Items.get_child(offset + cursor_row).name)
+	elif Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
 		var dir: int = int(Input.get_axis("up", "down"))
-		if dir:
-			var abs_i: int = clamp(offset + cursor_row + dir, 0, $Items.get_child_count() - 1)
-			offset = clamp(abs_i - cursor_row, 0, max(0, $Items.get_child_count() - page_size))
-			cursor_row = abs_i - offset
-			_move()
+		var abs_i: int = clamp(offset + cursor_row + dir, 0, $Items.get_child_count() - 1)
+		offset = clamp(abs_i - cursor_row, 0, max(0, $Items.get_child_count() - page_size))
+		cursor_row = abs_i - offset
+		_move()
 
 
 func set_items(new_items: Array) -> void:
@@ -52,6 +53,8 @@ func _set_enabled(enabled: bool) -> void:
 
 
 func _move() -> void:
+	if not $Items.get_child_count():
+		return
 	for i in $Items.get_child_count():
 		$Items.get_child(i).visible = (i - offset) >= 0 and (i - offset) < page_size
 		if (i - offset) >= 0 and (i - offset) < page_size:

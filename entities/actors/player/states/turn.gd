@@ -14,4 +14,4 @@ func exit() -> void:
 
 
 func _on_animation_finished() -> void:
-	try_exit("PlayerTurnState")
+	get_parent().exit_to("PlayerIdleState", "PlayerTurnState")

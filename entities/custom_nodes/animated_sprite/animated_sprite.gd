@@ -7,7 +7,11 @@ signal flip_h_changed
 
 
 func _ready() -> void:
-	animation_finished.connect(func() -> void: if trans.has(animation):play(trans[animation]))
+	animation_finished.connect(
+		func() -> void:
+			if trans.has(animation):
+				play(trans[animation])
+	)
 
 
 func set_flip(value: bool) -> void:

@@ -8,7 +8,7 @@ func try_exit(old: String) -> bool:
 		new = "PlayerAimState"
 	elif Input.is_action_pressed("down"):
 		new = "PlayerWalkBackState"
-	elif not Input.get_axis("left", "right"):
+	elif is_zero_approx(Input.get_axis("left", "right")):
 		new = "PlayerIdleState"
 	elif (Input.get_axis("left", "right") > 0) == owner.body.flip_h:
 		new = "PlayerTurnState"

@@ -7,8 +7,8 @@ func _ready() -> void:
 	var tween: Tween = create_tween().set_loops()
 	tween.tween_property($BlackOverlay, "modulate:a", 0.0, 1.0)
 	tween.tween_property($BlackOverlay, "modulate:a", 1.0, 1.0)
-	body_entered.connect(func(_body: Player) -> void: set_process_unhandled_input(true))
-	body_exited.connect(func(_body: Player) -> void: set_process_unhandled_input(false))
+	body_entered.connect(func(node: Node) -> void: _set_active(true, node))
+	body_exited.connect(func(node: Node) -> void: _set_active(false, node))
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -16,3 +16,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if Input.is_action_just_pressed("accept"):
 		get_tree().current_scene.page_router.open_page(preload("uid://euoup28876nb"))
+
+
+func _set_active(value: bool, node: Node) -> void:
+	if node is Player:
+		set_process_unhandled_input(value)

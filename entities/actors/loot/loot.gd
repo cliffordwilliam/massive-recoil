@@ -9,9 +9,10 @@ func init(id: StringName, pos: Vector2) -> Loot:
 	return self
 
 
-func _on_area_2d_body_entered(_player: Node2D) -> void:
-	if $AnimatedSprite.animation == "money":
-		GameState.add_one_to_money()
-	elif GameState.is_weapon_exists_by_id($AnimatedSprite.animation):
-		GameState.pick_up_a_weapon_by_id($AnimatedSprite.animation)
-	queue_free()
+func _on_area_2d_body_entered(node: Node) -> void:
+	if node is Player:
+		if $AnimatedSprite.animation == "money":
+			GameState.add_one_to_money()
+		elif GameState.is_weapon_exists_by_id($AnimatedSprite.animation):
+			GameState.pick_up_a_weapon_by_id($AnimatedSprite.animation)
+		queue_free()
