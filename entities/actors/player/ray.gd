@@ -22,7 +22,7 @@ func set_active(value: bool) -> void:
 
 
 func shoot() -> void:
-	if not GameState.consume_equipped_ammo():
+	if not GameState.consume_equipped_weapon_ammo():
 		return
 	owner.arms.recoil(rotation)
 	var p1: Vector2 = to_global(line.get_point_position(0))

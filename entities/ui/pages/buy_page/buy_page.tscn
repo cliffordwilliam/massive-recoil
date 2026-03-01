@@ -23,3 +23,7 @@ centered = false
 [node name="ScrollList" parent="." unique_id=746833403 instance=ExtResource("4_iamwa")]
 position = Vector2(111, 33)
 cursor_scene = ExtResource("5_t16gh")
+
+[node name="Description" type="Sprite2D" parent="." unique_id=1967367512]
+position = Vector2(117, 125)
+centered = false

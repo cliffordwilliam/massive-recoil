@@ -8,4 +8,4 @@ func enter(prev_state: String) -> void:
 
 
 func process_physics(_delta: float) -> void:
-	try_grounded_transition("PlayerIdleState")
+	try_grounded_exit("PlayerIdleState")

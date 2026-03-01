@@ -19,3 +19,15 @@ cursor_scene = ExtResource("4_m0ak7")
 position = Vector2(294, 14)
 rtl = true
 nums = 8
+
+[node name="HandgunAmmo" parent="." unique_id=1718841572 instance=ExtResource("5_glrd3")]
+position = Vector2(95, 44)
+rtl = true
+pad = true
+nums = 3
+
+[node name="RifleAmmo" parent="." unique_id=1389099844 instance=ExtResource("5_glrd3")]
+position = Vector2(95, 71)
+rtl = true
+pad = true
+nums = 3

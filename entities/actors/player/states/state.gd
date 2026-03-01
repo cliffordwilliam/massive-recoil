@@ -2,7 +2,7 @@ class_name PlayerState
 extends State
 
 
-func try_grounded_transition(current: String) -> bool:
+func try_grounded_exit(current: String) -> bool:
 	var next: String = ""
 	if Input.is_action_pressed("aim"):
 		next = "PlayerAimState"

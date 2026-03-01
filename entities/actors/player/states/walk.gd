@@ -8,5 +8,5 @@ func enter(_prev_state: String) -> void:
 
 
 func process_physics(_delta: float) -> void:
-	if not try_grounded_transition("PlayerWalkState"):
+	if not try_grounded_exit("PlayerWalkState"):
 		owner.move_and_slide()

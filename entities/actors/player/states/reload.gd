@@ -11,7 +11,7 @@ func enter(_prev_state: String) -> void:
 	owner.body.animation = "aim"
 	current_aim_frame = float(owner.body.frame)
 	owner.velocity.x = 0.0
-	reload_timer.wait_time = GameState.get_equipped_reload_speed()
+	reload_timer.wait_time = GameState.get_equipped_weapon_reload_speed()
 	reload_timer.timeout.connect(_on_reload_timer_timeout)
 
 
@@ -35,4 +35,4 @@ func exit() -> void:
 
 
 func _on_reload_timer_timeout() -> void:
-	try_grounded_transition("PlayerReloadState")
+	try_grounded_exit("PlayerReloadState")

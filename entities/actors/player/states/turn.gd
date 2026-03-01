@@ -14,4 +14,4 @@ func exit() -> void:
 
 
 func _on_animation_finished() -> void:
-	try_grounded_transition("PlayerTurnState")
+	try_grounded_exit("PlayerTurnState")
