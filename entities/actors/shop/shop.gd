@@ -16,6 +16,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if Input.is_action_just_pressed("accept"):
 		get_tree().current_scene.page_router.open_shop_page()
+		get_viewport().set_input_as_handled()
 
 
 func _set_active(value: bool, node: Node) -> void:

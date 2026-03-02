@@ -12,8 +12,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if Input.is_action_just_pressed("cancel") and get_child_count():
 		close_page()
+		get_viewport().set_input_as_handled()
 	elif Input.is_action_just_pressed("inventory") and not get_child_count():
 		open_page(INVENTORY_PAGE)
+		get_viewport().set_input_as_handled()
 
 
 func open_shop_page() -> void:
