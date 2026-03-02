@@ -35,6 +35,10 @@ window/stretch/scale_mode="integer"
 
 enabled=PackedStringArray("res://addons/aseprite_import/plugin.cfg", "res://addons/collapse_fs/plugin.cfg", "res://addons/gdscript_formatter/plugin.cfg")
 
+[global_group]
+
+enemies=""
+
 [input]
 
 left={

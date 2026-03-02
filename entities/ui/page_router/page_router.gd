@@ -7,6 +7,7 @@ const SHOP_PAGE = preload("uid://euoup28876nb")
 const INVENTORY_PAGE = preload("uid://cenchx8ug57g2")
 
 
+# TODO: Instance all pages here and swap them, this remove the pain of adding / removing kids
 func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
@@ -22,10 +23,12 @@ func open_shop_page() -> void:
 	open_page(SHOP_PAGE)
 
 
-func open_page(new_page: PackedScene) -> void:
-	if not get_child_count():
-		add_child(new_page.instantiate())
-		get_tree().paused = true
+func open_page(new_page: PackedScene) -> bool:
+	if get_child_count():
+		return false
+	add_child(new_page.instantiate())
+	get_tree().paused = true
+	return true
 
 
 func close_page() -> void:

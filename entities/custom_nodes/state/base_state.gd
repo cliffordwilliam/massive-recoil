@@ -1,8 +1,10 @@
 class_name BaseState
 extends Node
 
+@onready var state_machine: StateMachine = get_parent()
 
-func enter(_old: String) -> void:
+
+func enter(_old: Script) -> void:
 	pass
 
 

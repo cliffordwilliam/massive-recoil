@@ -15,8 +15,5 @@ const RECOIL_SMOOTH: float = 15.0 # Lower = slower snap
 @onready var aim_frames: int = body.sprite_frames.get_frame_count("aim")
 
 
-func _ready() -> void:
-	if not get_tree().current_scene.is_node_ready():
-		await get_tree().current_scene.ready
-	# Prevent edge cases like changing weapon or other states via pages mid reload or other states
-	get_tree().current_scene.page_router.page_closed.connect(func() -> void: state_machine.reset())
+func _on_page_router_page_closed() -> void: # Connected via engine GUI
+	state_machine.reset()

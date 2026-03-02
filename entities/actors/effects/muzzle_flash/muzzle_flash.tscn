@@ -9,3 +9,5 @@ animation = &"flash"
 autoplay = "flash"
 offset = Vector2(16, 0)
 script = ExtResource("2_17sld")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]

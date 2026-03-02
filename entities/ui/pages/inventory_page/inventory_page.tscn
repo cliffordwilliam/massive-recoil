@@ -29,3 +29,5 @@ nums = 3
 position = Vector2(95, 71)
 right_aligned = true
 nums = 3
+
+[connection signal="item_selected" from="ScrollList" to="." method="_on_scroll_list_item_selected"]

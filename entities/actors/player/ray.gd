@@ -25,15 +25,13 @@ func set_active(value: bool) -> void:
 
 func shoot() -> void:
 	if GameState.try_consume_ammo():
+		force_raycast_update()
+		var muzzle_pos: Vector2 = to_global(line.get_point_position(0))
+		var hit_pos: Vector2 = to_global(line.get_point_position(1))
 		owner.arms.recoil_arm_sprite_back(rotation)
 		light.flash(line.get_point_position(0))
-		Spawner.spawn_shoot_effects(
-			to_global(line.get_point_position(0)),
-			to_global(line.get_point_position(1)),
-			rotation,
-			owner.body.flip_h,
-		)
+		Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, owner.body.flip_h)
 		if is_colliding():
 			var collider: Object = get_collider()
-			if collider and collider.has_method("ouch"):
+			if collider and collider.is_in_group("enemies") and collider.has_method("ouch"):
 				collider.ouch()

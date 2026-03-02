@@ -6,7 +6,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ptb46"]
 size = Vector2(16, 16)
 
-[node name="WoodenCrate" type="Area2D" unique_id=1277301013]
+[node name="WoodenCrate" type="Area2D" unique_id=1277301013 groups=["enemies"]]
 collision_layer = 8
 collision_mask = 0
 script = ExtResource("1_ptb46")
@@ -19,3 +19,7 @@ hframes = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2095967918]
 position = Vector2(8, -8)
 shape = SubResource("RectangleShape2D_ptb46")
+
+[node name="Timer" type="Timer" parent="." unique_id=651913217]
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

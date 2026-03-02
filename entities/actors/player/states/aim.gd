@@ -10,12 +10,12 @@ var real_angle: float = 0.0:
 			owner.ray.rotation = PI - real_angle if owner.body.flip_h else real_angle
 
 
-func enter(old_state: String) -> void:
+func enter(old_state: Script) -> void:
 	owner.body.animation = "aim" # This sets frame index to 0
 	owner.velocity.x = 0.0
 	owner.body.pause() # Here frame is a function of angle
 	dest_angle = 0.0
-	real_angle = 0.6 if old_state == "PlayerReloadState" else 0.0
+	real_angle = 0.6 if old_state == PlayerReloadState else 0.0
 	owner.ray.set_active(true)
 
 
@@ -26,7 +26,7 @@ func exit() -> void:
 
 func process_physics(delta: float) -> void:
 	if not Input.is_action_pressed("aim"):
-		if try_exit("PlayerAimState"):
+		if try_exit(PlayerAimState):
 			return
 	dest_angle += Input.get_axis("up", "down") * owner.AIM_SPEED * delta
 	dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
@@ -37,4 +37,4 @@ func process_physics(delta: float) -> void:
 		owner.ray.shoot()
 	elif Input.is_action_just_pressed("reload"):
 		if GameState.equipped_weapon_can_reload():
-			get_parent().exit_to("PlayerReloadState", "PlayerAimState")
+			state_machine.exit_to(PlayerReloadState, PlayerAimState)

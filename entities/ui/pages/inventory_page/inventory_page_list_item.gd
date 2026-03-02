@@ -4,10 +4,13 @@ extends ListItem
 var mag_current: int = 0
 var is_equipped_tag_visible: bool = false
 
+@onready var equipped_tag: Sprite2D = $EquippedTag
+@onready var magazine_current: NumberDisplay = $MagazineCurrent
+
 
 func _ready() -> void:
-	$MagazineCurrent.display_number(mag_current)
-	$EquippedTag.visible = is_equipped_tag_visible
+	magazine_current.display_number(mag_current)
+	equipped_tag.visible = is_equipped_tag_visible
 
 
 func show_equipped_tag(value: bool) -> InventoryPageListItem:

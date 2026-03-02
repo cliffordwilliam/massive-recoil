@@ -7,7 +7,8 @@ var id: StringName
 
 
 func _ready() -> void:
-	animated_sprite_2d.play(id)
+	if id:
+		animated_sprite_2d.play(id)
 
 
 func init(given_id: StringName, pos: Vector2) -> Loot:
@@ -17,11 +18,11 @@ func init(given_id: StringName, pos: Vector2) -> Loot:
 	return self
 
 
-func _on_area_2d_body_entered(node: Node) -> void:
+func _on_area_2d_body_entered(node: Node) -> void: # TODO: Make this one shot
 	if node is Player:
-		if animated_sprite_2d.animation == "money":
+		if id == "money":
 			GameState.add_one_to_money()
 			queue_free()
-		elif GameState.weapon_exists(animated_sprite_2d.animation):
-			GameState.pick_up_a_weapon_by_id(animated_sprite_2d.animation)
+		elif GameState.weapon_exists(id):
+			GameState.pick_up_a_weapon_by_id(id)
 			queue_free()

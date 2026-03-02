@@ -20,3 +20,8 @@ texture = ExtResource("1_84ayk")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1475544583]
 shape = SubResource("CircleShape2D_to7w3")
+
+[node name="Timer" type="Timer" parent="." unique_id=1628675516]
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

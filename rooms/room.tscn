@@ -2,8 +2,13 @@
 
 [ext_resource type="Script" uid="uid://bkori2t7dmgvd" path="res://rooms/room.gd" id="1_pmtbo"]
 [ext_resource type="PackedScene" uid="uid://b4s6l0e5om1e6" path="res://entities/ui/page_router/page_router.tscn" id="2_ya37f"]
+[ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://entities/actors/player/player.tscn" id="3_ya37f"]
 
 [node name="Room" type="Node" unique_id=1331696587]
 script = ExtResource("1_pmtbo")
 
 [node name="PageRouter" parent="." unique_id=1385969563 instance=ExtResource("2_ya37f")]
+
+[node name="Player" parent="." unique_id=407663167 instance=ExtResource("3_ya37f")]
+
+[connection signal="page_closed" from="PageRouter" to="Player" method="_on_page_router_page_closed"]

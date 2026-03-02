@@ -27,3 +27,6 @@ cursor_scene = ExtResource("5_t16gh")
 [node name="Description" type="Sprite2D" parent="." unique_id=1967367512]
 position = Vector2(117, 125)
 centered = false
+
+[connection signal="index_changed" from="ScrollList" to="." method="_on_scroll_list_index_changed"]
+[connection signal="item_selected" from="ScrollList" to="." method="_on_scroll_list_item_selected"]

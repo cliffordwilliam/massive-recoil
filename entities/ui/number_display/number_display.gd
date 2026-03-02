@@ -14,9 +14,10 @@ func _ready() -> void:
 
 
 func display_number(n: int) -> void:
-	n = abs(n) # This game never renders negative number
-	var text: String = str(n).lpad(nums, "0") if right_aligned else str(n).rpad(nums, "0")
-	var digit_count: int = len(str(n))
+	n = clampi(n, 0, 10 ** nums - 1)
+	var raw: String = str(n)
+	var digit_count: int = raw.length()
+	var text: String = raw.lpad(nums, "0") if right_aligned else raw.rpad(nums, "0")
 	for d in get_children():
 		var i: int = d.get_index()
 		d.frame = int(text[i])
