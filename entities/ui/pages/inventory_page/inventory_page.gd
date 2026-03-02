@@ -1,5 +1,5 @@
 class_name InventoryPage
-extends Sprite2D
+extends BasePage
 
 @onready var scroll_list: ScrollList = $ScrollList
 @onready var money: NumberDisplay = $Money
@@ -7,16 +7,14 @@ extends Sprite2D
 @onready var rifle_ammo: NumberDisplay = $RifleAmmo
 
 
-func _ready() -> void:
+func _hydrate_ui() -> void:
+	if not visible:
+		return
 	handgun_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id("handgun"))
 	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id("rifle"))
 	money.display_number(GameState.get_money_count())
-	GameState.new_weapon_equipped.connect(_hydrate_ui)
-	_hydrate_ui()
-
-
-func _hydrate_ui() -> void:
-	scroll_list.set_items(_get_owned_weapons_inv_list_item_instances()) # To update the equipped tag
+	# During page active, only possible to update the equipped tag
+	scroll_list.set_items(_get_owned_weapons_inv_list_item_instances())
 
 
 func _get_owned_weapons_inv_list_item_instances() -> Array:
@@ -33,3 +31,4 @@ func _create_weapon_list_item(d: Dictionary) -> InventoryPageListItem:
 
 func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI
 	GameState.equip_a_new_weapon_by_id(id)
+	_hydrate_ui()

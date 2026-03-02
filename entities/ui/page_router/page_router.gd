@@ -3,37 +3,53 @@ extends CanvasLayer
 
 signal page_closed
 
-const SHOP_PAGE = preload("uid://euoup28876nb")
-const INVENTORY_PAGE = preload("uid://cenchx8ug57g2")
+var current_page: BasePage = null
+
+@onready var inventory_page: InventoryPage = $InventoryPage
+@onready var shop_page: BuyPage = $BuyPage
 
 
-# TODO: Instance all pages here and swap them, this remove the pain of adding / removing kids
+func _ready() -> void:
+	visible = true # Editor sets me invisible as it blocks dev view
+	process_mode = Node.PROCESS_MODE_ALWAYS # Router and pages under me always run
+	for p in get_children(): # Then disable all of my page kids
+		if p is BasePage:
+			p.set_enabled(false)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
-	if Input.is_action_just_pressed("cancel") and get_child_count():
+	if Input.is_action_just_pressed("cancel") and current_page:
 		close_page()
 		get_viewport().set_input_as_handled()
-	elif Input.is_action_just_pressed("inventory") and not get_child_count():
-		open_page(INVENTORY_PAGE)
+	elif Input.is_action_just_pressed("inventory") and not current_page:
+		open_inventory_page()
 		get_viewport().set_input_as_handled()
 
 
-func open_shop_page() -> void:
-	open_page(SHOP_PAGE)
+func open_shop_page() -> bool:
+	return _show_page(shop_page)
 
 
-func open_page(new_page: PackedScene) -> bool:
-	if get_child_count():
+func open_inventory_page() -> bool:
+	return _show_page(inventory_page)
+
+
+func close_page() -> bool:
+	if not current_page:
 		return false
-	add_child(new_page.instantiate())
-	get_tree().paused = true
+	current_page.set_enabled(false)
+	current_page = null
+	get_tree().paused = false
+	page_closed.emit()
 	return true
 
 
-func close_page() -> void:
-	for old_page in get_children():
-		remove_child(old_page)
-		old_page.queue_free()
-	get_tree().paused = false
-	page_closed.emit()
+func _show_page(new_page: BasePage) -> bool:
+	if current_page:
+		return false
+	current_page = new_page
+	current_page.set_enabled(true)
+	get_tree().paused = true
+	return true

@@ -2,9 +2,9 @@ class_name PlayerIdleState
 extends PlayerState
 
 
-func enter(prev_state: Script) -> void:
-	owner.body.play("stop" if prev_state == PlayerRunState else "idle")
-	owner.velocity.x = 0.0
+func enter(old_state: Script) -> void:
+	player.body.play("stop" if old_state == PlayerRunState else "idle")
+	player.velocity.x = 0.0
 
 
 func process_physics(_delta: float) -> void:

@@ -3,15 +3,18 @@ extends Area2D
 
 const BROKEN_WOODEN_CRATE_FRAME: int = 1
 
-@onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
+var is_destroyed: bool = false
+
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var timer: Timer = $Timer
 
 
 func ouch() -> void:
-	if collision_shape_2d.disabled:
+	if is_destroyed:
 		return
-	collision_shape_2d.disabled = true # TODO: Do not do this, think of another way
+	is_destroyed = true
+	collision_layer = 0
+	collision_mask = 0
 	sprite_2d.frame = BROKEN_WOODEN_CRATE_FRAME
 	Spawner.spawn_money(sprite_2d.global_position)
 	timer.start()

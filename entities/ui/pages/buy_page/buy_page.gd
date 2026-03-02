@@ -1,5 +1,5 @@
 class_name BuyPage
-extends Sprite2D
+extends BasePage
 
 @onready var money: NumberDisplay = $Money
 @onready var icon: Sprite2D = $Icon
@@ -7,14 +7,12 @@ extends Sprite2D
 @onready var description: Sprite2D = $Description
 
 
-func _ready() -> void:
-	GameState.weapon_bought.connect(_hydrate_ui)
-	_hydrate_ui()
-
-
 func _hydrate_ui() -> void:
+	if not visible:
+		return
 	money.display_number(GameState.get_money_count())
-	scroll_list.set_items(_get_all_weapons_buy_list_item_instances()) # To update the sold out tag
+	# During page active, only possible to update the sold out tag
+	scroll_list.set_items(_get_all_weapons_buy_list_item_instances())
 
 
 func _get_all_weapons_buy_list_item_instances() -> Array:
@@ -24,7 +22,7 @@ func _get_all_weapons_buy_list_item_instances() -> Array:
 func _create_weapon_buy_list_item(d: Dictionary) -> BuyPageListItem:
 	var item: BuyPageListItem = d.w.buy_page_list_item_scene.instantiate()
 	item.set_id(d.i)
-	item.show_tags(not d.w.was_bought, d.w.is_owned)
+	item.show_tags(not d.w.was_bought, d.w.is_owned) # is_owned means sold out
 	return item
 
 
@@ -41,3 +39,4 @@ func _on_scroll_list_index_changed(id: StringName) -> void: # Connected via engi
 
 func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI
 	_try_buy_weapon(id)
+	_hydrate_ui()

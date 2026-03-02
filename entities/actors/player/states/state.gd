@@ -1,6 +1,9 @@
 class_name PlayerState
 extends BaseState
 
+# Safe: owner is set during _enter_tree (before _ready), so this resolves correctly
+@onready var player: Player = owner
+
 
 func try_exit(old_state: Script) -> bool:
 	var new_state: Script
@@ -10,7 +13,7 @@ func try_exit(old_state: Script) -> bool:
 		new_state = PlayerWalkBackState
 	elif is_zero_approx(Input.get_axis("left", "right")):
 		new_state = PlayerIdleState
-	elif (Input.get_axis("left", "right") > 0) == owner.body.flip_h:
+	elif (Input.get_axis("left", "right") > 0) == player.body.flip_h:
 		new_state = PlayerTurnState
 	elif Input.is_action_pressed("run"):
 		new_state = PlayerRunState

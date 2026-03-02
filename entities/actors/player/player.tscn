@@ -76,6 +76,7 @@ default_color = Color(1, 0, 0, 0.5019608)
 
 [node name="Dot" type="Sprite2D" parent="Ray" unique_id=1255671485]
 modulate = Color(1, 1, 1, 0.5019608)
+position = Vector2(400, 0)
 texture = ExtResource("7_m436c")
 
 [node name="Light" type="Sprite2D" parent="Ray" unique_id=2140541421]
@@ -129,4 +130,5 @@ one_shot = true
 [connection signal="animation_finished" from="Body" to="StateMachine/PlayerTurnState" method="_on_body_animation_finished"]
 [connection signal="flip_h_changed" from="Body" to="Body/Arms" method="_on_body_flip_h_changed"]
 [connection signal="frame_changed" from="Body" to="Body/Arms" method="_on_body_frame_changed"]
+[connection signal="shot" from="Ray" to="Body/Arms" method="_on_ray_shot"]
 [connection signal="timeout" from="StateMachine/PlayerReloadState/ReloadTimer" to="StateMachine/PlayerReloadState" method="_on_reload_timer_timeout"]

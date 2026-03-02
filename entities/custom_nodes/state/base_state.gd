@@ -4,7 +4,7 @@ extends Node
 @onready var state_machine: StateMachine = get_parent()
 
 
-func enter(_old: Script) -> void:
+func enter(_old_state: Script) -> void:
 	pass
 
 

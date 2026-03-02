@@ -14,6 +14,7 @@ func _ready() -> void:
 	)
 
 
+# Setter already exists and I cannot override it, so have to manually use this
 func set_flip(value: bool) -> void:
 	if flip_h != value:
 		flip_h = value

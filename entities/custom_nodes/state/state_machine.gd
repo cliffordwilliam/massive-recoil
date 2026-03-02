@@ -2,8 +2,17 @@ class_name StateMachine
 extends Node
 
 var states: Dictionary[Script, BaseState] = { }
+var current_state: BaseState = null
+var initial_state: BaseState = null
 
-@onready var current_state: BaseState = get_child(0)
+
+func _ready() -> void:
+	for c in get_children():
+		if c is BaseState:
+			states[c.get_script()] = c
+			if not initial_state:
+				initial_state = c
+				current_state = c
 
 
 func _physics_process(delta: float) -> void:
@@ -14,7 +23,7 @@ func _physics_process(delta: float) -> void:
 func exit_to(new_state_script: Script, old_state_script: Script) -> void:
 	var new_state: BaseState = states.get(new_state_script)
 	if not new_state:
-		push_warning("StateMachine: No child found for script ", new_state_script)
+		push_warning("StateMachine: No child found for script: " + str(new_state_script))
 		return
 	if current_state:
 		current_state.exit()
@@ -23,12 +32,11 @@ func exit_to(new_state_script: Script, old_state_script: Script) -> void:
 
 
 func reset() -> void:
-	if current_state and get_child_count():
-		exit_to(get_child(0).get_script(), current_state.get_script())
+	if current_state and initial_state:
+		exit_to(initial_state.get_script(), current_state.get_script())
 
 
+# Safe: children _ready() before parent, so states dict is populated before Player.ready fires
 func _on_player_ready() -> void: # Connected via engine GUI
-	for child: BaseState in get_children():
-		states[child.get_script()] = child
 	if current_state:
 		current_state.enter(null)

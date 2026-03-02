@@ -10,14 +10,15 @@ signal index_changed(id: StringName)
 var item_h: int = 0
 var offset: int = 0
 var cursor_row: int = 0
+var cursor: Sprite2D
 
 @onready var cursor_container: Node2D = $Cursor
 @onready var items_container: Node2D = $Items
-@onready var cursor: Sprite2D = cursor_scene.instantiate()
 
 
 func _ready() -> void:
 	assert(cursor_scene, "ScrollList: cursor_scene must be set in the inspector")
+	cursor = cursor_scene.instantiate()
 	cursor_container.add_child(cursor)
 
 
@@ -58,6 +59,9 @@ func set_items(new_items: Array) -> void:
 
 
 func _set_enabled(enabled: bool) -> void:
+	var page: BasePage = get_parent() as BasePage
+	if enabled and page and not page.visible:
+		return
 	process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
 	visible = enabled
 
