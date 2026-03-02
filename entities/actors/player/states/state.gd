@@ -1,3 +1,4 @@
+# Hold common player state logics
 class_name PlayerState
 extends BaseState
 
@@ -5,20 +6,23 @@ extends BaseState
 @onready var player: Player = owner
 
 
-func try_exit(old_state: Script) -> bool:
-	var new_state: Script
+func try_exit() -> bool:
+	var new_state_name: StringName
+
 	if Input.is_action_pressed("aim"):
-		new_state = PlayerAimState
+		new_state_name = &"PlayerAimState"
 	elif Input.is_action_pressed("down"):
-		new_state = PlayerWalkBackState
+		new_state_name = &"PlayerWalkBackState"
 	elif is_zero_approx(Input.get_axis("left", "right")):
-		new_state = PlayerIdleState
+		new_state_name = &"PlayerIdleState"
 	elif (Input.get_axis("left", "right") > 0) == player.body.flip_h:
-		new_state = PlayerTurnState
+		new_state_name = &"PlayerTurnState"
 	elif Input.is_action_pressed("run"):
-		new_state = PlayerRunState
+		new_state_name = &"PlayerRunState"
 	else:
-		new_state = PlayerWalkState
-	if new_state != old_state:
-		state_machine.exit_to(new_state, old_state)
-	return new_state != old_state
+		new_state_name = &"PlayerWalkState"
+
+	if new_state_name != name:
+		state_machine.transition_to(new_state_name, { "previous": name })
+
+	return new_state_name != name

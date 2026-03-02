@@ -2,7 +2,6 @@
 extends Node
 
 signal new_weapon_equipped
-signal weapon_bought
 
 # Player
 var money: int = 9
@@ -55,6 +54,8 @@ func get_weapon_reserve_ammo_by_id(id: StringName) -> int:
 
 
 func equipped_weapon_can_reload() -> bool:
+	if not weapon_exists(equipped_weapon_id):
+		return false
 	var weapon: Dictionary = weapons[equipped_weapon_id]
 	return weapon.reserve_ammo > 0 and weapon.magazine_current < weapon.magazine_size
 
@@ -70,6 +71,8 @@ func reload_weapon_by_id(id: StringName) -> void:
 
 
 func try_consume_ammo() -> bool:
+	if not weapon_exists(equipped_weapon_id):
+		return false
 	if weapons[equipped_weapon_id].magazine_current > 0:
 		weapons[equipped_weapon_id].magazine_current -= 1
 		return true
@@ -77,6 +80,8 @@ func try_consume_ammo() -> bool:
 
 
 func get_equipped_weapon_reload_speed() -> float:
+	if not weapon_exists(equipped_weapon_id):
+		return 0.0
 	return weapons[equipped_weapon_id].reload_speed
 
 
@@ -113,12 +118,13 @@ func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
 		money -= weapons[id].price
 		weapons[id].was_bought = true
 		weapons[id].is_owned = true
-		weapon_bought.emit()
 		return true
 	return false
 
 
 func get_new_equipped_weapon_arms_sprite() -> Resource:
+	if not weapon_exists(equipped_weapon_id):
+		return null
 	return weapons[equipped_weapon_id].arms_sprite
 
 

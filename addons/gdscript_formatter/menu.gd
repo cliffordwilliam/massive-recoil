@@ -25,7 +25,7 @@ func _ready() -> void:
 	var script_editor := EditorInterface.get_script_editor()
 	var last_menu_button := _find_last_menu_button(script_editor)
 	if not is_instance_valid(last_menu_button):
-		push_warning("GDScript Formatter: Could not find valid menu button in script editor. Menu will not be available. Use the command palette instead.")
+		assert("GDScript Formatter: Could not find valid menu button in script editor. Menu will not be available. Use the command palette instead.")
 		return
 
 	menu_button = MenuButton.new()

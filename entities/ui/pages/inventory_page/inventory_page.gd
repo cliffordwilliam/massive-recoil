@@ -1,3 +1,4 @@
+# This page is where player see owned weapons, ammo, money. They can pick and equip one weapon
 class_name InventoryPage
 extends BasePage
 
@@ -8,16 +9,13 @@ extends BasePage
 
 
 func _hydrate_ui() -> void:
-	if not visible:
-		return
-	handgun_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id("handgun"))
-	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id("rifle"))
+	handgun_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(&"handgun"))
+	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(&"rifle"))
 	money.display_number(GameState.get_money_count())
-	# During page active, only possible to update the equipped tag
-	scroll_list.set_items(_get_owned_weapons_inv_list_item_instances())
+	scroll_list.set_items(_get_owned_weapons_list_item())
 
 
-func _get_owned_weapons_inv_list_item_instances() -> Array:
+func _get_owned_weapons_list_item() -> Array:
 	return GameState.get_owned_weapons().map(_create_weapon_list_item)
 
 
@@ -25,7 +23,7 @@ func _create_weapon_list_item(d: Dictionary) -> InventoryPageListItem:
 	var item: InventoryPageListItem = d.w.inv_page_list_item_scene.instantiate()
 	item.set_id(d.i)
 	item.show_equipped_tag(GameState.get_equipped_weapon_id() == d.i)
-	item.set_mag_current(d.w.magazine_current)
+	item.set_magazine_current_value(d.w.magazine_current)
 	return item
 
 

@@ -1,5 +1,8 @@
+# Shared script for all inventory item sprite scene, it has magazine counter and equipped tag
 class_name InventoryPageListItem
 extends ListItem
+
+const MAX_MAGAZINE_CURRENT_VALUE: int = 999 # Cannot render more than this
 
 var magazine_current_value: int = 0
 var is_equipped_tag_visible: bool = false
@@ -15,11 +18,11 @@ func _ready() -> void:
 
 func show_equipped_tag(value: bool) -> void:
 	is_equipped_tag_visible = value
-	if is_node_ready():
+	if is_node_ready(): # To support calling this before or after ready
 		equipped_tag.visible = is_equipped_tag_visible
 
 
-func set_mag_current(value: int) -> void:
-	magazine_current_value = value
-	if is_node_ready():
+func set_magazine_current_value(value: int) -> void:
+	magazine_current_value = mini(value, MAX_MAGAZINE_CURRENT_VALUE)
+	if is_node_ready(): # To support calling this before or after ready
 		magazine_current.display_number(magazine_current_value)

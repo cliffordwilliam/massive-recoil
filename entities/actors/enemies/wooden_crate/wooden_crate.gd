@@ -1,3 +1,4 @@
+# Static wooden boxes found around the world to be broken by player to reveal loot
 class_name WoodenCrate
 extends Area2D
 
@@ -9,9 +10,11 @@ var is_destroyed: bool = false
 @onready var timer: Timer = $Timer
 
 
+# All enemies need ouch func for taking hit logic
 func ouch() -> void:
 	if is_destroyed:
 		return
+
 	is_destroyed = true
 	collision_layer = 0
 	collision_mask = 0
@@ -20,5 +23,6 @@ func ouch() -> void:
 	timer.start()
 
 
+# Linger around a bit before disappearing after being destroyed
 func _on_timer_timeout() -> void: # Connected via engine GUI
 	queue_free()

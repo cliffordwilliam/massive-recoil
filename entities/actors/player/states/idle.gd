@@ -1,11 +1,12 @@
+# State where player stands still
 class_name PlayerIdleState
 extends PlayerState
 
 
-func enter(old_state: Script) -> void:
-	player.body.play("stop" if old_state == PlayerRunState else "idle")
+func enter(msg: Dictionary = { }) -> void:
+	player.body.play("stop" if msg.get("previous") == &"PlayerRunState" else "idle")
 	player.velocity.x = 0.0
 
 
-func process_physics(_delta: float) -> void:
-	try_exit(PlayerIdleState)
+func physics_update(_delta: float) -> void:
+	try_exit()

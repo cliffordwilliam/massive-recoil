@@ -1,3 +1,4 @@
+# This is to be managed by NumberDisplay, it is a single number sprite
 class_name Digit
 extends Sprite2D
 

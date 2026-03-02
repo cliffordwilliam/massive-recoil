@@ -1,81 +1,100 @@
+# This must have BasePage parent and only ListItems in its item containers
 class_name ScrollList
 extends Node2D
 
 signal item_selected(id: StringName)
-signal index_changed(id: StringName)
+signal render_updated(id: StringName) # Called when cursor moved or population size changes
 
 @export var cursor_scene: PackedScene
 @export var page_size: int = 5
 
-var item_h: int = 0
+var item_height: int = 0
 var offset: int = 0
 var cursor_row: int = 0
-var cursor: Sprite2D
+var cursor: Node2D
+# Can be toggled on/off (never process and invisible)
+# True means I have content (my child count has width)
+var is_active: bool = false:
+	set(value):
+		is_active = value
+		process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
+		visible = is_active
 
 @onready var cursor_container: Node2D = $Cursor
 @onready var items_container: Node2D = $Items
 
 
 func _ready() -> void:
-	assert(cursor_scene, "ScrollList: cursor_scene must be set in the inspector")
+	assert(get_parent() is BasePage, "ScrollList: my parent must be a BasePage")
+	assert(cursor_scene, "ScrollList: cursor_scene is missing")
 	cursor = cursor_scene.instantiate()
+	assert(cursor is Node2D, "ScrollList: cursor must be a Node2D")
 	cursor_container.add_child(cursor)
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
+
+	if items_container.get_child_count() == 0:
+		return
+
 	if Input.is_action_just_pressed("accept"):
-		var idx: int = max(0, offset + cursor_row)
-		if idx < items_container.get_child_count():
-			item_selected.emit(items_container.get_child(idx).name)
-			get_viewport().set_input_as_handled()
+		var idx: int = clamp(offset + cursor_row, 0, items_container.get_child_count() - 1)
+		item_selected.emit(items_container.get_child(idx).name)
+		get_viewport().set_input_as_handled()
+
 	elif Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
-		if not items_container.get_child_count():
-			return
 		var dir: int = int(Input.get_axis("up", "down"))
-		var abs_i: int = clamp(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
-		offset = clamp(abs_i - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
-		cursor_row = abs_i - offset
-		_move()
+		var idx: int = clamp(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
+		offset = clamp(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
+		cursor_row = idx - offset
+		_update_render()
 		get_viewport().set_input_as_handled()
 
 
 func set_items(new_items: Array) -> void:
-	for old_item in items_container.get_children():
+	for i: Node in new_items:
+		assert(i is ListItem, "ScrollList: I can only hold ListItem")
+
+	for old_item: ListItem in items_container.get_children():
+		# This is okay since no one references my item container content
 		items_container.remove_child(old_item)
 		old_item.queue_free()
+
 	for new_item: ListItem in new_items:
 		items_container.add_child(new_item)
-	_set_enabled(new_items.size() > 0)
-	if new_items.size() == 0:
+
+	is_active = items_container.get_child_count() > 0
+
+	if not is_active:
 		offset = 0
 		cursor_row = 0
 		return
-	item_h = int(new_items[0].get_rect().size.y)
-	offset = clamp(offset, 0, max(0, new_items.size() - page_size))
-	cursor_row = clamp(cursor_row, 0, min(new_items.size(), page_size) - 1)
-	_move()
+
+	var first_item: ListItem = items_container.get_child(0)
+	item_height = first_item.get_height()
+
+	# Population size changed so must ensure that offset and cursor stay within new valid range
+	offset = clamp(offset, 0, max(0, items_container.get_child_count() - page_size))
+	cursor_row = clamp(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
+	_update_render()
 
 
-func _set_enabled(enabled: bool) -> void:
-	var page: BasePage = get_parent() as BasePage
-	if enabled and page and not page.visible:
+func _update_render() -> void:
+	if not is_active:
 		return
-	process_mode = Node.PROCESS_MODE_INHERIT if enabled else Node.PROCESS_MODE_DISABLED
-	visible = enabled
 
-
-func _move() -> void:
-	if not items_container.get_child_count():
-		return
+	# Adjust page content
 	for i in items_container.get_child_count():
+		var list_item: ListItem = items_container.get_child(i)
 		var row: int = i - offset
 		var in_view: bool = row >= 0 and row < page_size
-		items_container.get_child(i).visible = in_view
+		list_item.visible = in_view
 		if in_view:
-			items_container.get_child(i).position.y = row * item_h
-	cursor.position.y = cursor_row * item_h
-	var idx: int = max(0, offset + cursor_row)
-	if idx < items_container.get_child_count():
-		index_changed.emit(items_container.get_child(idx).name)
+			list_item.position.y = row * item_height
+
+	cursor.position.y = cursor_row * item_height
+
+	var idx: int = clamp(offset + cursor_row, 0, items_container.get_child_count() - 1)
+	render_updated.emit(items_container.get_child(idx).name)

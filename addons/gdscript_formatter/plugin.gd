@@ -387,7 +387,7 @@ func _on_menu_item_selected(command: String) -> void:
 		"help":
 			show_help()
 		_:
-			push_warning("Unsupported command sent from the menu: " + command)
+			assert("Unsupported command sent from the menu: " + command)
 
 
 func has_command(command: String) -> bool:

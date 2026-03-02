@@ -1,3 +1,5 @@
+# This is a carousel slide container that can only show one BasePage at a time
+# There are no other BasePage manager, this is the only thing in the game that can pause game
 class_name PageRouter
 extends CanvasLayer
 
@@ -5,51 +7,63 @@ signal page_closed
 
 var current_page: BasePage = null
 
+# My list of BasePage goes here
 @onready var inventory_page: InventoryPage = $InventoryPage
-@onready var shop_page: BuyPage = $BuyPage
+@onready var buy_page: BuyPage = $BuyPage
 
 
 func _ready() -> void:
-	visible = true # Editor sets me invisible as it blocks dev view
-	process_mode = Node.PROCESS_MODE_ALWAYS # Router and pages under me always run
-	for p in get_children(): # Then disable all of my page kids
-		if p is BasePage:
-			p.set_enabled(false)
+	# Staying visible in editor is distracting, so I only show myself in runtime
+	show()
+
+	# Me and my BasePage children always run no matter what even during pause
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# Turn all of my BasePage children off
+	for child in get_children():
+		if child is BasePage:
+			child.is_active = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
+
+	# Close that one opened BasePage
 	if Input.is_action_just_pressed("cancel") and current_page:
-		close_page()
+		_close_page()
 		get_viewport().set_input_as_handled()
+
+	# Open inventory page
 	elif Input.is_action_just_pressed("inventory") and not current_page:
-		open_inventory_page()
+		_open_inventory_page()
 		get_viewport().set_input_as_handled()
 
 
-func open_shop_page() -> bool:
-	return _show_page(shop_page)
+func open_buy_page() -> bool:
+	return _open_page(buy_page)
 
 
-func open_inventory_page() -> bool:
-	return _show_page(inventory_page)
+func _open_inventory_page() -> bool:
+	return _open_page(inventory_page)
 
 
-func close_page() -> bool:
-	if not current_page:
-		return false
-	current_page.set_enabled(false)
-	current_page = null
-	get_tree().paused = false
-	page_closed.emit()
-	return true
-
-
-func _show_page(new_page: BasePage) -> bool:
+func _close_page() -> bool:
 	if current_page:
-		return false
-	current_page = new_page
-	current_page.set_enabled(true)
-	get_tree().paused = true
-	return true
+		current_page.is_active = false
+		current_page = null
+		get_tree().paused = false
+		page_closed.emit()
+		return true
+	return false
+
+
+func _open_page(new_page: BasePage) -> bool:
+	assert(new_page is BasePage, "PageRouter: _open_page can only receive BasePage")
+
+	if not current_page:
+		current_page = new_page
+		current_page.is_active = true
+		get_tree().paused = true
+		return true
+	return false

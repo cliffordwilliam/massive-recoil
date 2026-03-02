@@ -1,9 +1,16 @@
+# Only player has guns so this is here, has flash API to set where to show and fade out
 class_name Light
 extends Sprite2D
 
 const FLASH_DURATION: float = 0.083
 
 var tween: Tween
+
+
+func _exit_tree() -> void:
+	if tween:
+		tween.kill()
+		tween = null
 
 
 func flash(pos: Vector2) -> void:

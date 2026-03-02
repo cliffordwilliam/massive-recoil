@@ -1,10 +1,12 @@
+# Base class for all state machine state
 class_name BaseState
 extends Node
 
+# I readied first but then I still can get parent reference
 @onready var state_machine: StateMachine = get_parent()
 
 
-func enter(_old_state: Script) -> void:
+func enter(_msg: Dictionary = { }) -> void:
 	pass
 
 
@@ -12,5 +14,9 @@ func exit() -> void:
 	pass
 
 
-func process_physics(_delta: float) -> void:
+func handle_input(_event: InputEvent) -> void:
+	pass
+
+
+func physics_update(_delta: float) -> void:
 	pass

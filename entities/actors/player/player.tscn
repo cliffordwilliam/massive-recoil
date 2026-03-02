@@ -54,20 +54,22 @@ animation_transitions = Dictionary[StringName, StringName]({
 })
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
-[node name="Arms" type="AnimatedSprite2D" parent="Body" unique_id=869633070]
+[node name="Arms" type="AnimatedSprite2D" parent="Body" unique_id=869633070 node_paths=PackedStringArray("player")]
 sprite_frames = ExtResource("4_7thud")
 animation = &"idle"
 speed_scale = 0.0
 script = ExtResource("5_pinno")
+player = NodePath("../..")
 metadata/_custom_type_script = "uid://skmpd278tn72"
 
-[node name="Ray" type="RayCast2D" parent="." unique_id=2096537396]
+[node name="Ray" type="RayCast2D" parent="." unique_id=2096537396 node_paths=PackedStringArray("player")]
 visible = false
 position = Vector2(0, -27)
 target_position = Vector2(400, 0)
 collision_mask = 12
 collide_with_areas = true
 script = ExtResource("6_ps3iq")
+player = NodePath("..")
 
 [node name="Line" type="Line2D" parent="Ray" unique_id=1958935439]
 points = PackedVector2Array(19, 0, 400, 0)
@@ -89,8 +91,9 @@ script = ExtResource("8_jl75p")
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_symyc")
 
-[node name="StateMachine" type="Node" parent="." unique_id=2074161636]
+[node name="StateMachine" type="Node" parent="." unique_id=2074161636 node_paths=PackedStringArray("initial_state")]
 script = ExtResource("4_fkugw")
+initial_state = NodePath("PlayerIdleState")
 metadata/_custom_type_script = "uid://dxqaagfsb2ut8"
 
 [node name="PlayerIdleState" type="Node" parent="StateMachine" unique_id=773474783]

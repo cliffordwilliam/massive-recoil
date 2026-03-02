@@ -1,42 +1,46 @@
+# State machine to manage BaseState
 class_name StateMachine
 extends Node
 
-var states: Dictionary[Script, BaseState] = { }
+@export var initial_state: BaseState
+
 var current_state: BaseState = null
-var initial_state: BaseState = null
 
 
 func _ready() -> void:
+	assert(initial_state is BaseState, "StateMachine: Initial state must be BaseState")
+	current_state = initial_state
 	for c in get_children():
-		if c is BaseState:
-			states[c.get_script()] = c
-			if not initial_state:
-				initial_state = c
-				current_state = c
+		assert(c is BaseState, "StateMachine: I can only have BaseState children")
+	assert(get_child_count() > 0, "StateMachine: I have no state children")
 
 
 func _physics_process(delta: float) -> void:
 	if current_state:
-		current_state.process_physics(delta)
+		current_state.physics_update(delta)
 
 
-func exit_to(new_state_script: Script, old_state_script: Script) -> void:
-	var new_state: BaseState = states.get(new_state_script)
-	if not new_state:
-		push_warning("StateMachine: No child found for script: " + str(new_state_script))
-		return
+func _unhandled_input(event: InputEvent) -> void:
+	if current_state:
+		current_state.handle_input(event)
+
+
+func transition_to(target_state_name: StringName, msg: Dictionary = { }) -> void:
+	var target_state: BaseState = get_node(NodePath(target_state_name))
+	assert(target_state is BaseState, "StateMachine: No child found for: " + target_state_name)
 	if current_state:
 		current_state.exit()
-	current_state = new_state
-	current_state.enter(old_state_script)
+	current_state = target_state
+	current_state.enter(msg)
 
 
 func reset() -> void:
 	if current_state and initial_state:
-		exit_to(initial_state.get_script(), current_state.get_script())
+		transition_to(initial_state.name, { "previous": current_state.name })
 
 
-# Safe: children _ready() before parent, so states dict is populated before Player.ready fires
+# My BaseState readied, then I readied, then Player readied that calls this func
+# Empty msg means this is the first ever state entry (no previous state)
 func _on_player_ready() -> void: # Connected via engine GUI
 	if current_state:
-		current_state.enter(null)
+		current_state.enter()

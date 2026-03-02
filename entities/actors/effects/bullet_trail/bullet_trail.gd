@@ -1,3 +1,4 @@
+# Effect that plays tween on ready and queue free when its done
 class_name BulletTrail
 extends Line2D
 
