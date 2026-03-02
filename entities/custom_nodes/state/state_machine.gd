@@ -25,4 +25,4 @@ func exit_to(new_state_name: String, old_state_name: String) -> void:
 
 
 func reset() -> void:
-	exit_to(get_child(0).name, current_state.name if current_state else "")
+	exit_to(str(get_child(0).name), str(current_state.name) if current_state else "")
