@@ -3,7 +3,11 @@ extends RigidBody2D
 
 
 func _ready() -> void:
-	get_tree().create_timer(1.5).timeout.connect(func() -> void: queue_free())
+	get_tree().create_timer(1.5).timeout.connect(
+		func() -> void:
+			if is_instance_valid(self):
+				queue_free()
+	)
 
 
 func init(pos: Vector2, facing_left: bool) -> BulletCasing:

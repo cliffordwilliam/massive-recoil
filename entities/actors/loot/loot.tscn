@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://c8n3afbxloqqa" path="res://entities/actors/loot/loot.gd" id="1_a2pmq"]
 [ext_resource type="SpriteFrames" uid="uid://c0bn4k7h5j48s" path="res://assets/sprites/loot_sprite_sheet.tres" id="2_jgv4d"]
-[ext_resource type="Script" uid="uid://skmpd278tn72" path="res://entities/custom_nodes/animated_sprite/animated_sprite.gd" id="3_d3k38"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_a2pmq"]
 friction = 0.03
@@ -22,11 +21,9 @@ gravity_scale = 0.5
 lock_rotation = true
 script = ExtResource("1_a2pmq")
 
-[node name="AnimatedSprite" type="AnimatedSprite2D" parent="." unique_id=379472900]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1082057764]
 sprite_frames = ExtResource("2_jgv4d")
 animation = &"handgun"
-script = ExtResource("3_d3k38")
-metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=238545048]
 shape = SubResource("CircleShape2D_a2pmq")

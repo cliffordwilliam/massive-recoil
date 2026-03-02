@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://pd60uol54sl"]
 
 [ext_resource type="PackedScene" uid="uid://1ajdrqx8b0uo" path="res://rooms/room.tscn" id="1_ke2ty"]
-[ext_resource type="Script" uid="uid://clgm6e3n0s3p1" path="res://rooms/village/village_entrance.gd" id="2_am8c5"]
+[ext_resource type="Script" path="res://rooms/village/village_entrance.gd" id="2_am8c5"]
 [ext_resource type="Texture2D" uid="uid://qvlk7l1jkjh0" path="res://assets/textures/backgrounds/greybox_background.png" id="2_rqp8j"]
 [ext_resource type="TileSet" uid="uid://cfpvgo5eio3ne" path="res://assets/textures/tile_sets/world_tile_set.tres" id="4_ib2mq"]
 [ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://entities/actors/player/player.tscn" id="5_qt7ss"]

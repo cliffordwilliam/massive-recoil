@@ -24,7 +24,7 @@ func set_active(value: bool) -> void:
 
 
 func shoot() -> void:
-	if GameState.try_eat_one_equipped_weapon_ammo():
+	if GameState.try_consume_ammo():
 		owner.arms.recoil_arm_sprite_back(rotation)
 		light.flash(line.get_point_position(0))
 		Spawner.spawn_shoot_effects(

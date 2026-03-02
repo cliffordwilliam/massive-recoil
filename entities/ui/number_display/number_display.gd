@@ -8,7 +8,9 @@ extends Node2D
 
 func _ready() -> void:
 	for i in range(nums):
-		add_child(preload("uid://d0b0oqbpc3v0b").instantiate().init(-(nums - i) if right_aligned else i))
+		add_child(
+			preload("uid://d0b0oqbpc3v0b").instantiate().init(-(nums - i) if right_aligned else i),
+		)
 
 
 func display_number(n: int) -> void:

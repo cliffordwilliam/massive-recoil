@@ -1,16 +1,16 @@
-class_name AnimatedSprite
+class_name CustomAnimatedSprite
 extends AnimatedSprite2D
 
 signal flip_h_changed
 
-@export var trans: Dictionary[StringName, StringName] = { }
+@export var animation_transitions: Dictionary[StringName, StringName] = { }
 
 
 func _ready() -> void:
 	animation_finished.connect(
 		func() -> void:
-			if trans.has(animation):
-				play(trans[animation])
+			if animation_transitions.has(animation):
+				play(animation_transitions[animation])
 	)
 
 

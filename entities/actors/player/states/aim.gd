@@ -5,21 +5,22 @@ var dest_angle: float = 0.0
 var real_angle: float = 0.0:
 	set(value):
 		real_angle = value
-		owner.body.frame = int(remap(real_angle, PI / 2.0, -PI / 2.0, 0, owner.aim_frames - 1))
-		owner.ray.rotation = PI - real_angle if owner.body.flip_h else real_angle
+		if owner:
+			owner.body.frame = int(remap(real_angle, PI / 2.0, -PI / 2.0, 0, owner.aim_frames - 1))
+			owner.ray.rotation = PI - real_angle if owner.body.flip_h else real_angle
 
 
-func enter(old: String) -> void:
+func enter(old_state: String) -> void:
 	owner.body.animation = "aim" # This sets frame index to 0
 	owner.velocity.x = 0.0
-	owner.body.pause() # Here frame is a func of angle
+	owner.body.pause() # Here frame is a function of angle
 	dest_angle = 0.0
-	real_angle = 0.6 if old == "PlayerReloadState" else 0.0
+	real_angle = 0.6 if old_state == "PlayerReloadState" else 0.0
 	owner.ray.set_active(true)
 
 
 func exit() -> void:
-	owner.body.play() # Let frame be func of time again
+	owner.body.play() # Let frame be function of time again
 	owner.ray.set_active(false)
 
 

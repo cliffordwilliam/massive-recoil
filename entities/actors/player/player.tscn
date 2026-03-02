@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://561ep14ey5sv" path="res://entities/actors/player/player.gd" id="1_abrql"]
 [ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
-[ext_resource type="Script" uid="uid://skmpd278tn72" path="res://entities/custom_nodes/animated_sprite/animated_sprite.gd" id="3_sglur"]
+[ext_resource type="Script" uid="uid://skmpd278tn72" path="res://entities/custom_nodes/animated_sprite/custom_animated_sprite.gd" id="3_sglur"]
 [ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://entities/actors/player/states/idle.gd" id="5_8fjmc"]
@@ -44,7 +44,7 @@ position = Vector2(0, -21)
 sprite_frames = ExtResource("2_qiwj3")
 animation = &"idle"
 script = ExtResource("3_sglur")
-trans = Dictionary[StringName, StringName]({
+animation_transitions = Dictionary[StringName, StringName]({
 &"crouch_to_idle": &"idle",
 &"land": &"idle",
 &"stop": &"idle",
@@ -122,3 +122,6 @@ metadata/_custom_type_script = "uid://d1gyiws53uv61"
 
 [node name="ReloadTimer" type="Timer" parent="StateMachine/PlayerReloadState" unique_id=268838170]
 one_shot = true
+
+[connection signal="animation_finished" from="Body" to="StateMachine/PlayerTurnState" method="_on_body_animation_finished"]
+[connection signal="timeout" from="StateMachine/PlayerReloadState/ReloadTimer" to="StateMachine/PlayerReloadState" method="_on_reload_timer_timeout"]

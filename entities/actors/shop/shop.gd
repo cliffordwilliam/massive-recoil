@@ -15,7 +15,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
 	if Input.is_action_just_pressed("accept"):
-		get_tree().current_scene.page_router.open_page(preload("uid://euoup28876nb"))
+		get_tree().current_scene.page_router.open_shop_page()
 
 
 func _set_active(value: bool, node: Node) -> void:

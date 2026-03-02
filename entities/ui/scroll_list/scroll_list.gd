@@ -56,8 +56,10 @@ func _move() -> void:
 	if not $Items.get_child_count():
 		return
 	for i in $Items.get_child_count():
-		$Items.get_child(i).visible = (i - offset) >= 0 and (i - offset) < page_size
-		if (i - offset) >= 0 and (i - offset) < page_size:
-			$Items.get_child(i).position.y = (i - offset) * item_h
+		var row: int = i - offset
+		var in_view: bool = row >= 0 and row < page_size
+		$Items.get_child(i).visible = in_view
+		if in_view:
+			$Items.get_child(i).position.y = row * item_h
 	cursor.position.y = cursor_row * item_h
 	index_changed.emit($Items.get_child(offset + cursor_row).name)
