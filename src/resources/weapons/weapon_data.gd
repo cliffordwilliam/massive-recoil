@@ -1,7 +1,7 @@
 class_name WeaponData
 extends Resource
 
-# Static definition data (set in inspector or in code)
+# Static definition data (set in inspector)
 @export var id: StringName
 @export var arms_sprite: SpriteFrames
 @export var icon_sprite: Texture2D
