@@ -1,10 +1,10 @@
+class_name Arms
+extends AnimatedSprite2D
+
 # This is the skin that gets swapped around when equipped weapon changes, handgun, rifle, etc
 # This has the exact same frames as body, so it always follows body sprite frame states
 # So it must have Player as direct parent and a reference player's body sprite master
 # This also has a recoil animation that plays when player shoots
-class_name Arms
-extends AnimatedSprite2D
-
 const RECOIL_DISTANCE: float = 2.5
 const RECOIL_SMOOTH: float = 15.0
 
@@ -22,7 +22,7 @@ func _exit_tree() -> void:
 	_kill_recoil_tween_if_exists()
 
 
-# WARNING: Must be called by Player ready!
+# WARNING: Must be called by Player ready
 func start() -> void: # Connected via engine GUI
 	_hydrate_ui()
 

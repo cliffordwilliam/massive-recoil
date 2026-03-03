@@ -1,7 +1,7 @@
-# Shared script for all buy item sprite scene, it has new tag and sold out tag
 class_name BuyPageListItem
 extends ListItem
 
+# Shared script for all buy item sprite scene, it has new tag and sold out tag
 var is_new_tag_visible: bool = false
 var is_out_tag_visible: bool = false
 

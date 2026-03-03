@@ -1,11 +1,11 @@
+class_name PlayerReloadState
+extends PlayerState
+
 # State where player is reloading, must come from aim state
 # Must travel from aim angle to reload angle first before playing reload animation
 # Reload animation is just a thing to look at as the reload timer counts down
 # Reload will only be granted only when the reload timer is over, if it ends early then nothing
 # This is intentional design, player is fully committed to reload duration with no way to cancel
-class_name PlayerReloadState
-extends PlayerState
-
 const DEST_RELOAD_AIM_FRAME: float = 5.0
 const FRAME_TRANSITION_SPEED: float = 20.0
 

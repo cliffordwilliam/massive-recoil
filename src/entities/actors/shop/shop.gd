@@ -1,7 +1,7 @@
-# Static actor in game world, when player overlap with it, they can open shop page
 class_name Shop
 extends Area2D
 
+# Static actor in game world, when player overlap with it, they can open shop page
 @onready var black_overlay: Sprite2D = $BlackOverlay
 
 

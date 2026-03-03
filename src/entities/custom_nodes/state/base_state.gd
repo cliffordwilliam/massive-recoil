@@ -1,7 +1,7 @@
-# Base class for all state machine state
 class_name BaseState
 extends Node
 
+# Base class for all state machine state
 # I readied first but then I still can get parent reference
 @onready var state_machine: StateMachine = get_parent()
 

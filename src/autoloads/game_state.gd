@@ -17,8 +17,8 @@ var money: int = 5
 var equipped_weapon_id: StringName = &""
 # Weapons
 var weapons: Dictionary[StringName, WeaponData] = {
-	"handgun": HANDGUN,
-	"rifle": RIFLE,
+	&"handgun": HANDGUN,
+	&"rifle": RIFLE,
 }
 
 

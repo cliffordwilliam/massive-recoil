@@ -18,7 +18,7 @@ func _ready() -> void:
 	if id and not animated_sprite_2d.is_playing():
 		animated_sprite_2d.play(id)
 
-	if global_pos:
+	if global_pos != Vector2.ZERO:
 		global_position = global_pos
 
 	if linear_vel:

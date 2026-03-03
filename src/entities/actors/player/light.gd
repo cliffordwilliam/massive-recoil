@@ -1,8 +1,8 @@
-# This flash a light in a given position, has one API to set where to show up to flash
-# Only player can use this, so its parent must be the player
 class_name Light
 extends Sprite2D
 
+# This flash a light in a given position, has one API to set where to show up to flash
+# Only player can use this, so its parent must be the player
 const FLASH_DURATION: float = 0.083
 
 var tween: Tween

@@ -1,7 +1,7 @@
-# Effect that plays timer on ready and queue free when its done
 class_name BulletCasing
 extends RigidBody2D
 
+# Effect that plays timer on ready and queue free when its done
 const EJECT_ANGLE: float = PI / 6
 const EJECT_SPREAD: float = PI / 18
 const EJECT_SPEED_MIN: float = 150.0

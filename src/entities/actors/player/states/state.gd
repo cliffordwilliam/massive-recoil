@@ -1,7 +1,7 @@
-# Hold common player state logics
 class_name PlayerState
 extends BaseState
 
+# Shared logic for all player states, including the priority-ordered [method try_exit] transition.
 # Safe: owner is set during _enter_tree (before _ready), so this resolves correctly
 @onready var player: Player = owner
 

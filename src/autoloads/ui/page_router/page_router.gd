@@ -1,11 +1,8 @@
-# This is a carousel slide container autoload that can only show one BasePage at a time
-# There are no other BasePage manager, this is the only thing in the game that can pause gameplay
-# BasePage are overlays that pauses the game, so it is not the main menu
-# Main menu, Splash screen, Load page, etc are all non gameplay current scene
-# BaseRoom is the only kind gameplay current scene
-# PageRouter
 extends CanvasLayer
 
+# Autoload carousel that shows one BasePage at a time and pauses the game while open.
+# The only system that can pause gameplay. BasePage overlays are distinct from non-gameplay
+# scenes (main menu, splash, load screen). BaseRoom is the only gameplay current scene.
 signal page_closed
 
 var current_page: BasePage = null

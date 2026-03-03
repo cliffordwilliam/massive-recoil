@@ -1,7 +1,7 @@
-# The only thing that renders number using sprites, this game only renders positive numbers
 class_name NumberDisplay
 extends Node2D
 
+# The only thing that renders number using sprites, this game only renders positive numbers
 @export var digit_scene: PackedScene # Set via engine GUI
 @export var right_aligned: bool = false
 @export var pad: bool = false

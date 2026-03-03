@@ -55,7 +55,8 @@ func shoot() -> bool:
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider is BaseEnemy:
-			collider.ouch(1) # TODO: Set this with weapon damage prop later
+			var enemy: BaseEnemy = collider
+			enemy.ouch(1) # TODO: Set this with weapon damage prop later
 
 	# Shot fired, may miss or hit something
 	return true

@@ -1,9 +1,9 @@
-# All enemy have this health counter, it just counts health and shouts when its zero
-# It needs EnemyData resource for good DX
-# (e.g. change red dino max health resource, all red dino gets updated)
 class_name HealthCounter
 extends Node
 
+# All enemy have this health counter, it just counts health and shouts when its zero
+# It needs EnemyData resource for good DX
+# (e.g. change red dino max health resource, all red dino gets updated)
 signal died
 
 @export var enemy_data: EnemyData

@@ -1,9 +1,9 @@
-# State where player turns around
-# This is intentional design, player is fully committed to turn duration with no way to cancel
 class_name PlayerTurnState
 extends PlayerState
 
 
+# State where the player turns around.
+# By design, the player is fully committed to the turn duration with no way to cancel.
 func enter(_old_state: StringName) -> void:
 	player.body.set_flip(not player.body.flip_h)
 	player.body.play("turn")

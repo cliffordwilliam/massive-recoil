@@ -1,7 +1,7 @@
-# Shared script for all inventory item sprite scene, each has magazine counter and equipped tag
 class_name InventoryPageListItem
 extends ListItem
 
+# Shared script for all inventory item sprite scene, each has magazine counter and equipped tag
 const MAX_MAGAZINE_CURRENT_VALUE: int = 999 # Cannot render magazine counter more than this
 
 var magazine_current_value: int = 0

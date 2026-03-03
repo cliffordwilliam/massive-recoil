@@ -1,8 +1,8 @@
-# State where player walks forward
 class_name PlayerWalkState
 extends PlayerState
 
 
+# State where player walks forward
 func enter(_old_state: StringName) -> void:
 	player.body.play("walk")
 	player.velocity.x = (-Player.WALK_SPEED if player.body.flip_h else Player.WALK_SPEED)

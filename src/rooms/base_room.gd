@@ -1,4 +1,3 @@
-# During gameplay where the player moves around, BaseRoom must be the current scene
-# All BaseRoom
 class_name BaseRoom
 extends Node
+# Base class for all gameplay rooms. Must be the current scene during gameplay.

@@ -1,8 +1,8 @@
 @abstract
-# This is the base class for pages managed by PageRouter, so parent must be PageRouter
 class_name BasePage
 extends Sprite2D
 
+# Base class for all pages managed by PageRouter. Parent must be PageRouter.
 # All pages can be toggled on/off (off means never process and invisible)
 var is_active: bool:
 	set(value):

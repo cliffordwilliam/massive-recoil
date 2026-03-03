@@ -1,6 +1,6 @@
-# Spawner
 extends Node
 
+# Autoload. Centralises instantiation of effects and loot into the current scene.
 const BULLET_CASING = preload("uid://brkax245qceky")
 const MUZZLE_FLASH = preload("uid://dhv0cshyajm8r")
 const BULLET_TRAIL = preload("uid://bwhu4xdomjxnx")

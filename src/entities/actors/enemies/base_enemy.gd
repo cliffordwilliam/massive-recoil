@@ -1,10 +1,10 @@
+class_name BaseEnemy
+extends Area2D
+
 # Enemy base class, enemy refers to all things that the player can shoot at (wooden crates, etc)
 # Enemies are all just Area2D, monitorable only, on enemy layer only
 # All enemies must have "dead" animation
 # All must use animated assets from res/assets/sprites/
-class_name BaseEnemy
-extends Area2D
-
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 @onready var queue_free_timer: Timer = $QueueFreeTimer
 @onready var health_counter: HealthCounter = $HealthCounter

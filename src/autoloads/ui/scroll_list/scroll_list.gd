@@ -1,8 +1,8 @@
-# This must have BasePage parent and only ListItems in its item containers
-# ListItems in this collection must be unique
 class_name ScrollList
 extends Node2D
 
+# Scrollable list of ListItem nodes. Parent must be BasePage.
+# All items in the collection must have unique names.
 signal item_selected(id: StringName)
 signal render_updated(id: StringName) # Called when cursor moved or population size changes
 

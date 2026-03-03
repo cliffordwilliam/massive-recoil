@@ -1,8 +1,8 @@
-# Upgraded AnimatedSprite2D so that it has flip h signal and transition animation feature
-# WARNING: Always use set_flip() instead of setting flip_h directly, or the signal won't emit
 class_name CustomAnimatedSprite
 extends AnimatedSprite2D
 
+# Upgraded AnimatedSprite2D so that it has flip h signal and transition animation feature
+# Warning: Always use set_flip instead of setting AnimatedSprite2D.flip_h directly, or the signal will not emit.
 signal flip_h_changed
 
 @export var animation_transitions: Dictionary[StringName, StringName] = { }

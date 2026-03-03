@@ -1,7 +1,7 @@
-# State machine to manage BaseState
 class_name StateMachine
 extends Node
 
+# State machine to manage BaseState
 @export var initial_state: BaseState
 
 var current_state: BaseState = null
@@ -53,8 +53,8 @@ func reset() -> void:
 		transition_to(initial_state.name, current_state.name)
 
 
-# WARNING: Must be called by owner ready!
-# Empty StringName means this is the first ever state entry (no previous state)
+# Warning: Must be called by the owner's _ready.
+# An empty StringName as the previous state means this is the initial entry.
 func start() -> void: # Connected via engine GUI
 	set_physics_process(true)
 	set_process_unhandled_input(true)

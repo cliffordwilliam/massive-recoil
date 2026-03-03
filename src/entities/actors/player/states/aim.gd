@@ -1,7 +1,7 @@
-# State where player aims, aim animation here is a function of angle, handle shoot and reload input
 class_name PlayerAimState
 extends PlayerState
 
+# State where player aims, aim animation here is a function of angle, handle shoot and reload input
 const POST_RELOAD_AIM_ANGLE: float = 0.6
 const RECOIL_KICK: float = 0.1 # TODO: Maybe move recoil kick as a weapon prop?
 
