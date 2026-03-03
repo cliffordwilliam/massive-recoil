@@ -1,3 +1,4 @@
+@abstract
 # This is the base class for pages managed by PageRouter, so parent must be PageRouter
 class_name BasePage
 extends Sprite2D
@@ -13,4 +14,4 @@ var is_active: bool:
 
 
 func _hydrate_ui() -> void:
-	pass # Children override fetch logic here
+	pass # Children must override fetch logic here

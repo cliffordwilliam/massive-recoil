@@ -41,15 +41,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	if items_container.get_child_count() == 0:
 		return
 
-	if Input.is_action_just_pressed("accept"):
-		var idx: int = clamp(offset + cursor_row, 0, items_container.get_child_count() - 1)
+	if event.is_action_pressed("accept"):
+		var idx: int = clampi(offset + cursor_row, 0, items_container.get_child_count() - 1)
 		item_selected.emit(items_container.get_child(idx).name)
 		get_viewport().set_input_as_handled()
 
-	elif Input.is_action_just_pressed("up") or Input.is_action_just_pressed("down"):
+	elif event.is_action_pressed("up") or event.is_action_pressed("down"):
 		var dir: int = int(Input.get_axis("up", "down"))
-		var idx: int = clamp(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
-		offset = clamp(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
+		var idx: int = clampi(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
+		offset = clampi(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
 		cursor_row = idx - offset
 		_update_render()
 		get_viewport().set_input_as_handled()
@@ -84,8 +84,8 @@ func set_items(new_items: Array) -> void:
 	item_height = first_item.get_height()
 
 	# Population size changed so must ensure that offset and cursor stay within new valid range
-	offset = clamp(offset, 0, max(0, items_container.get_child_count() - page_size))
-	cursor_row = clamp(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
+	offset = clampi(offset, 0, max(0, items_container.get_child_count() - page_size))
+	cursor_row = clampi(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
 	_update_render()
 
 
@@ -104,5 +104,5 @@ func _update_render() -> void:
 
 	cursor.position.y = cursor_row * item_height
 
-	var idx: int = clamp(offset + cursor_row, 0, items_container.get_child_count() - 1)
+	var idx: int = clampi(offset + cursor_row, 0, items_container.get_child_count() - 1)
 	render_updated.emit(items_container.get_child(idx).name)

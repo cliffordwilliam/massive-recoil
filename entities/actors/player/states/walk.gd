@@ -5,7 +5,7 @@ extends PlayerState
 
 func enter(_old_state: StringName) -> void:
 	player.body.play("walk")
-	player.velocity.x = (-player.WALK_SPEED if player.body.flip_h else player.WALK_SPEED)
+	player.velocity.x = (-Player.WALK_SPEED if player.body.flip_h else Player.WALK_SPEED)
 
 
 func physics_update(_delta: float) -> void:

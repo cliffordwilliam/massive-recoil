@@ -127,8 +127,6 @@ metadata/_custom_type_script = "uid://d1gyiws53uv61"
 [node name="ReloadTimer" type="Timer" parent="StateMachine/PlayerReloadState" unique_id=268838170]
 one_shot = true
 
-[connection signal="ready" from="." to="Body/Arms" method="_on_player_ready"]
-[connection signal="ready" from="." to="StateMachine" method="_on_player_ready"]
 [connection signal="animation_changed" from="Body" to="Body/Arms" method="_on_body_animation_changed"]
 [connection signal="animation_finished" from="Body" to="StateMachine/PlayerTurnState" method="_on_body_animation_finished"]
 [connection signal="flip_h_changed" from="Body" to="Body/Arms" method="_on_body_flip_h_changed"]

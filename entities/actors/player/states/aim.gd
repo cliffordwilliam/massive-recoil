@@ -33,11 +33,15 @@ func exit() -> void:
 func handle_input(event: InputEvent) -> void:
 	# TODO: Add a timer node to this to support weapon automatic fire rate feature
 	if event.is_action_pressed("shoot"):
-		dest_angle -= RECOIL_KICK
-		player.ray.shoot()
+		# If shot is fired (there is ammo), do recoil
+		if player.ray.shoot():
+			dest_angle -= RECOIL_KICK
+			dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
+			get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("reload"):
 		if GameState.equipped_weapon_can_reload():
 			state_machine.transition_to(&"PlayerReloadState", name)
+			get_viewport().set_input_as_handled()
 
 
 func physics_update(delta: float) -> void:
@@ -46,6 +50,6 @@ func physics_update(delta: float) -> void:
 			return
 
 	# Player control destination, real angle chases the destination
-	dest_angle += Input.get_axis("up", "down") * player.AIM_SPEED * delta
+	dest_angle += Input.get_axis("up", "down") * Player.AIM_SPEED * delta
 	dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
-	real_angle = lerp(real_angle, dest_angle, 1.0 - pow(player.AIM_SMOOTH, delta))
+	real_angle = lerp(real_angle, dest_angle, 1.0 - pow(Player.AIM_SMOOTH, delta))

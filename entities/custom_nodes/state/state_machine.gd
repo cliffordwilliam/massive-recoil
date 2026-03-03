@@ -48,8 +48,8 @@ func reset() -> void:
 		transition_to(initial_state.name, current_state.name)
 
 
-# My BaseState readied, then I readied, then Player readied that calls this func
+# WARNING: Must be called by owner ready!
 # Empty StringName means this is the first ever state entry (no previous state)
-func _on_player_ready() -> void: # Connected via engine GUI
+func start() -> void: # Connected via engine GUI
 	if current_state:
 		current_state.enter(&"")

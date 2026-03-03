@@ -13,7 +13,7 @@ func spawn_money(pos: Vector2) -> void:
 
 	var loot: Loot = LOOT.instantiate()
 	get_tree().current_scene.add_child(loot)
-	loot.initialize("money", pos)
+	loot.initialize(&"money", pos)
 
 
 func spawn_shoot_effects(p1: Vector2, p2: Vector2, rot: float, flip_h: bool) -> void:

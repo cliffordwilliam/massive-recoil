@@ -31,12 +31,12 @@ func _physics_process(_delta: float) -> void:
 	dot.position = end
 
 
-func shoot() -> void:
+func shoot() -> bool:
 	if not is_active:
-		return
+		return false
 
 	if not GameState.try_consume_ammo():
-		return
+		return false
 
 	shot.emit(rotation)
 
@@ -45,8 +45,15 @@ func shoot() -> void:
 	var hit_pos: Vector2 = to_global(line.get_point_position(1))
 	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.flip_h)
 
+	# The order is: _unhandled_input (shoot) fires, then _physics_process runs.
+	# So the force_raycast_update in shoot happens before the one in physics_process.
+	# The one in shoot is needed to get collision data for the damage check.
+	# The one in physics_process is needed to update the laser sight visual. Both are needed.
 	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider and collider.is_in_group("enemies") and collider.has_method("ouch"):
 			collider.ouch()
+
+	# Shot fired, may miss or hit something
+	return true

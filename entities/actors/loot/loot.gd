@@ -6,7 +6,7 @@ const POP_SPREAD: float = PI / 4
 const POP_SPEED_MIN: float = 100.0
 const POP_SPEED_MAX: float = 150.0
 
-var id: StringName
+var id: StringName = &""
 var is_collected: bool = false
 
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D

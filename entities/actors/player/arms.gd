@@ -23,6 +23,12 @@ func _exit_tree() -> void:
 		GameState.new_weapon_equipped.disconnect(_hydrate_ui)
 
 
+# WARNING: Must be called by Player ready!
+func start() -> void: # Connected via engine GUI
+	GameState.new_weapon_equipped.connect(_hydrate_ui)
+	_hydrate_ui()
+
+
 func _play_recoil_animation(angle: float) -> void:
 	var direction: Vector2 = Vector2(-1, 0).rotated(angle)
 	position = direction * RECOIL_DISTANCE
@@ -42,14 +48,6 @@ func _kill_recoil_tween_if_exists() -> void:
 func _hydrate_ui() -> void:
 	sprite_frames = GameState.get_new_equipped_weapon_arms_sprite()
 	frame = player.body.frame # Changing sprite frames set me to 0, must keep up with master
-
-
-# Arm is an extension of the player
-# So we must treat it as if its the player
-# its ready must be when the player is ready
-func _on_player_ready() -> void: # Connected via engine GUI
-	GameState.new_weapon_equipped.connect(_hydrate_ui)
-	_hydrate_ui()
 
 
 func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI

@@ -12,7 +12,9 @@ func _ready() -> void:
 	animation_finished.connect(_on_animation_finished)
 
 
-# Setter already exists and I cannot override it, so have to manually use this
+# In Godot you cannot override the setter of an existing/built‑in property
+# There is no way in Godot to “enforce” that other code uses set_flip()
+# So I have to manually use this
 func set_flip(value: bool) -> void:
 	if flip_h != value:
 		flip_h = value

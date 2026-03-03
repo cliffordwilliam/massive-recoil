@@ -31,12 +31,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	# Close that one opened BasePage
-	if Input.is_action_just_pressed("cancel") and current_page:
+	if event.is_action_pressed("cancel") and current_page:
 		_close_page()
 		get_viewport().set_input_as_handled()
 
 	# Open inventory page
-	elif Input.is_action_just_pressed("inventory") and not current_page:
+	elif event.is_action_pressed("inventory") and not current_page:
 		_open_inventory_page()
 		get_viewport().set_input_as_handled()
 

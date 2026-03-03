@@ -5,7 +5,7 @@ signal new_weapon_equipped
 
 # Player
 var money: int = 9
-var equipped_weapon_id: StringName = "handgun"
+var equipped_weapon_id: StringName = &"handgun"
 # Weapons
 var weapons: Dictionary[StringName, Dictionary] = {
 	"handgun": {
@@ -65,7 +65,7 @@ func reload_weapon_by_id(id: StringName) -> void:
 		return
 	var weapon: Dictionary = weapons[id]
 	var needed: int = weapon.magazine_size - weapon.magazine_current
-	var available: int = min(needed, weapon.reserve_ammo)
+	var available: int = mini(needed, weapon.reserve_ammo)
 	weapon.magazine_current += available
 	weapon.reserve_ammo -= available
 
@@ -140,8 +140,13 @@ func get_owned_weapons() -> Array:
 	)
 
 
+func weapon_exists_and_is_owned(id: StringName) -> bool:
+	return weapon_exists(id) and weapons[id].is_owned
+
+
 func equip_a_new_weapon_by_id(id: StringName) -> void:
-	if not weapon_exists(id):
+	if not weapon_exists_and_is_owned(id):
 		return
+
 	equipped_weapon_id = id
 	new_weapon_equipped.emit()
