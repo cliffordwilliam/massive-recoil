@@ -6,6 +6,8 @@ const POP_SPREAD: float = PI / 4
 const POP_SPEED_MIN: float = 100.0
 const POP_SPEED_MAX: float = 150.0
 
+var global_pos: Vector2 = Vector2.ZERO
+var linear_vel: Vector2 = Vector2.ZERO
 var id: StringName = &""
 var is_collected: bool = false
 
@@ -16,17 +18,25 @@ func _ready() -> void:
 	if id and not animated_sprite_2d.is_playing():
 		animated_sprite_2d.play(id)
 
+	if global_pos:
+		global_position = global_pos
+
+	if linear_vel:
+		linear_velocity = linear_vel
+
 
 func initialize(given_id: StringName, pos: Vector2) -> void:
 	# This can be called before or after my ready is called
 	id = given_id
-	global_position = pos
-	linear_velocity = Vector2.UP.rotated(
+	global_pos = pos
+	linear_vel = Vector2.UP.rotated(
 		randf_range(-POP_SPREAD, POP_SPREAD),
 	) * randf_range(POP_SPEED_MIN, POP_SPEED_MAX)
 
 	if is_node_ready():
 		animated_sprite_2d.play(id)
+		global_position = global_pos
+		linear_velocity = linear_vel
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI (one shot)

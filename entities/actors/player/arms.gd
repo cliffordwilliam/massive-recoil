@@ -25,7 +25,8 @@ func _exit_tree() -> void:
 
 # WARNING: Must be called by Player ready!
 func start() -> void: # Connected via engine GUI
-	GameState.new_weapon_equipped.connect(_hydrate_ui)
+	if not GameState.new_weapon_equipped.is_connected(_hydrate_ui):
+		GameState.new_weapon_equipped.connect(_hydrate_ui)
 	_hydrate_ui()
 
 

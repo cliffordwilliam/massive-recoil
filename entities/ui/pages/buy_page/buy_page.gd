@@ -29,6 +29,8 @@ func _on_scroll_list_render_updated(id: StringName) -> void: # Connected via eng
 	if GameState.weapon_exists(id):
 		icon.texture = GameState.get_weapon_icon_by_id(id)
 		description.texture = GameState.get_weapon_description_by_id(id)
+	else:
+		push_warning("BuyPage: weapon does not exists")
 
 
 func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI

@@ -10,6 +10,7 @@ const DEST_RELOAD_AIM_FRAME: float = 5.0
 const FRAME_TRANSITION_SPEED: float = 20.0
 
 var reload_tween: Tween
+var equipped_weapon_reload_speed: float = 0.0
 
 @onready var reload_timer: Timer = $ReloadTimer
 
@@ -20,7 +21,7 @@ func _exit_tree() -> void:
 
 func enter(_old_state: StringName) -> void:
 	player.velocity.x = 0.0
-	reload_timer.wait_time = GameState.get_equipped_weapon_reload_speed()
+	equipped_weapon_reload_speed = GameState.get_equipped_weapon_reload_speed()
 
 	var start_frame: float = float(player.body.frame)
 	var duration: float = abs(DEST_RELOAD_AIM_FRAME - start_frame) / FRAME_TRANSITION_SPEED
@@ -56,8 +57,15 @@ func _set_aim_frame(value: float) -> void:
 
 # Plays when the aim angle reaches the reload aim destination angle
 func _start_reload_animation() -> void:
-	player.body.play("reload")
-	reload_timer.start()
+	# If there is wait time, do reload animation
+	if equipped_weapon_reload_speed:
+		player.body.play("reload")
+		reload_timer.wait_time = equipped_weapon_reload_speed
+		reload_timer.start()
+	# If there is no wait time, then just reload now
+	else:
+		GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
+		try_exit()
 
 
 # Reload is only ever successful when the reload timer runs out
