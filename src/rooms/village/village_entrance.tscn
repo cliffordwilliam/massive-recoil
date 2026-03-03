@@ -15,12 +15,12 @@ centered = false
 [node name="Shop" parent="." index="1" unique_id=999179484 instance=ExtResource("6_8a7uk")]
 position = Vector2(256, 144)
 
-[node name="Player" parent="." index="2" unique_id=407663167]
+[node name="WoodenCrate" parent="." index="2" unique_id=100866833 instance=ExtResource("7_8a7uk")]
+position = Vector2(176, 144)
+
+[node name="Player" parent="." index="3" unique_id=407663167]
 position = Vector2(64, 144)
 
-[node name="Solid" type="TileMapLayer" parent="." index="3" unique_id=1415107501]
+[node name="Solid" type="TileMapLayer" parent="." index="4" unique_id=1415107501]
 tile_map_data = PackedByteArray("AAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAACAAkAAAAAAAAAAAADAAkAAAAAAAAAAAAEAAkAAAAAAAAAAAAFAAkAAAAAAAAAAAAGAAkAAAAAAAAAAAAHAAkAAAAAAAAAAAAIAAkAAAAAAAAAAAAJAAkAAAAAAAAAAAAKAAkAAAAAAAAAAAALAAkAAAAAAAAAAAAMAAkAAAAAAAAAAAANAAkAAAAAAAAAAAAOAAkAAAAAAAAAAAAPAAkAAAAAAAAAAAAQAAkAAAAAAAAAAAARAAkAAAAAAAAAAAASAAkAAAAAAAAAAAATAAkAAAAAAAAAAAD//wgAAAAAAAAAAAAUAAgAAAAAAAAAAAAUAAcAAAAAAAAAAAAUAAYAAAAAAAAAAAD//wcAAAAAAAAAAAD//wYAAAAAAAAAAAA=")
 tile_set = ExtResource("4_ib2mq")
-
-[node name="WoodenCrate" parent="." index="4" unique_id=100866833 instance=ExtResource("7_8a7uk")]
-position = Vector2(176, 144)

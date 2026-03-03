@@ -1,5 +1,8 @@
 [gd_scene format=3 uid="uid://b7o3botxe2h7q"]
 
+[ext_resource type="Script" uid="uid://b7s254uw2paq6" path="res://src/entities/actors/enemies/health_counter.gd" id="1_5w8hc"]
+[ext_resource type="Script" uid="uid://io4pa2m3oxgd" path="res://src/entities/actors/enemies/base_enemy.gd" id="1_df0qm"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_df0qm"]
 size = Vector2(16, 16)
 
@@ -7,6 +10,7 @@ size = Vector2(16, 16)
 collision_layer = 8
 collision_mask = 0
 monitoring = false
+script = ExtResource("1_df0qm")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1999490212]
 position = Vector2(0, -8)
@@ -18,4 +22,9 @@ shape = SubResource("RectangleShape2D_df0qm")
 
 [node name="QueueFreeTimer" type="Timer" parent="." unique_id=1529870042]
 
-[connection signal="timeout" from="QueueFreeTimer" to="." method="_on_queue_free_timer_timeout"]
+[node name="HealthCounter" type="Node" parent="." unique_id=375041773]
+script = ExtResource("1_5w8hc")
+metadata/_custom_type_script = "uid://b7s254uw2paq6"
+
+[connection signal="timeout" from="QueueFreeTimer" to="." method="_on_queue_free_timer_timeout" flags=6]
+[connection signal="died" from="HealthCounter" to="." method="_on_health_counter_died"]

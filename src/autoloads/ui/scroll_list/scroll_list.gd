@@ -55,10 +55,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func set_items(new_items: Array) -> void:
+func set_items(new_items: Array[ListItem]) -> void:
 	var seen: Dictionary[StringName, bool] = { }
-	for i: Node in new_items:
-		assert(i is ListItem, "ScrollList: I can only hold ListItem")
+	for i: ListItem in new_items:
 		assert(
 			not seen.has(i.name),
 			"ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name,

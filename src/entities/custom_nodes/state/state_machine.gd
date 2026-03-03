@@ -5,17 +5,22 @@ extends Node
 @export var initial_state: BaseState
 
 var current_state: BaseState = null
+var _states: Dictionary[StringName, BaseState] = { }
 
 
 func _ready() -> void:
 	assert(initial_state is BaseState, "StateMachine: Initial state must be BaseState")
-
-	current_state = initial_state
+	assert(get_child_count() > 0, "StateMachine: I have no state children")
 
 	for c in get_children():
 		assert(c is BaseState, "StateMachine: I can only have BaseState children")
+		_states[c.name] = c
 
-	assert(get_child_count() > 0, "StateMachine: I have no state children")
+	current_state = initial_state
+
+	# Disable processing until start() is called by the owner's _ready()
+	set_physics_process(false)
+	set_process_unhandled_input(false)
 
 
 func _physics_process(delta: float) -> void:
@@ -33,8 +38,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func transition_to(target_state_name: StringName, previous_state: StringName) -> void:
-	var target_state: BaseState = get_node(NodePath(target_state_name))
-	assert(target_state is BaseState, "StateMachine: No child found for: " + target_state_name)
+	assert(_states.has(target_state_name), "StateMachine: No state found for: " + target_state_name)
+	var target_state: BaseState = _states[target_state_name]
 
 	if current_state:
 		current_state.exit()
@@ -51,5 +56,8 @@ func reset() -> void:
 # WARNING: Must be called by owner ready!
 # Empty StringName means this is the first ever state entry (no previous state)
 func start() -> void: # Connected via engine GUI
+	set_physics_process(true)
+	set_process_unhandled_input(true)
+
 	if current_state:
 		current_state.enter(&"")

@@ -15,18 +15,15 @@ var recoil_tween: Tween
 
 func _ready() -> void:
 	assert(player is Player, "Arms: player must be a Player")
+	GameState.new_weapon_equipped.connect(_hydrate_ui)
 
 
 func _exit_tree() -> void:
 	_kill_recoil_tween_if_exists()
-	if GameState.new_weapon_equipped.is_connected(_hydrate_ui):
-		GameState.new_weapon_equipped.disconnect(_hydrate_ui)
 
 
 # WARNING: Must be called by Player ready!
 func start() -> void: # Connected via engine GUI
-	if not GameState.new_weapon_equipped.is_connected(_hydrate_ui):
-		GameState.new_weapon_equipped.connect(_hydrate_ui)
 	_hydrate_ui()
 
 

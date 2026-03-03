@@ -1,4 +1,10 @@
 # GameState
+# Single source of truth for all runtime game state.
+#
+# Weapons: preload() returns the engine-cached resource instance, so HANDGUN and RIFLE
+# are the same objects for the entire session. This is intentional — there are no
+# duplicate weapons and this is single-player, so the cached instance IS the live state.
+# Do not call .duplicate() on them; that would break the shared-instance contract.
 extends Node
 
 signal new_weapon_equipped

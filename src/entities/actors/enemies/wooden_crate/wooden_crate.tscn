@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://b7o3botxe2h7q" path="res://src/entities/actors/enemies/BaseEnemy.tscn" id="1_5m1n6"]
 [ext_resource type="Script" uid="uid://dx1e1wdlf1yii" path="res://src/entities/actors/enemies/wooden_crate/wooden_crate.gd" id="1_ptb46"]
 [ext_resource type="SpriteFrames" uid="uid://cbwk72ft1soaw" path="res://assets/sprites/wooden_crate.tres" id="3_6ilyt"]
+[ext_resource type="Resource" uid="uid://gcg84oi3jhde" path="res://src/resources/enemies/wooden_crate.tres" id="4_ate62"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6ilyt"]
 size = Vector2(16, 16)
@@ -17,3 +18,6 @@ autoplay = "intact"
 
 [node name="CollisionShape2D" parent="." index="1" unique_id=397068114]
 shape = SubResource("RectangleShape2D_6ilyt")
+
+[node name="HealthCounter" parent="." index="3" unique_id=375041773]
+enemy_data = ExtResource("4_ate62")

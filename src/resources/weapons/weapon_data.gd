@@ -1,7 +1,7 @@
 class_name WeaponData
 extends Resource
 
-# Static definition data (set in inspector)
+# Static definition data (set in inspector, authored in the .tres file, never mutated at runtime)
 @export var id: StringName
 @export var arms_sprite: SpriteFrames
 @export var icon_sprite: Texture2D
@@ -12,7 +12,10 @@ extends Resource
 @export var magazine_size: int
 @export var reload_speed: float
 
-# Runtime mutable state (not @export — doesn't need to be serialized)
+# Runtime state — not @export so ResourceSaver never touches the .tres file.
+# Lifecycle: hydrated from the save file when a slot loads → mutated freely during play
+# → dumped back to the save file when the player saves.
+# All mutation must go through GameState methods, never directly.
 var magazine_current: int = 1
 var reserve_ammo: int
 var is_owned: bool

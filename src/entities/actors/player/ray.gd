@@ -1,4 +1,5 @@
 # Always owned by Player only for shooting at enemies that handle shooting collision logic
+# collide_with_areas = true is explicitly overridden in the scene file via engine GUI
 class_name Ray
 extends RayCast2D
 
@@ -45,15 +46,16 @@ func shoot() -> bool:
 	var hit_pos: Vector2 = to_global(line.get_point_position(1))
 	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.flip_h)
 
-	# The order is: _unhandled_input (shoot) fires, then _physics_process runs.
-	# So the force_raycast_update in shoot happens before the one in physics_process.
-	# The one in shoot is needed to get collision data for the damage check.
-	# The one in physics_process is needed to update the laser sight visual. Both are needed.
+	# _unhandled_input fires before _physics_process, so this force_raycast_update
+	# queries the previous physics tick's world — collision is one tick stale.
+	# This is an accepted trade-off for normal gameplay speeds; fast-moving targets
+	# could be missed by one frame. The force_raycast_update in _physics_process is
+	# separate and only updates the laser sight visual.
 	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider is BaseEnemy:
-			collider.ouch()
+			collider.ouch(1) # TODO: Set this with weapon damage prop later
 
 	# Shot fired, may miss or hit something
 	return true

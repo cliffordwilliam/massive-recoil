@@ -14,8 +14,15 @@ func _hydrate_ui() -> void:
 	scroll_list.set_items(_get_all_weapons_buy_list_item())
 
 
-func _get_all_weapons_buy_list_item() -> Array:
-	return GameState.get_all_weapons().map(_create_list_item)
+func _get_all_weapons_buy_list_item() -> Array[ListItem]:
+	# Array.map() always returns an untyped Array regardless of the callable's return type,
+	# so it cannot be passed to ScrollList.set_items(Array[ListItem]) without a type error.
+	# Docs: docs/godot/classes/class_array.rst — "Array map(method: Callable) const"
+	# Build a typed Array[ListItem] manually instead.
+	var result: Array[ListItem] = []
+	for weapon: WeaponData in GameState.get_all_weapons():
+		result.append(_create_list_item(weapon))
+	return result
 
 
 func _create_list_item(weapon_data: WeaponData) -> BuyPageListItem:
