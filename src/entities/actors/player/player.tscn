@@ -1,0 +1,135 @@
+[gd_scene format=3 uid="uid://cpjofrgm72i3c"]
+
+[ext_resource type="Script" uid="uid://561ep14ey5sv" path="res://src/entities/actors/player/player.gd" id="1_abrql"]
+[ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
+[ext_resource type="Script" uid="uid://skmpd278tn72" path="res://src/entities/custom_nodes/animated_sprite/custom_animated_sprite.gd" id="3_sglur"]
+[ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
+[ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://src/entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
+[ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://src/entities/actors/player/states/idle.gd" id="5_8fjmc"]
+[ext_resource type="Script" uid="uid://baycomm7n0mxa" path="res://src/entities/actors/player/arms.gd" id="5_pinno"]
+[ext_resource type="Script" uid="uid://b8egebvgtmh" path="res://src/entities/actors/player/states/run.gd" id="6_8fjmc"]
+[ext_resource type="Script" uid="uid://buramfqmgod7u" path="res://src/entities/actors/player/ray.gd" id="6_ps3iq"]
+[ext_resource type="Texture2D" uid="uid://be4x2n5epitgo" path="res://assets/textures/props/red_dot.png" id="7_m436c"]
+[ext_resource type="Script" uid="uid://b403lgebvp86h" path="res://src/entities/actors/player/light.gd" id="8_jl75p"]
+[ext_resource type="Script" uid="uid://bg1tuev4y2oo" path="res://src/entities/actors/player/states/turn.gd" id="9_bectd"]
+[ext_resource type="Script" uid="uid://b6g5bmy2a0qva" path="res://src/entities/actors/player/states/walk.gd" id="10_a1qjk"]
+[ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://src/entities/actors/player/states/aim.gd" id="12_a1qjk"]
+[ext_resource type="Script" uid="uid://coluh5v8a85h5" path="res://src/entities/actors/player/states/walk_back.gd" id="14_6jj1q"]
+[ext_resource type="Script" uid="uid://d1gyiws53uv61" path="res://src/entities/actors/player/states/reload.gd" id="15_mekkp"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_m436c"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_m436c"]
+offsets = PackedFloat32Array(0, 0.8)
+colors = PackedColorArray(1, 1, 1, 0.49803922, 0, 0, 0, 0)
+metadata/_snap_enabled = true
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_6jj1q"]
+gradient = SubResource("Gradient_m436c")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+metadata/_snap_enabled = true
+metadata/_snap_count = 6
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_symyc"]
+size = Vector2(8, 24)
+
+[node name="Player" type="CharacterBody2D" unique_id=407663167]
+collision_mask = 4
+script = ExtResource("1_abrql")
+
+[node name="Body" type="AnimatedSprite2D" parent="." unique_id=1265583741]
+position = Vector2(0, -21)
+sprite_frames = ExtResource("2_qiwj3")
+animation = &"idle"
+script = ExtResource("3_sglur")
+animation_transitions = Dictionary[StringName, StringName]({
+&"crouch_to_idle": &"idle",
+&"land": &"idle",
+&"stop": &"idle",
+&"to_crouch": &"crouch",
+&"to_fall": &"down",
+&"to_run": &"run"
+})
+metadata/_custom_type_script = "uid://skmpd278tn72"
+
+[node name="Arms" type="AnimatedSprite2D" parent="Body" unique_id=869633070 node_paths=PackedStringArray("player")]
+sprite_frames = ExtResource("4_7thud")
+animation = &"idle"
+speed_scale = 0.0
+script = ExtResource("5_pinno")
+player = NodePath("../..")
+metadata/_custom_type_script = "uid://skmpd278tn72"
+
+[node name="Ray" type="RayCast2D" parent="." unique_id=2096537396 node_paths=PackedStringArray("player")]
+visible = false
+position = Vector2(0, -27)
+target_position = Vector2(400, 0)
+collision_mask = 12
+collide_with_areas = true
+script = ExtResource("6_ps3iq")
+player = NodePath("..")
+
+[node name="Line" type="Line2D" parent="Ray" unique_id=1958935439]
+points = PackedVector2Array(19, 0, 400, 0)
+width = 1.0
+default_color = Color(1, 0, 0, 0.5019608)
+
+[node name="Dot" type="Sprite2D" parent="Ray" unique_id=1255671485]
+modulate = Color(1, 1, 1, 0.5019608)
+position = Vector2(400, 0)
+texture = ExtResource("7_m436c")
+
+[node name="Light" type="Sprite2D" parent="Ray" unique_id=2140541421]
+modulate = Color(1, 1, 1, 0)
+material = SubResource("CanvasItemMaterial_m436c")
+texture = SubResource("GradientTexture2D_6jj1q")
+script = ExtResource("8_jl75p")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1611707814]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_symyc")
+
+[node name="StateMachine" type="Node" parent="." unique_id=2074161636 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("4_fkugw")
+initial_state = NodePath("PlayerIdleState")
+metadata/_custom_type_script = "uid://dxqaagfsb2ut8"
+
+[node name="PlayerIdleState" type="Node" parent="StateMachine" unique_id=773474783]
+script = ExtResource("5_8fjmc")
+metadata/_custom_type_script = "uid://tfy2e576agq2"
+
+[node name="PlayerRunState" type="Node" parent="StateMachine" unique_id=862284830]
+script = ExtResource("6_8fjmc")
+metadata/_custom_type_script = "uid://b8egebvgtmh"
+
+[node name="PlayerWalkState" type="Node" parent="StateMachine" unique_id=1485626066]
+script = ExtResource("10_a1qjk")
+metadata/_custom_type_script = "uid://b6g5bmy2a0qva"
+
+[node name="PlayerTurnState" type="Node" parent="StateMachine" unique_id=1947967019]
+script = ExtResource("9_bectd")
+metadata/_custom_type_script = "uid://bg1tuev4y2oo"
+
+[node name="PlayerAimState" type="Node" parent="StateMachine" unique_id=1594313035]
+script = ExtResource("12_a1qjk")
+metadata/_custom_type_script = "uid://bqm28nciccrdb"
+
+[node name="PlayerWalkBackState" type="Node" parent="StateMachine" unique_id=60641086]
+script = ExtResource("14_6jj1q")
+metadata/_custom_type_script = "uid://coluh5v8a85h5"
+
+[node name="PlayerReloadState" type="Node" parent="StateMachine" unique_id=1962614049]
+script = ExtResource("15_mekkp")
+metadata/_custom_type_script = "uid://d1gyiws53uv61"
+
+[node name="ReloadTimer" type="Timer" parent="StateMachine/PlayerReloadState" unique_id=268838170]
+one_shot = true
+
+[connection signal="animation_changed" from="Body" to="Body/Arms" method="_on_body_animation_changed"]
+[connection signal="animation_finished" from="Body" to="StateMachine/PlayerTurnState" method="_on_body_animation_finished"]
+[connection signal="flip_h_changed" from="Body" to="Body/Arms" method="_on_body_flip_h_changed"]
+[connection signal="frame_changed" from="Body" to="Body/Arms" method="_on_body_frame_changed"]
+[connection signal="shot" from="Ray" to="Body/Arms" method="_on_ray_shot"]
+[connection signal="timeout" from="StateMachine/PlayerReloadState/ReloadTimer" to="StateMachine/PlayerReloadState" method="_on_reload_timer_timeout"]

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3 uid="uid://bh7bnh8qqxn1b"]
+
+[ext_resource type="Script" uid="uid://lplpq2v706yn" path="res://src/resources/weapons/weapon_data.gd" id="1_0i7ts"]
+[ext_resource type="SpriteFrames" uid="uid://c6ackeixi1emi" path="res://assets/sprites/handguns.tres" id="1_4vy8u"]
+[ext_resource type="PackedScene" uid="uid://c80k1dw0o4xun" path="res://src/entities/ui/pages/buy_page/buy_page_handgun_list_item.tscn" id="2_senti"]
+[ext_resource type="Texture2D" uid="uid://bxw0vrryxyyd" path="res://assets/textures/ui/buy_page/handgun_description.png" id="3_wx3dn"]
+[ext_resource type="Texture2D" uid="uid://8ibmk0y17sbf" path="res://assets/textures/ui/shared/handgun_thumbnail.png" id="4_m8joh"]
+[ext_resource type="PackedScene" uid="uid://cln5lsvnj1a8x" path="res://src/entities/ui/pages/inventory_page/inventory_page_handgun_list_item.tscn" id="5_ytjmo"]
+
+[resource]
+script = ExtResource("1_0i7ts")
+id = &"handgun"
+arms_sprite = ExtResource("1_4vy8u")
+icon_sprite = ExtResource("4_m8joh")
+description_sprite = ExtResource("3_wx3dn")
+buy_page_list_item_scene = ExtResource("2_senti")
+inv_page_list_item_scene = ExtResource("5_ytjmo")
+price = 5
+magazine_size = 10
+reload_speed = 1.73
+metadata/_custom_type_script = "uid://lplpq2v706yn"
