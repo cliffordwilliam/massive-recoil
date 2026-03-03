@@ -21,6 +21,7 @@ func spawn_shoot_effects(p1: Vector2, p2: Vector2, rot: float, flip_h: bool) -> 
 		return
 
 	var scene: Node = get_tree().current_scene
+
 	var casing: BulletCasing = BULLET_CASING.instantiate()
 	scene.add_child(casing)
 	casing.initialize(p1, flip_h)

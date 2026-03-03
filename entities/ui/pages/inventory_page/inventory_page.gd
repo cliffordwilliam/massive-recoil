@@ -16,10 +16,10 @@ func _hydrate_ui() -> void:
 
 
 func _get_owned_weapons_list_item() -> Array:
-	return GameState.get_owned_weapons().map(_create_weapon_list_item)
+	return GameState.get_owned_weapons().map(_create_list_item)
 
 
-func _create_weapon_list_item(d: Dictionary) -> InventoryPageListItem:
+func _create_list_item(d: Dictionary) -> InventoryPageListItem:
 	var item: InventoryPageListItem = d.w.inv_page_list_item_scene.instantiate()
 	item.set_id(d.i)
 	item.show_equipped_tag(GameState.get_equipped_weapon_id() == d.i)

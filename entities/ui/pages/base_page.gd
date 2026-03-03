@@ -9,7 +9,7 @@ var is_active: bool:
 		process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
 		visible = is_active
 		if is_active:
-			_hydrate_ui() # Fetch data on every wake up
+			_hydrate_ui() # Fetch data everytime I wake up
 
 
 func _hydrate_ui() -> void:

@@ -1,5 +1,5 @@
 # This is a carousel slide container that can only show one BasePage at a time
-# There are no other BasePage manager, this is the only thing in the game that can pause game
+# There are no other BasePage manager, this is the only thing in the game that can pause gameplay
 class_name PageRouter
 extends CanvasLayer
 
@@ -26,6 +26,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# This game uses keyboard input only
 	if event is not InputEventKey:
 		return
 

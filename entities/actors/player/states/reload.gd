@@ -17,7 +17,7 @@ func _exit_tree() -> void:
 	_kill_tween()
 
 
-func enter(_msg: Dictionary = { }) -> void:
+func enter(_old_state: StringName) -> void:
 	player.velocity.x = 0.0
 	reload_timer.wait_time = GameState.get_equipped_weapon_reload_speed()
 

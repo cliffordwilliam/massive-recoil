@@ -18,10 +18,14 @@ func _ready() -> void:
 
 
 func initialize(given_id: StringName, pos: Vector2) -> void:
+	# This can be called before or after my ready is called
 	id = given_id
 	global_position = pos
-	linear_velocity = Vector2.UP.rotated(randf_range(-POP_SPREAD, POP_SPREAD)) * randf_range(POP_SPEED_MIN, POP_SPEED_MAX)
-	if is_node_ready(): # To support calling this before or after ready
+	linear_velocity = Vector2.UP.rotated(
+		randf_range(-POP_SPREAD, POP_SPREAD),
+	) * randf_range(POP_SPEED_MIN, POP_SPEED_MAX)
+
+	if is_node_ready():
 		animated_sprite_2d.play(id)
 
 

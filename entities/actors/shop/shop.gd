@@ -1,7 +1,8 @@
-# Static actor in game world, when player enter, they can open shop page
+# Static actor in game world, when player overlap with it, they can open shop page
 class_name Shop
 extends Area2D
 
+# Needs page router to request for shop page
 @export var page_router: PageRouter # Set via engine GUI
 
 @onready var black_overlay: Sprite2D = $BlackOverlay
@@ -17,12 +18,15 @@ func _ready() -> void:
 	tween.tween_property(black_overlay, "modulate:a", 1.0, 1.0)
 
 
-# Check if player press open shop button
+# Check if player press open shop button only when I am awake
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		if Input.is_action_just_pressed("accept"):
-			page_router.open_buy_page()
-			get_viewport().set_input_as_handled()
+	# This game uses keyboard input only
+	if event is not InputEventKey:
+		return
+
+	if Input.is_action_just_pressed("accept"):
+		page_router.open_buy_page()
+		get_viewport().set_input_as_handled()
 
 
 # Only wakes up if player overlaps me

@@ -16,9 +16,11 @@ func ouch() -> void:
 		return
 
 	is_destroyed = true
+
 	collision_layer = 0
 	collision_mask = 0
 	sprite_2d.frame = BROKEN_WOODEN_CRATE_FRAME
+
 	Spawner.spawn_money(sprite_2d.global_position)
 	timer.start()
 

@@ -1,4 +1,5 @@
 # This must have BasePage parent and only ListItems in its item containers
+# ListItems in this collection must be unique
 class_name ScrollList
 extends Node2D
 
@@ -28,11 +29,12 @@ func _ready() -> void:
 	assert(get_parent() is BasePage, "ScrollList: my parent must be a BasePage")
 	assert(cursor_scene, "ScrollList: cursor_scene is missing")
 	cursor = cursor_scene.instantiate()
-	assert(cursor is Node2D, "ScrollList: cursor must be a Node2D")
+	assert(cursor is Node2D, "ScrollList: cursor must inherit Node2D")
 	cursor_container.add_child(cursor)
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# This game uses keyboard input only
 	if event is not InputEventKey:
 		return
 
@@ -54,8 +56,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func set_items(new_items: Array) -> void:
+	var seen: Dictionary[StringName, bool] = { }
 	for i: Node in new_items:
 		assert(i is ListItem, "ScrollList: I can only hold ListItem")
+		assert(
+			not seen.has(i.name),
+			"ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name,
+		)
+		seen[i.name] = true
 
 	for old_item: ListItem in items_container.get_children():
 		# This is okay since no one references my item container content

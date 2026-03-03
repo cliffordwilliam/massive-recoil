@@ -23,6 +23,6 @@ func try_exit() -> bool:
 		new_state_name = &"PlayerWalkState"
 
 	if new_state_name != name:
-		state_machine.transition_to(new_state_name, { "previous": name })
+		state_machine.transition_to(new_state_name, name)
 
 	return new_state_name != name

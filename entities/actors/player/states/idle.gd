@@ -3,8 +3,8 @@ class_name PlayerIdleState
 extends PlayerState
 
 
-func enter(msg: Dictionary = { }) -> void:
-	player.body.play("stop" if msg.get("previous") == &"PlayerRunState" else "idle")
+func enter(previous_state: StringName) -> void:
+	player.body.play("stop" if previous_state == &"PlayerRunState" else "idle")
 	player.velocity.x = 0.0
 
 

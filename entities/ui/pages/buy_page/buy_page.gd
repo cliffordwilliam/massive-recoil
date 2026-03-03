@@ -1,4 +1,5 @@
-# This page is where player see store weapons and money. They can pick and buy one weapon
+# This page is where player see all weapons and money. They can pick and buy one weapon
+# Player cannot buy weapons that they already have
 class_name BuyPage
 extends BasePage
 
@@ -14,10 +15,10 @@ func _hydrate_ui() -> void:
 
 
 func _get_all_weapons_buy_list_item() -> Array:
-	return GameState.get_all_weapons().map(_create_weapon_list_item)
+	return GameState.get_all_weapons().map(_create_list_item)
 
 
-func _create_weapon_list_item(d: Dictionary) -> BuyPageListItem:
+func _create_list_item(d: Dictionary) -> BuyPageListItem:
 	var item: BuyPageListItem = d.w.buy_page_list_item_scene.instantiate()
 	item.set_id(d.i)
 	item.show_tags(not d.w.was_bought, d.w.is_owned) # is_owned means sold out

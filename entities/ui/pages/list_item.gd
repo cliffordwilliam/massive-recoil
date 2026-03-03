@@ -1,4 +1,5 @@
 # This is the base class for items managed by ScrollList, so parent must be ScrollList
+# Each needs unique name and share same sprite height
 class_name ListItem
 extends Sprite2D
 

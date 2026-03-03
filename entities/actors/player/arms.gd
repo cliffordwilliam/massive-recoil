@@ -1,8 +1,12 @@
-# This is the skin that gets switched when equipped weapon changes, handgun, rifle, etc
-# This has the exact same frames as body, so it just follows body frame states
-# So it always must be a child of the player
+# This is the skin that gets swapped around when equipped weapon changes, handgun, rifle, etc
+# This has the exact same frames as body, so it always follows body sprite frame states
+# So it must have Player as direct parent and a reference player's body sprite master
+# This also has a recoil animation that plays when player shoots
 class_name Arms
 extends AnimatedSprite2D
+
+const RECOIL_DISTANCE: float = 2.5
+const RECOIL_SMOOTH: float = 15.0
 
 @export var player: Player
 
@@ -14,28 +18,25 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
-	if recoil_tween:
-		recoil_tween.kill()
-		recoil_tween = null
+	_kill_recoil_tween_if_exists()
 	if GameState.new_weapon_equipped.is_connected(_hydrate_ui):
 		GameState.new_weapon_equipped.disconnect(_hydrate_ui)
 
 
-# Push skin back to simulate arm kicked back from recoil
-func _recoil_arm_sprite_back(angle: float) -> void:
+func _play_recoil_animation(angle: float) -> void:
 	var direction: Vector2 = Vector2(-1, 0).rotated(angle)
-	position = direction * player.RECOIL_DISTANCE
+	position = direction * RECOIL_DISTANCE
 
-	if recoil_tween:
-		recoil_tween.kill()
+	_kill_recoil_tween_if_exists()
 
 	recoil_tween = create_tween()
-	recoil_tween.tween_property(
-		self,
-		"position",
-		Vector2.ZERO,
-		player.RECOIL_DISTANCE / player.RECOIL_SMOOTH,
-	)
+	recoil_tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
+
+
+func _kill_recoil_tween_if_exists() -> void:
+	if recoil_tween:
+		recoil_tween.kill()
+		recoil_tween = null
 
 
 func _hydrate_ui() -> void:
@@ -43,18 +44,19 @@ func _hydrate_ui() -> void:
 	frame = player.body.frame # Changing sprite frames set me to 0, must keep up with master
 
 
-# Arm is an extension of the player so its ready must be when the player is ready
+# Arm is an extension of the player
+# So we must treat it as if its the player
+# its ready must be when the player is ready
 func _on_player_ready() -> void: # Connected via engine GUI
 	GameState.new_weapon_equipped.connect(_hydrate_ui)
-	# Need to wait for owner, because have to ref body to sync back after skin switch
 	_hydrate_ui()
 
 
-func _on_ray_shot(given_rotation: float) -> void:
-	_recoil_arm_sprite_back(given_rotation)
+func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI
+	_play_recoil_animation(given_rotation)
 
 
-# Follow body at all cost
+# Follow body master at all cost
 func _on_body_animation_changed() -> void: # Connected via engine GUI
 	animation = player.body.animation
 

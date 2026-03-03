@@ -6,7 +6,7 @@ extends Node
 @onready var state_machine: StateMachine = get_parent()
 
 
-func enter(_msg: Dictionary = { }) -> void:
+func enter(_old_state: StringName) -> void:
 	pass
 
 

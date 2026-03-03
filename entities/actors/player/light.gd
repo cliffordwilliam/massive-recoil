@@ -1,4 +1,5 @@
-# Only player has guns so this is here, has flash API to set where to show and fade out
+# This flash a light in a given position, has one API to set where to show up to flash
+# Only player can use this, so its parent must be the player
 class_name Light
 extends Sprite2D
 
@@ -8,16 +9,18 @@ var tween: Tween
 
 
 func _exit_tree() -> void:
-	if tween:
-		tween.kill()
-		tween = null
+	_kill_tween_if_exists()
 
 
 func flash(pos: Vector2) -> void:
 	position = pos
 	modulate.a = 1.0
+	_kill_tween_if_exists()
+	tween = create_tween()
+	tween.tween_property(self, "modulate:a", 0.0, FLASH_DURATION)
+
+
+func _kill_tween_if_exists() -> void:
 	if tween:
 		tween.kill()
 		tween = null
-	tween = create_tween()
-	tween.tween_property(self, "modulate:a", 0.0, FLASH_DURATION)

@@ -16,12 +16,12 @@ var real_angle: float = 0.0:
 			player.ray.rotation = PI - real_angle if player.body.flip_h else real_angle
 
 
-func enter(msg: Dictionary = { }) -> void:
+func enter(previous_state: StringName) -> void:
 	player.body.animation = "aim" # This sets frame index to 0
 	player.velocity.x = 0.0
 	player.body.pause() # Here frame is a function of angle
 	dest_angle = 0.0
-	real_angle = POST_RELOAD_AIM_ANGLE if msg.get("previous") == &"PlayerReloadState" else 0.0
+	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
 	player.ray.is_active = true
 
 
@@ -37,7 +37,7 @@ func handle_input(event: InputEvent) -> void:
 		player.ray.shoot()
 	elif event.is_action_pressed("reload"):
 		if GameState.equipped_weapon_can_reload():
-			state_machine.transition_to(&"PlayerReloadState", { "previous": name })
+			state_machine.transition_to(&"PlayerReloadState", name)
 
 
 func physics_update(delta: float) -> void:

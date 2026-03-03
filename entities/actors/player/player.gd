@@ -6,8 +6,6 @@ const WALK_SPEED: float = 28.0
 const RUN_SPEED: float = 90.0
 const AIM_SPEED: float = 1.0
 const AIM_SMOOTH: float = 0.05
-const RECOIL_DISTANCE: float = 2.5
-const RECOIL_SMOOTH: float = 15.0
 
 @onready var arms: Arms = $Body/Arms
 @onready var body: CustomAnimatedSprite = $Body
@@ -17,5 +15,5 @@ const RECOIL_SMOOTH: float = 15.0
 
 
 func _on_page_router_page_closed() -> void: # Connected via engine GUI
-	# To avoid edge cases like going to a shop while reloading and etc
+	# To avoid edge cases like going to a shop while player is reloading and etc
 	state_machine.reset()
