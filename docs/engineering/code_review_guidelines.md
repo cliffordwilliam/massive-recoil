@@ -1,4 +1,4 @@
-# Agent Code Review Prompt — massive-recoil
+# Agent Code Review Prompt — Massive Recoil
 
 ## Context
 

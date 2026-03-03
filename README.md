@@ -42,16 +42,16 @@
 
 # ANIMATION PIPELINE
 Use aseprite to make animations:
-	- Set tags, each tag name has to be unique
-	- On a tag optionally tick repeat and set value to 1 if you do not want to loop
-	- Export one layer at a time
-	- Export settings
-		- Output File: ../projects/massive-recoil/assets/sprites/wooden_crate.png
-		- JSON Data: ../projects/massive-recoil/assets/sprites/wooden_crate.json
-		- Array
-		- Meta: Tags
-		- Item Filename: {tag}-{tagframe}
-		- Item Tagname: {tag}
+- Set tags, each tag name has to be unique
+- On a tag optionally tick repeat and set value to 1 if you do not want to loop
+- Export one layer at a time
+- Export settings
+	- Output File: ../projects/massive-recoil/assets/sprites/wooden_crate.png
+	- JSON Data: ../projects/massive-recoil/assets/sprites/wooden_crate.json
+	- Array
+	- Meta: Tags
+	- Item Filename: {tag}-{tagframe}
+	- Item Tagname: {tag}
 
 Go to Godot
 - Pick one script to be active in the engine window
