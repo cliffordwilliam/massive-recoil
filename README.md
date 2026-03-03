@@ -7,7 +7,8 @@
 - [x] Give initial ammo, break box, get money, buy rifle
 - [x] Add visual effects: muzzle flash, recoil, bullet casing
 - [x] Reload
-- [ ] Define a WeaponData Resource or inner class with typed properties for weapons autoload
+- [x] Define a WeaponData Resource or inner class with typed properties for weapons autoload
+- [ ] Make ammo drops
 - [ ] Make effect when weapon hit enemy and solids
 - [ ] Weapon upgrade
 - [ ] Switch room
