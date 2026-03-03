@@ -1,7 +1,7 @@
+# Shared script for all buy‑page item sprite scenes; each has a "new" tag and a "sold out" tag.
 class_name BuyPageListItem
 extends ListItem
 
-# Shared script for all buy item sprite scene, it has new tag and sold out tag
 var is_new_tag_visible: bool = false
 var is_out_tag_visible: bool = false
 
@@ -15,7 +15,7 @@ func _ready() -> void:
 
 
 func show_tags(show_new_tag: bool, is_sold_out: bool) -> void:
-	# This can be called before or after my ready is called
+	# This can be called before or after my _ready() is called.
 	is_new_tag_visible = show_new_tag
 	is_out_tag_visible = is_sold_out
 	if is_node_ready():

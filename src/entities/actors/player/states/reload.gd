@@ -1,11 +1,12 @@
+# State where the player is reloading.
+# The aim angle must travel to the reload angle first before playing the reload animation.
+# The reload animation is just something to look at while the reload timer counts down.
+# Reload is only granted when the reload timer is over; if it ends early then nothing happens.
+# This is intentional design:
+# the player is fully committed to the reload duration with no way to cancel.
 class_name PlayerReloadState
 extends PlayerState
 
-# State where player is reloading, must come from aim state
-# Must travel from aim angle to reload angle first before playing reload animation
-# Reload animation is just a thing to look at as the reload timer counts down
-# Reload will only be granted only when the reload timer is over, if it ends early then nothing
-# This is intentional design, player is fully committed to reload duration with no way to cancel
 const DEST_RELOAD_AIM_FRAME: float = 5.0
 const FRAME_TRANSITION_SPEED: float = 20.0
 
@@ -26,12 +27,12 @@ func enter(_old_state: StringName) -> void:
 	var start_frame: float = float(player.body.frame)
 	var duration: float = abs(DEST_RELOAD_AIM_FRAME - start_frame) / FRAME_TRANSITION_SPEED
 
-	# Play reload animation if start aim angle is close to reload aim angle destination
+	# Play the reload animation if the starting aim angle is close to the reload aim destination.
 	if duration <= 0.0:
 		_start_reload_animation()
 		return
 
-	# Otherwise spend time to travel to reload angle first, then play the reload animation
+	# Otherwise, spend time traveling to the reload angle first, then play the reload animation.
 	if reload_tween:
 		reload_tween.kill()
 
@@ -55,20 +56,20 @@ func _set_aim_frame(value: float) -> void:
 	player.body.frame = int(value)
 
 
-# Plays when the aim angle reaches the reload aim destination angle
+# Plays when the aim angle reaches the reload aim destination angle.
 func _start_reload_animation() -> void:
-	# If there is wait time, do reload animation
+	# If there is wait time, play the reload animation.
 	if equipped_weapon_reload_speed:
 		player.body.play("reload")
 		reload_timer.wait_time = equipped_weapon_reload_speed
 		reload_timer.start()
-	# If there is no wait time, then just reload now
+	# If there is no wait time, then just reload now.
 	else:
 		GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
 		try_exit()
 
 
-# Reload is only ever successful when the reload timer runs out
+# Reload is only ever successful when the reload timer runs out.
 func _on_reload_timer_timeout() -> void: # Connected via engine GUI
 	GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
 	try_exit()

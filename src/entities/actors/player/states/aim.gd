@@ -1,7 +1,8 @@
+# State where the player aims
+# the aim animation here is a function of angle and this state handles shoot and reload input.
 class_name PlayerAimState
 extends PlayerState
 
-# State where player aims, aim animation here is a function of angle, handle shoot and reload input
 const POST_RELOAD_AIM_ANGLE: float = 0.6
 const RECOIL_KICK: float = 0.1 # TODO: Maybe move recoil kick as a weapon prop?
 
@@ -49,7 +50,7 @@ func physics_update(delta: float) -> void:
 		if try_exit():
 			return
 
-	# Player control destination, real angle chases the destination
+	# The player controls the destination angle; the real angle chases that destination.
 	dest_angle += Input.get_axis("up", "down") * Player.AIM_SPEED * delta
 	dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
 	real_angle = lerp(real_angle, dest_angle, 1.0 - pow(Player.AIM_SMOOTH, delta))

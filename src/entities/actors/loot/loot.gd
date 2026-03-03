@@ -1,4 +1,5 @@
-# These are things that bounce around in the world like coins and stuff that player collects
+# Things that bounce around in the world like coins and similar collectibles
+# that the player can pick up.
 class_name Loot
 extends RigidBody2D
 
@@ -26,7 +27,7 @@ func _ready() -> void:
 
 
 func initialize(given_id: StringName, pos: Vector2) -> void:
-	# This can be called before or after my ready is called
+	# This can be called before or after my _ready() is called.
 	id = given_id
 	global_pos = pos
 	linear_vel = Vector2.UP.rotated(

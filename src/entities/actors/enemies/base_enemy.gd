@@ -1,10 +1,10 @@
+# Enemy base class. “Enemy” refers to all things that the player can shoot at (wooden crates, etc.).
+# Enemies are all just Area2D, monitorable only, on the enemy layer only.
+# All enemies must have a "dead" animation.
+# All must use animated assets from res/assets/sprites/.
 class_name BaseEnemy
 extends Area2D
 
-# Enemy base class, enemy refers to all things that the player can shoot at (wooden crates, etc)
-# Enemies are all just Area2D, monitorable only, on enemy layer only
-# All enemies must have "dead" animation
-# All must use animated assets from res/assets/sprites/
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 @onready var queue_free_timer: Timer = $QueueFreeTimer
 @onready var health_counter: HealthCounter = $HealthCounter
@@ -18,7 +18,7 @@ func ouch(damage: int) -> void:
 	health_counter.health -= damage
 
 
-# Linger around a bit before disappearing after being destroyed by design
+# Linger around a bit before disappearing after being destroyed, by design.
 func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one shot)
 	queue_free()
 

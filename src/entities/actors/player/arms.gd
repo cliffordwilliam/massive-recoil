@@ -1,10 +1,10 @@
+# This is the skin that gets swapped when the equipped weapon changes (handgun, rifle, etc.).
+# It has the exact same frames as the body, so it always follows the body sprite's frame state.
+# It must have Player as its direct parent and hold a reference to the player's body sprite master.
+# It also has a recoil animation that plays when the player shoots.
 class_name Arms
 extends AnimatedSprite2D
 
-# This is the skin that gets swapped around when equipped weapon changes, handgun, rifle, etc
-# This has the exact same frames as body, so it always follows body sprite frame states
-# So it must have Player as direct parent and a reference player's body sprite master
-# This also has a recoil animation that plays when player shoots
 const RECOIL_DISTANCE: float = 2.5
 const RECOIL_SMOOTH: float = 15.0
 
@@ -22,7 +22,7 @@ func _exit_tree() -> void:
 	_kill_recoil_tween_if_exists()
 
 
-# WARNING: Must be called by Player ready
+# WARNING: Must be called by Player._ready().
 func start() -> void: # Connected via engine GUI
 	_hydrate_ui()
 
@@ -49,14 +49,14 @@ func _hydrate_ui() -> void:
 		sprite_frames = equipped_weapon_arms_sprite
 	else:
 		sprite_frames = preload("uid://bwtavvs3i1wy2")
-	frame = player.body.frame # Changing sprite frames set me to 0, must keep up with master
+	frame = player.body.frame # Changing sprite frames resets me to 0; I must keep up with the master.
 
 
 func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI
 	_play_recoil_animation(given_rotation)
 
 
-# Follow body master at all cost
+# Follow the body master at all costs.
 func _on_body_animation_changed() -> void: # Connected via engine GUI
 	animation = player.body.animation
 

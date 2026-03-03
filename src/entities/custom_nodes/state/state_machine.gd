@@ -1,7 +1,7 @@
+# State machine to manage BaseState
 class_name StateMachine
 extends Node
 
-# State machine to manage BaseState
 @export var initial_state: BaseState
 
 var current_state: BaseState = null

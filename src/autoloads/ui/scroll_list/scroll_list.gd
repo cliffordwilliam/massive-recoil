@@ -1,10 +1,10 @@
+# Scrollable list of ListItem nodes. Parent must be BasePage.
+# All items in the collection must have unique names.
 class_name ScrollList
 extends Node2D
 
-# Scrollable list of ListItem nodes. Parent must be BasePage.
-# All items in the collection must have unique names.
 signal item_selected(id: StringName)
-signal render_updated(id: StringName) # Called when cursor moved or population size changes
+signal render_updated(id: StringName) # Called when the cursor moves or the population size changes.
 
 @export var cursor_scene: PackedScene
 @export var page_size: int = 5
@@ -13,8 +13,8 @@ var item_height: int = 0
 var offset: int = 0
 var cursor_row: int = 0
 var cursor: Node2D
-# Can be toggled on/off (never process and invisible)
-# True means I have content (my child count has width)
+# Can be toggled on/off (never processes and stays invisible).
+# True when I have items to display (child count > 0).
 var is_active: bool = false:
 	set(value):
 		is_active = value
@@ -65,7 +65,7 @@ func set_items(new_items: Array[ListItem]) -> void:
 		seen[i.name] = true
 
 	for old_item: ListItem in items_container.get_children():
-		# This is okay since no one references my item container content
+		# This is okay since no one else references the contents of my item container.
 		items_container.remove_child(old_item)
 		old_item.queue_free()
 
@@ -82,7 +82,7 @@ func set_items(new_items: Array[ListItem]) -> void:
 	var first_item: ListItem = items_container.get_child(0)
 	item_height = first_item.get_height()
 
-	# Population size changed so must ensure that offset and cursor stay within new valid range
+	# The population size has changed, so ensure that offset and cursor stay within the new valid range.
 	offset = clampi(offset, 0, max(0, items_container.get_child_count() - page_size))
 	cursor_row = clampi(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
 	_update_render()

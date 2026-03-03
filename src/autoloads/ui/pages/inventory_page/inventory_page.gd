@@ -1,7 +1,7 @@
+# Page where the player sees owned weapons, ammo, and money. They can pick and equip one weapon.
 class_name InventoryPage
 extends BasePage
 
-# This page is where player see owned weapons, ammo, money. They can pick and equip one weapon
 @onready var scroll_list: ScrollList = $ScrollList
 @onready var money: NumberDisplay = $Money
 @onready var handgun_ammo: NumberDisplay = $HandgunAmmo

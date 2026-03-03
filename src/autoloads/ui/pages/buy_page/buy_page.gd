@@ -1,8 +1,8 @@
+# Shows all weapons and money. Player can browse and buy one weapon.
+# Player cannot buy a weapon they already own.
 class_name BuyPage
 extends BasePage
 
-# Shows all weapons and money. Player can browse and buy one weapon.
-# Player cannot buy a weapon they already own.
 @onready var money: NumberDisplay = $Money
 @onready var icon: Sprite2D = $Icon
 @onready var scroll_list: ScrollList = $ScrollList

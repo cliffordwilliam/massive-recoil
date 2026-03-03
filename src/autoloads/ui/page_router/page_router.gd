@@ -1,25 +1,25 @@
+# Autoload carousel that shows one BasePage at a time and pauses the game while open.
+# The only system that can pause gameplay. BasePage overlays are distinct from non‑gameplay
+# scenes (main menu, splash, load screen). BaseRoom is the only gameplay current scene.
 extends CanvasLayer
 
-# Autoload carousel that shows one BasePage at a time and pauses the game while open.
-# The only system that can pause gameplay. BasePage overlays are distinct from non-gameplay
-# scenes (main menu, splash, load screen). BaseRoom is the only gameplay current scene.
 signal page_closed
 
 var current_page: BasePage = null
 
-# My list of BasePage goes here
+# My list of BasePage instances goes here.
 @onready var inventory_page: InventoryPage = $InventoryPage
 @onready var buy_page: BuyPage = $BuyPage
 
 
 func _ready() -> void:
-	# Staying visible in editor is distracting, so I only show myself in runtime
+	# Staying visible in the editor is distracting, so I only show myself at runtime.
 	show()
 
-	# Me and my BasePage children always run no matter what even during pause
+	# Me and my BasePage children always run no matter what, even during pause.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	# Turn all of my BasePage children off
+	# Turn all of my BasePage children off.
 	for child in get_children():
 		if child is BasePage:
 			child.is_active = false
@@ -30,7 +30,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is not InputEventKey:
 		return
 
-	# Close that one opened BasePage
+	# Close the currently opened BasePage.
 	if event.is_action_pressed("cancel") and current_page:
 		_close_page()
 		get_viewport().set_input_as_handled()

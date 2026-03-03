@@ -1,5 +1,5 @@
-# Always owned by Player only for shooting at enemies that handle shooting collision logic
-# collide_with_areas = true is explicitly overridden in the scene file via engine GUI
+# Always owned by Player and used for shooting at enemies that handle their own collision logic.
+# collide_with_areas = true is explicitly overridden in the scene file via the engine GUI.
 class_name Ray
 extends RayCast2D
 
@@ -24,8 +24,16 @@ func _ready() -> void:
 	is_active = false
 
 
-# To resolve ray collision, and decide where the end point is to draw laser sight (line and dot)
+# Resolves the ray collision and decides where the end point is to draw the laser sight (line and dot).
 func _physics_process(_delta: float) -> void:
+	# RayCast2D auto-updates once per physics frame before any _physics_process callbacks run,
+	# so by this point its cached result reflects the player's pre-movement position.
+	# Calling force_raycast_update() here re-queries AFTER StateMachine._physics_process has
+	# already called move_and_slide(), keeping the laser sight accurate to the post-move position.
+	# This relies on StateMachine being processed before Ray in the scene tree (node order).
+	# If that order changes, the visual will be one frame stale — same as not calling this at all.
+	# Ref: docs/godot/classes/class_raycast2d.rst:26 (auto-update per frame)
+	# Ref: docs/godot/classes/class_raycast2d.rst:272 (force_raycast_update description)
 	force_raycast_update()
 	var end: Vector2 = to_local(get_collision_point()) if is_colliding() else target_position
 	line.set_point_position(1, end)
@@ -48,9 +56,8 @@ func shoot() -> bool:
 
 	# _unhandled_input fires before _physics_process, so this force_raycast_update
 	# queries the previous physics tick's world — collision is one tick stale.
-	# This is an accepted trade-off for normal gameplay speeds; fast-moving targets
-	# could be missed by one frame. The force_raycast_update in _physics_process is
-	# separate and only updates the laser sight visual.
+	# This is an accepted trade‑off for normal gameplay speeds; fast‑moving targets
+	# can be missed by one frame.
 	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()

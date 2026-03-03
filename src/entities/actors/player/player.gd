@@ -1,7 +1,7 @@
+# The user moves the player around to explore the world and shoot at enemies.
 class_name Player
 extends CharacterBody2D
 
-# User moves player around to explore the world and shoot at enemies
 const WALK_SPEED: float = 28.0
 const RUN_SPEED: float = 90.0
 const AIM_SPEED: float = 1.0
@@ -15,7 +15,8 @@ var aim_frames: int = 0
 @onready var state_machine: StateMachine = $StateMachine
 
 
-# State machine and arms are extension of the player so they have to start when player start
+# The state machine and arms are extensions of the player,
+# so they have to start when the player starts.
 func _ready() -> void:
 	aim_frames = body.sprite_frames.get_frame_count("aim")
 	state_machine.start()
@@ -24,5 +25,5 @@ func _ready() -> void:
 
 
 func _on_page_router_page_closed() -> void: # Connected via engine GUI
-	# To avoid edge cases like going to a shop while player is reloading and etc
+	# To avoid edge cases like going to a shop while the player is reloading, etc.
 	state_machine.reset()

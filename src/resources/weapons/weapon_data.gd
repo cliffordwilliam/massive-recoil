@@ -16,7 +16,7 @@ extends Resource
 # Lifecycle: hydrated from the save file when a slot loads → mutated freely during play
 # → dumped back to the save file when the player saves.
 # All mutation must go through GameState methods, never directly.
-var magazine_current: int = 1
+var magazine_current: int
 var reserve_ammo: int
 var is_owned: bool
 var was_bought: bool

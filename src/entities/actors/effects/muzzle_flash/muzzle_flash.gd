@@ -1,8 +1,8 @@
+# Effect that plays an animation on ready and queues itself for free when it is done.
 class_name MuzzleFlash
 extends AnimatedSprite2D
 
 
-# Effect that plays animation on ready and queue free when its done
 func initialize(pos: Vector2, rot: float) -> void:
 	global_position = pos
 	rotation = rot
