@@ -13,7 +13,7 @@ extends Resource
 @export var reload_speed: float
 
 # Runtime mutable state (not @export — doesn't need to be serialized)
-var magazine_current: int
+var magazine_current: int = 1
 var reserve_ammo: int
 var is_owned: bool
 var was_bought: bool

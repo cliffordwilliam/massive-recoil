@@ -18,6 +18,7 @@ const AIM_SMOOTH: float = 0.05
 func _ready() -> void:
 	state_machine.start()
 	arms.start()
+	PageRouter.page_closed.connect(_on_page_router_page_closed)
 
 
 func _on_page_router_page_closed() -> void: # Connected via engine GUI

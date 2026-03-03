@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://b7o3botxe2h7q"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_df0qm"]
+size = Vector2(16, 16)
+
+[node name="BaseEnemy" type="Area2D" unique_id=100866833 groups=["enemies"]]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1999490212]
+position = Vector2(0, -8)
+autoplay = "alive"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=397068114]
+position = Vector2(0, -8)
+shape = SubResource("RectangleShape2D_df0qm")
+
+[node name="QueueFreeTimer" type="Timer" parent="." unique_id=1529870042]
+
+[connection signal="timeout" from="QueueFreeTimer" to="." method="_on_queue_free_timer_timeout"]

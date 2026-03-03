@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 
 GameState="*uid://c6vik37ew87ql"
 Spawner="*uid://dk2cbs57rw5ih"
+PageRouter="*uid://b4s6l0e5om1e6"
 
 [debug]
 

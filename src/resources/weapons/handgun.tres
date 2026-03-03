@@ -2,10 +2,10 @@
 
 [ext_resource type="Script" uid="uid://lplpq2v706yn" path="res://src/resources/weapons/weapon_data.gd" id="1_0i7ts"]
 [ext_resource type="SpriteFrames" uid="uid://c6ackeixi1emi" path="res://assets/sprites/handguns.tres" id="1_4vy8u"]
-[ext_resource type="PackedScene" uid="uid://c80k1dw0o4xun" path="res://src/entities/ui/pages/buy_page/buy_page_handgun_list_item.tscn" id="2_senti"]
+[ext_resource type="PackedScene" uid="uid://c80k1dw0o4xun" path="res://src/autoloads/ui/pages/buy_page/buy_page_handgun_list_item.tscn" id="2_senti"]
 [ext_resource type="Texture2D" uid="uid://bxw0vrryxyyd" path="res://assets/textures/ui/buy_page/handgun_description.png" id="3_wx3dn"]
 [ext_resource type="Texture2D" uid="uid://8ibmk0y17sbf" path="res://assets/textures/ui/shared/handgun_thumbnail.png" id="4_m8joh"]
-[ext_resource type="PackedScene" uid="uid://cln5lsvnj1a8x" path="res://src/entities/ui/pages/inventory_page/inventory_page_handgun_list_item.tscn" id="5_ytjmo"]
+[ext_resource type="PackedScene" uid="uid://cln5lsvnj1a8x" path="res://src/autoloads/ui/pages/inventory_page/inventory_page_handgun_list_item.tscn" id="5_ytjmo"]
 
 [resource]
 script = ExtResource("1_0i7ts")

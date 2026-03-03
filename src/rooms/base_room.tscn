@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://1ajdrqx8b0uo"]
+
+[ext_resource type="Script" uid="uid://bkori2t7dmgvd" path="res://src/rooms/base_room.gd" id="1_pmtbo"]
+[ext_resource type="PackedScene" uid="uid://cpjofrgm72i3c" path="res://src/entities/actors/player/player.tscn" id="3_ya37f"]
+
+[node name="BaseRoom" type="Node" unique_id=1331696587]
+script = ExtResource("1_pmtbo")
+
+[node name="Player" parent="." unique_id=407663167 instance=ExtResource("3_ya37f")]

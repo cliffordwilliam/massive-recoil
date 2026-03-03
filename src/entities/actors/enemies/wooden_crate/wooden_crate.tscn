@@ -1,25 +1,19 @@
-[gd_scene format=3 uid="uid://bkmh2piygd2wa"]
+[gd_scene format=3 uid="uid://dukyi47yk6fs6"]
 
+[ext_resource type="PackedScene" uid="uid://b7o3botxe2h7q" path="res://src/entities/actors/enemies/BaseEnemy.tscn" id="1_5m1n6"]
 [ext_resource type="Script" uid="uid://dx1e1wdlf1yii" path="res://src/entities/actors/enemies/wooden_crate/wooden_crate.gd" id="1_ptb46"]
-[ext_resource type="Texture2D" uid="uid://dkek4lgxo8q5i" path="res://assets/textures/props/wooden_crate.png" id="1_qgcgl"]
+[ext_resource type="SpriteFrames" uid="uid://cbwk72ft1soaw" path="res://assets/sprites/wooden_crate.tres" id="3_6ilyt"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ptb46"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6ilyt"]
 size = Vector2(16, 16)
 
-[node name="WoodenCrate" type="Area2D" unique_id=1277301013 groups=["enemies"]]
-collision_layer = 8
-collision_mask = 0
+[node name="WoodenCrate" unique_id=100866833 instance=ExtResource("1_5m1n6")]
 script = ExtResource("1_ptb46")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1254736618]
-position = Vector2(8, -8)
-texture = ExtResource("1_qgcgl")
-hframes = 2
+[node name="AnimatedSprite2D" parent="." index="0" unique_id=1999490212]
+sprite_frames = ExtResource("3_6ilyt")
+animation = &"intact"
+autoplay = "intact"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2095967918]
-position = Vector2(8, -8)
-shape = SubResource("RectangleShape2D_ptb46")
-
-[node name="Timer" type="Timer" parent="." unique_id=651913217]
-
-[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[node name="CollisionShape2D" parent="." index="1" unique_id=397068114]
+shape = SubResource("RectangleShape2D_6ilyt")

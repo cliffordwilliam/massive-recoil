@@ -1,0 +1,30 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cbwk72ft1soaw"]
+
+[ext_resource type="Texture2D" uid="uid://r4be7uhqjtmg" path="res://assets/sprites/wooden_crate.png" id="1_xssk4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xssk4"]
+atlas = ExtResource("1_xssk4")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_45x41"]
+atlas = ExtResource("1_xssk4")
+region = Rect2(0, 0, 16, 16)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xssk4")
+}],
+"loop": false,
+"name": &"dead",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_45x41")
+}],
+"loop": false,
+"name": &"intact",
+"speed": 10.0
+}]

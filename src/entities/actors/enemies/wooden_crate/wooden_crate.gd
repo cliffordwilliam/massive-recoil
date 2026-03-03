@@ -1,30 +1,18 @@
 # Static wooden boxes found around the world to be broken by player to reveal loot
 class_name WoodenCrate
-extends Area2D
-
-const BROKEN_WOODEN_CRATE_FRAME: int = 1
-
-var is_destroyed: bool = false
-
-@onready var sprite_2d: Sprite2D = $Sprite2D
-@onready var timer: Timer = $Timer
+extends BaseEnemy
 
 
-# All enemies need ouch func for taking hit logic
+# Auto plays the alive animation via GUI
+# All wooden crate boxes are 1 hit kill
+# TODO: Export to reveal different loot like ammo, etc. Right now its only money
 func ouch() -> void:
-	if is_destroyed:
+	if is_dead:
 		return
 
-	is_destroyed = true
+	is_dead = true
 
 	collision_layer = 0
 	collision_mask = 0
-	sprite_2d.frame = BROKEN_WOODEN_CRATE_FRAME
 
-	Spawner.spawn_money(sprite_2d.global_position)
-	timer.start()
-
-
-# Linger around a bit before disappearing after being destroyed
-func _on_timer_timeout() -> void: # Connected via engine GUI
-	queue_free()
+	Spawner.spawn_money(animated_sprite_2d.global_position)

@@ -1,4 +1,4 @@
-# Always owned by Player only  for shooting at enemies that handle shooting collision logic
+# Always owned by Player only for shooting at enemies that handle shooting collision logic
 class_name Ray
 extends RayCast2D
 
@@ -52,7 +52,7 @@ func shoot() -> bool:
 	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()
-		if collider and collider.is_in_group("enemies") and collider.has_method("ouch"):
+		if collider is BaseEnemy:
 			collider.ouch()
 
 	# Shot fired, may miss or hit something

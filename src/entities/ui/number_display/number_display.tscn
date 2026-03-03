@@ -1,8 +1,0 @@
-[gd_scene format=3 uid="uid://db7dgie868s33"]
-
-[ext_resource type="Script" uid="uid://xo8t3pf6rc6o" path="res://src/entities/ui/number_display/number_display.gd" id="1_gr045"]
-[ext_resource type="PackedScene" uid="uid://d0b0oqbpc3v0b" path="res://src/entities/ui/number_display/digit.tscn" id="2_d1d3k"]
-
-[node name="NumberDisplay" type="Node2D" unique_id=1731197946]
-script = ExtResource("1_gr045")
-digit_scene = ExtResource("2_d1d3k")

@@ -2,15 +2,10 @@
 class_name Shop
 extends Area2D
 
-# Needs page router to request for shop page
-@export var page_router: PageRouter # Set via engine GUI
-
 @onready var black_overlay: Sprite2D = $BlackOverlay
 
 
 func _ready() -> void:
-	assert(page_router, "PageRouter: page_router must be set in the inspector")
-
 	# Sleeps and play animation
 	set_process_unhandled_input(false)
 	var tween: Tween = create_tween().set_loops()
@@ -25,7 +20,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if Input.is_action_just_pressed("accept"):
-		page_router.open_buy_page()
+		PageRouter.open_buy_page()
 		get_viewport().set_input_as_handled()
 
 

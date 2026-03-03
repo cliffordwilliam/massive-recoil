@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://cenchx8ug57g2"]
 
 [ext_resource type="Texture2D" uid="uid://30ec5vc7l7oh" path="res://assets/textures/ui/inventory_page/inventory_page.png" id="1_f5sjh"]
-[ext_resource type="Script" uid="uid://v506s0ki4m4o" path="res://src/entities/ui/pages/inventory_page/inventory_page.gd" id="2_i314u"]
-[ext_resource type="PackedScene" uid="uid://cjn50xx4pdpow" path="res://src/entities/ui/scroll_list/scroll_list.tscn" id="3_jtpuf"]
-[ext_resource type="PackedScene" uid="uid://ctljgq72m1dac" path="res://src/entities/ui/pages/inventory_page/inventory_page_cursor.tscn" id="4_m0ak7"]
-[ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://src/entities/ui/number_display/number_display.tscn" id="5_glrd3"]
+[ext_resource type="Script" uid="uid://v506s0ki4m4o" path="res://src/autoloads/ui/pages/inventory_page/inventory_page.gd" id="2_i314u"]
+[ext_resource type="PackedScene" uid="uid://cjn50xx4pdpow" path="res://src/autoloads/ui/scroll_list/scroll_list.tscn" id="3_jtpuf"]
+[ext_resource type="PackedScene" uid="uid://ctljgq72m1dac" path="res://src/autoloads/ui/pages/inventory_page/inventory_page_cursor.tscn" id="4_m0ak7"]
+[ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://src/autoloads/ui/number_display/number_display.tscn" id="5_glrd3"]
 
 [node name="InventoryPage" type="Sprite2D" unique_id=332129556]
 texture = ExtResource("1_f5sjh")

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cjn50xx4pdpow"]
 
-[ext_resource type="Script" uid="uid://bascxp235ddbg" path="res://src/entities/ui/scroll_list/scroll_list.gd" id="1_hrkof"]
+[ext_resource type="Script" uid="uid://bascxp235ddbg" path="res://src/autoloads/ui/scroll_list/scroll_list.gd" id="1_hrkof"]
 
 [node name="ScrollList" type="Node2D" unique_id=746833403]
 script = ExtResource("1_hrkof")
