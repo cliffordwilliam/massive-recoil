@@ -1,8 +1,5 @@
 # massive-recoil
 
-## NOTE
-- This game does not support dropping item, its forward filling, iventory has no max limit
-
 ## TODO
 - [ ] Make ammo drops
 - [ ] Make effect when weapon hit enemy and solids
@@ -10,35 +7,6 @@
 - [ ] Switch room
 - [ ] Add new prop so weapons can be hidden from shop (reveal on certain events)
 - [ ] Save point
-
-## STRUCTURE (Bound to changes)
-
-- PageRouter (autoload)
-	- Pause page
-	- Game over page
-	- Inventory page
-	- Buy page
-	- Sell page
-	- Upgrade page
-	- Map page
-	- Tutorial page
-	- Collectibles page
-	- Logs page
-	- Option page (This is both an overlay on Room current scene and Screen current scene)
-
-- Game State (autoload) = Manages states like money, handgun stats, etc
-
-- BaseRoom (current scene)
-	- Player
-	- Enemies
-	- Shop
-	- Door = Player use door to change current scene to another room
-	- ...
-
-- Screen (current scene) = for non gameplay like splash screen, main menu, etc
-	- Title screen
-	- Load screen
-	- Main menu screen
 
 # ANIMATION PIPELINE
 Use aseprite to make animations:
