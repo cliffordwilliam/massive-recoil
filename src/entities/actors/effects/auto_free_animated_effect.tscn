@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b41uu6dvbpdvc"]
+
+[ext_resource type="Script" uid="uid://dru0wrb4nyxaf" path="res://src/entities/actors/effects/auto_free_animated_effect.gd" id="1_7rtle"]
+
+[node name="AutoFreeAnimatedEffect" type="Node2D" unique_id=203475575]
+script = ExtResource("1_7rtle")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1325095269]
+
+[connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]

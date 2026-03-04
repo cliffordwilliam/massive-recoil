@@ -1,14 +1,13 @@
 # massive-recoil
 
 ## TODO
-- [ ] Make ammo drops
-- [ ] Make effect when weapon hit enemy and solids
-- [ ] Weapon upgrade
-- [ ] Switch room
-- [ ] Add new prop so weapons can be hidden from shop (reveal on certain events)
-- [ ] Save point
+- Make ammo drops
+- Weapon upgrade
+- Switch room
+- Add new prop so weapons can be hidden from shop (reveal on certain events)
+- Save point
 
-# ANIMATION PIPELINE
+## ANIMATION PIPELINE
 Use aseprite to make animations:
 - Set tags, each tag name has to be unique
 - On a tag optionally tick repeat and set value to 1 if you do not want to loop

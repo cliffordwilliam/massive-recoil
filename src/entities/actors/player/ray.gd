@@ -70,9 +70,18 @@ func shoot() -> bool:
 	# can be missed by one frame.
 	if is_colliding():
 		var collider: Object = get_collider()
-		if collider and collider is BaseEnemy:
-			var enemy: BaseEnemy = collider
-			enemy.ouch(1) # TODO: Set this with weapon damage prop later
+		if collider:
+			# Hit an enemy logic
+			if collider is BaseEnemy:
+				var enemy: BaseEnemy = collider
+				enemy.ouch(1) # TODO: Set this with weapon damage prop later
+
+			# Hit a solid tile logic
+			else:
+				var collision_point: Vector2 = get_collision_point()
+				var normal: Vector2 = get_collision_normal()
+				var impact_rot: float = normal.angle()
+				Spawner.spawn_bullet_impact(collision_point, impact_rot)
 
 	# Shot fired, may miss or hit something
 	return true

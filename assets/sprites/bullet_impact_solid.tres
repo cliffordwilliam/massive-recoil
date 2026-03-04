@@ -1,0 +1,88 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://b81jnw1a3t2kq"]
+
+[ext_resource type="Texture2D" uid="uid://bp1luevavv0fe" path="res://assets/sprites/bullet_impact_solid.png" id="1_hw18k"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hw18k"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n44w7"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3b65g"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jawc0"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(48, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sj3ox"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(64, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hhtrf"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(80, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8uysl"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(96, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d646w"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(112, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqeby"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(128, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rx3cg"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(144, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1bw53"]
+atlas = ExtResource("1_hw18k")
+region = Rect2(160, 0, 16, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hw18k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n44w7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3b65g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jawc0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sj3ox")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hhtrf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8uysl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d646w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wqeby")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rx3cg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1bw53")
+}],
+"loop": false,
+"name": &"bullet_impact_solid",
+"speed": 33.333333333333336
+}]

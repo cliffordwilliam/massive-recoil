@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://csa5spk8g82e0"]
+
+[ext_resource type="PackedScene" uid="uid://b41uu6dvbpdvc" path="res://src/entities/actors/effects/auto_free_animated_effect.tscn" id="1_hgf6d"]
+[ext_resource type="SpriteFrames" uid="uid://b81jnw1a3t2kq" path="res://assets/sprites/bullet_impact_solid.tres" id="1_rtpjr"]
+
+[node name="BulletImpactSolid" unique_id=1325095269 instance=ExtResource("1_hgf6d")]
+
+[node name="AnimatedSprite2D" parent="." index="0" unique_id=1325095269]
+position = Vector2(16, 0)
+rotation = 1.5707964
+sprite_frames = ExtResource("1_rtpjr")
+animation = &"bullet_impact_solid"
+autoplay = "bullet_impact_solid"
