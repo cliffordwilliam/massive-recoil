@@ -9,7 +9,14 @@ extends Node2D
 
 
 func _ready() -> void:
+	# assert() fires only in debug/editor builds and is completely stripped in exported builds.
+	# push_error() always fires, ensuring this misconfiguration is caught in all builds.
+	# Ref: docs/godot/tutorials/scripting/gdscript/gdscript_basics.rst
+	# — "assertions are ignored in non-debug builds"
 	assert(digit_scene, "NumberDisplay: digit_scene must be set in the inspector")
+	if not digit_scene:
+		push_error("NumberDisplay: digit_scene must be set in the inspector")
+		return
 	# Given that x is the top‑left NumberDisplay origin, we can render either like this:
 	# 123x = this is right‑aligned
 	# x123
@@ -36,7 +43,11 @@ func display_number(number: int) -> void:
 	# Since both the padded number and sprites match in size, we iterate over them to set frames correctly.
 	for i in get_child_count():
 		var d: Digit = get_child(i)
+		# assert() fires only in debug/editor builds — see _ready() comment for full context.
 		assert(d is Digit, "NumberDisplay: all children must be Digit")
+		if not d is Digit:
+			push_error("NumberDisplay: all children must be Digit")
+			continue
 
 		# Set digit sprite frames and visibility
 		d.frame = text[i].to_int()

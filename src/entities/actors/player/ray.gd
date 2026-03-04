@@ -20,11 +20,13 @@ var is_active: bool = false:
 
 
 func _ready() -> void:
-	assert(player is Player, "Ray: player must be a Player")
 	is_active = false
+	assert(player is Player, "Ray: player must be a Player")
+	if not player is Player:
+		push_error("Ray: player must be a Player")
 
 
-# Resolves the ray collision and decides where the end point is to draw the laser sight (line and dot).
+# Resolves the ray collision and decides where the end point is to draw the laser sight.
 func _physics_process(_delta: float) -> void:
 	# RayCast2D auto-updates once per physics frame before any _physics_process callbacks run,
 	# so by this point its cached result reflects the player's pre-movement position.
@@ -35,9 +37,11 @@ func _physics_process(_delta: float) -> void:
 	# Ref: docs/godot/classes/class_raycast2d.rst:26 (auto-update per frame)
 	# Ref: docs/godot/classes/class_raycast2d.rst:272 (force_raycast_update description)
 	force_raycast_update()
-	var end: Vector2 = to_local(get_collision_point()) if is_colliding() else target_position
-	line.set_point_position(1, end)
-	dot.position = end
+	var end_global: Vector2 = get_collision_point() if is_colliding() else to_global(
+		target_position,
+	)
+	line.set_point_position(1, line.to_local(end_global))
+	dot.position = to_local(end_global)
 
 
 func shoot() -> bool:
@@ -49,9 +53,9 @@ func shoot() -> bool:
 
 	shot.emit(rotation)
 
-	light.flash(line.get_point_position(0))
-	var muzzle_pos: Vector2 = to_global(line.get_point_position(0))
-	var hit_pos: Vector2 = to_global(line.get_point_position(1))
+	light.flash(to_local(line.to_global(line.get_point_position(0))))
+	var muzzle_pos: Vector2 = line.to_global(line.get_point_position(0))
+	var hit_pos: Vector2 = line.to_global(line.get_point_position(1))
 	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.flip_h)
 
 	# _unhandled_input fires before _physics_process, so this force_raycast_update
@@ -61,7 +65,7 @@ func shoot() -> bool:
 	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()
-		if collider is BaseEnemy:
+		if collider and collider is BaseEnemy:
 			var enemy: BaseEnemy = collider
 			enemy.ouch(1) # TODO: Set this with weapon damage prop later
 

@@ -1,8 +1,8 @@
 @abstract
-# Base class for all pages managed by PageRouter. Parent must be PageRouter.
 class_name BasePage
 extends Sprite2D
 
+# Base class for all pages managed by PageRouter. Parent must be PageRouter.
 # All pages can be toggled on/off (off means never processes and stays invisible).
 var is_active: bool:
 	set(value):
@@ -13,5 +13,8 @@ var is_active: bool:
 			_hydrate_ui() # Fetch data every time I wake up.
 
 
-func _hydrate_ui() -> void:
-	pass # Children must override fetch logic here.
+# @abstract enforces that every concrete subclass must implement _hydrate_ui().
+# A non-abstract method with `pass` silently does nothing if a subclass forgets to override it —
+# is_active becoming true would call _hydrate_ui() and show stale/empty UI with no warning.
+# Ref: docs/godot/tutorials/scripting/gdscript/gdscript_basics.rst — abstract methods section
+@abstract func _hydrate_ui() -> void

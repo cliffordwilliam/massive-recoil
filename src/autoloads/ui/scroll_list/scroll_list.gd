@@ -27,9 +27,22 @@ var is_active: bool = false:
 
 func _ready() -> void:
 	assert(get_parent() is BasePage, "ScrollList: my parent must be a BasePage")
+	if not get_parent() is BasePage:
+		push_error("ScrollList: my parent must be a BasePage")
+
 	assert(cursor_scene, "ScrollList: cursor_scene is missing")
+	if not cursor_scene:
+		push_error("ScrollList: cursor_scene is missing")
+		return
+
 	cursor = cursor_scene.instantiate()
+
 	assert(cursor is Node2D, "ScrollList: cursor must inherit Node2D")
+	if not cursor is Node2D:
+		push_error("ScrollList: cursor must inherit Node2D")
+		cursor.queue_free()
+		return
+
 	cursor_container.add_child(cursor)
 
 
@@ -62,6 +75,8 @@ func set_items(new_items: Array[ListItem]) -> void:
 			not seen.has(i.name),
 			"ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name,
 		)
+		if seen.has(i.name):
+			push_error("ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name)
 		seen[i.name] = true
 
 	for old_item: ListItem in items_container.get_children():

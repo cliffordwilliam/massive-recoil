@@ -31,4 +31,7 @@ var _health: int = 0
 
 func _ready() -> void:
 	assert(enemy_data != null, "HealthCounter: requires EnemyData assigned")
+	if enemy_data == null:
+		push_error("HealthCounter: requires EnemyData assigned")
+		return
 	_health = enemy_data.max_health

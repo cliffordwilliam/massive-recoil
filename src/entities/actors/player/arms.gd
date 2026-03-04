@@ -15,6 +15,9 @@ var recoil_tween: Tween
 
 func _ready() -> void:
 	assert(player is Player, "Arms: player must be a Player")
+	if not player is Player:
+		push_error("Arms: player must be a Player")
+		return
 	GameState.new_weapon_equipped.connect(_hydrate_ui)
 
 

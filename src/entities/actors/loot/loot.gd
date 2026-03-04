@@ -7,28 +7,28 @@ const POP_SPREAD: float = PI / 4
 const POP_SPEED_MIN: float = 100.0
 const POP_SPEED_MAX: float = 150.0
 
-var global_pos: Vector2 = Vector2.ZERO
-var linear_vel: Vector2 = Vector2.ZERO
 var id: StringName = &""
 var is_collected: bool = false
+var is_initialized: bool = false
+var global_pos: Vector2 = Vector2.ZERO
+var linear_vel: Vector2 = Vector2.ZERO
 
 @onready var animated_sprite_2d: AnimatedSprite2D = $AnimatedSprite2D
 
 
 func _ready() -> void:
-	if id and not animated_sprite_2d.is_playing():
-		animated_sprite_2d.play(id)
+	if not is_initialized:
+		return
 
-	if global_pos != Vector2.ZERO:
-		global_position = global_pos
-
-	if linear_vel:
-		linear_velocity = linear_vel
+	animated_sprite_2d.play(id)
+	global_position = global_pos
+	linear_velocity = linear_vel
 
 
 func initialize(given_id: StringName, pos: Vector2) -> void:
 	# This can be called before or after my _ready() is called.
 	id = given_id
+	is_initialized = true
 	global_pos = pos
 	linear_vel = Vector2.UP.rotated(
 		randf_range(-POP_SPREAD, POP_SPREAD),
