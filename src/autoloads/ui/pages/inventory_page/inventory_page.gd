@@ -9,9 +9,12 @@ extends BasePage
 
 
 func _hydrate_ui() -> void:
+	# There are only less than 6 ammo types in the game, so hardcode is fine.
 	handgun_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(&"handgun"))
 	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(&"rifle"))
 	money.display_number(GameState.get_money_count())
+	# Pages regenerate all list items every open.
+	# This is Acceptable since game has small item counts (less than 20)
 	scroll_list.set_items(_get_owned_weapons_list_item())
 
 

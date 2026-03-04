@@ -28,8 +28,8 @@ func _ready() -> void:
 
 
 func display_number(number: int) -> void:
-	# The number is truncated to fit the available digit sprites.
-	# With 3 digit sprites, input 12000 is truncated to 120.
+	# The number is clamped to fit the available digit sprites.
+	# With 3 digit sprites, input 12000 is clamped to 999.
 	number = clampi(number, 0, int(pow(10, digits)) - 1)
 
 	# If the number is 15 then digit_count is 2.
@@ -40,7 +40,8 @@ func display_number(number: int) -> void:
 	# Given that we have 3 digit sprites, we pad 15 to be 015 (right‑aligned) or 150.
 	var text: String = raw.lpad(digits, "0") if right_aligned else raw.rpad(digits, "0")
 
-	# Since both the padded number and sprites match in size, we iterate over them to set frames correctly.
+	# Since both the padded number and sprites match in size,
+	# we iterate over them to set frames correctly.
 	for i in get_child_count():
 		var d: Digit = get_child(i)
 		# assert() fires only in debug/editor builds — see _ready() comment for full context.
@@ -51,4 +52,13 @@ func display_number(number: int) -> void:
 
 		# Set digit sprite frames and visibility
 		d.frame = text[i].to_int()
-		d.visible = pad or (i >= (digits - digit_count) if right_aligned else i < digit_count)
+
+		var should_show_digit: bool
+
+		if right_aligned:
+			var start_index: int = digits - digit_count
+			should_show_digit = i >= start_index
+		else:
+			should_show_digit = i < digit_count
+
+		d.visible = pad or should_show_digit

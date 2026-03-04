@@ -93,6 +93,10 @@ func pick_up_a_weapon_by_id(id: StringName) -> void:
 		return
 	weapons[id].is_owned = true
 
+	# A weapon picked up from loot would have was_bought true, so it does not show "new" tag.
+	# This is intended. If it was picked up once, then its not new in store anymore to the player.
+	weapons[id].was_bought = true
+
 
 func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
 	if not weapon_exists(id):

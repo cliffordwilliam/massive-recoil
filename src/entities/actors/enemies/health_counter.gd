@@ -10,6 +10,7 @@ signal died
 @export var enemy_data: EnemyData
 
 var is_dead: bool = false
+# Intentional: Once dead, the setter silently ignores all future sets. There is no healing feature.
 var health: int:
 	get:
 		return _health

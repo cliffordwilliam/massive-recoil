@@ -5,7 +5,7 @@ extends Node
 @export var initial_state: BaseState
 
 var current_state: BaseState = null
-var _states: Dictionary[StringName, BaseState] = { }
+var states: Dictionary[StringName, BaseState] = { }
 
 
 func _ready() -> void:
@@ -24,7 +24,7 @@ func _ready() -> void:
 		if not c is BaseState:
 			push_error("StateMachine: I can only have BaseState children, got: " + c.name)
 			continue
-		_states[c.name] = c
+		states[c.name] = c
 
 	current_state = initial_state
 
@@ -48,11 +48,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func transition_to(target_state_name: StringName, previous_state: StringName) -> void:
-	assert(_states.has(target_state_name), "StateMachine: No state found for: " + target_state_name)
-	if not _states.has(target_state_name):
+	assert(states.has(target_state_name), "StateMachine: No state found for: " + target_state_name)
+	if not states.has(target_state_name):
 		push_error("StateMachine: No state found for: " + target_state_name)
 		return
-	var target_state: BaseState = _states[target_state_name]
+	var target_state: BaseState = states[target_state_name]
 
 	if current_state:
 		current_state.exit()
@@ -68,7 +68,7 @@ func reset() -> void:
 
 # Warning: Must be called by the owner's _ready.
 # An empty StringName as the previous state means this is the initial entry.
-func start() -> void: # Connected via engine GUI
+func start() -> void:
 	set_physics_process(true)
 	set_process_unhandled_input(true)
 

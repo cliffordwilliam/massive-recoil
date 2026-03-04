@@ -25,7 +25,6 @@ func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one sho
 
 func _on_health_counter_died() -> void: # Connected via engine GUI (one shot)
 	collision_layer = 0
-	collision_mask = 0
 	queue_free_timer.start()
 	animated_sprite_2d.play("dead")
 	on_died()

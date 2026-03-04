@@ -25,6 +25,12 @@ func _ready() -> void:
 	if not player is Player:
 		push_error("Ray: player must be a Player")
 
+	# _physics_process relies on StateMachine running before Ray (sibling node order).
+	# Validate that assumption so a scene-tree reorder is caught immediately.
+	var sm: Node = player.state_machine if player else null
+	if sm and sm.get_index() > get_index():
+		push_warning("Ray: StateMachine must be ordered before Ray in the scene tree")
+
 
 # Resolves the ray collision and decides where the end point is to draw the laser sight.
 func _physics_process(_delta: float) -> void:
@@ -53,16 +59,15 @@ func shoot() -> bool:
 
 	shot.emit(rotation)
 
-	light.flash(to_local(line.to_global(line.get_point_position(0))))
 	var muzzle_pos: Vector2 = line.to_global(line.get_point_position(0))
 	var hit_pos: Vector2 = line.to_global(line.get_point_position(1))
+	light.flash(to_local(muzzle_pos))
 	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.flip_h)
 
-	# _unhandled_input fires before _physics_process, so this force_raycast_update
-	# queries the previous physics tick's world — collision is one tick stale.
+	# _unhandled_input fires before _physics_process, so is_colliding() here
+	# reflects the previous physics tick's world — collision is one tick stale.
 	# This is an accepted trade‑off for normal gameplay speeds; fast‑moving targets
 	# can be missed by one frame.
-	force_raycast_update()
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider and collider is BaseEnemy:

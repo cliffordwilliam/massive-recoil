@@ -6,6 +6,12 @@ extends Node
 @onready var state_machine: StateMachine = get_parent()
 
 
+func _ready() -> void:
+	assert(state_machine is StateMachine, "BaseState: parent must be a StateMachine")
+	if not state_machine is StateMachine:
+		push_error("BaseState: parent must be a StateMachine")
+
+
 func enter(_old_state: StringName) -> void:
 	pass
 

@@ -11,6 +11,8 @@ extends BasePage
 
 func _hydrate_ui() -> void:
 	money.display_number(GameState.get_money_count())
+	# Pages regenerate all list items every open.
+	# This is Acceptable since game has small item counts (less than 20)
 	scroll_list.set_items(_get_all_weapons_buy_list_item())
 
 
@@ -37,7 +39,7 @@ func _on_scroll_list_render_updated(id: StringName) -> void: # Connected via eng
 		icon.texture = GameState.get_weapon_icon_by_id(id)
 		description.texture = GameState.get_weapon_description_by_id(id)
 	else:
-		push_warning("BuyPage: weapon does not exists")
+		push_warning("BuyPage: weapon does not exist")
 
 
 func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI

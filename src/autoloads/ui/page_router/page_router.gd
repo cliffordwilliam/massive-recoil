@@ -8,6 +8,7 @@ signal page_closed
 var current_page: BasePage = null
 
 # My list of BasePage instances goes here.
+# These cannot be null, I add them via scene tree GUI, game will not even run if its not valid
 @onready var inventory_page: InventoryPage = $InventoryPage
 @onready var buy_page: BuyPage = $BuyPage
 

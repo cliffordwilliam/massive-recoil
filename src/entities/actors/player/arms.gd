@@ -22,10 +22,11 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	GameState.new_weapon_equipped.disconnect(_hydrate_ui)
 	_kill_recoil_tween_if_exists()
 
 
-# WARNING: Must be called by Player._ready().
+# Warning: Must be called by Player._ready().
 func start() -> void: # Connected via engine GUI
 	_hydrate_ui()
 
@@ -47,12 +48,17 @@ func _kill_recoil_tween_if_exists() -> void:
 
 
 func _hydrate_ui() -> void:
+	# Swapping sprite_frames mid-animation could glitch if new sprite has a different frame count
+	# If it happens so be it, it must not happen since all of these came from 1 aseprite file
 	var equipped_weapon_arms_sprite: SpriteFrames = GameState.get_new_equipped_weapon_arms_sprite()
+
 	if equipped_weapon_arms_sprite:
 		sprite_frames = equipped_weapon_arms_sprite
 	else:
 		sprite_frames = preload("uid://bwtavvs3i1wy2")
-	frame = player.body.frame # Changing sprite frames resets me to 0; I must keep up with the master.
+
+	# Changing sprite frames resets me to 0; I must keep up with the master.
+	frame = player.body.frame
 
 
 func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI

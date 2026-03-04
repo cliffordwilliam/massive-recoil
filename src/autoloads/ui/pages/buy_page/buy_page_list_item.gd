@@ -10,8 +10,7 @@ var is_out_tag_visible: bool = false
 
 
 func _ready() -> void:
-	new_tag.visible = is_new_tag_visible
-	out_tag.visible = is_out_tag_visible
+	_assign_children_properties()
 
 
 func show_tags(show_new_tag: bool, is_sold_out: bool) -> void:
@@ -19,5 +18,9 @@ func show_tags(show_new_tag: bool, is_sold_out: bool) -> void:
 	is_new_tag_visible = show_new_tag
 	is_out_tag_visible = is_sold_out
 	if is_node_ready():
-		new_tag.visible = is_new_tag_visible
-		out_tag.visible = is_out_tag_visible
+		_assign_children_properties()
+
+
+func _assign_children_properties() -> void:
+	new_tag.visible = is_new_tag_visible
+	out_tag.visible = is_out_tag_visible

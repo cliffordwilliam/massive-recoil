@@ -6,7 +6,7 @@ extends Area2D
 
 
 func _ready() -> void:
-	# Starts sleeping and plays animation
+	# Starts sleeping and plays animation.
 	set_process_unhandled_input(false)
 	var tween: Tween = create_tween().set_loops()
 	tween.tween_property(black_overlay, "modulate:a", 0.0, 1.0)

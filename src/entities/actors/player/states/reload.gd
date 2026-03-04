@@ -53,7 +53,11 @@ func _kill_tween() -> void:
 
 
 func _set_aim_frame(value: float) -> void:
-	player.body.frame = int(value)
+	player.body.frame = clampi(
+		int(value),
+		0,
+		player.aim_frames - 1,
+	)
 
 
 # Plays when the aim angle reaches the reload aim destination angle.

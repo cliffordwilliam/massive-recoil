@@ -1,4 +1,5 @@
 # Spawner Autoload. Centralises instantiation of effects and loot into the current scene.
+# TODO: Dedicate its own node to add stuff in the world, add pooling too, acceptable for now in dev
 extends Node
 
 const BULLET_CASING = preload("uid://brkax245qceky")

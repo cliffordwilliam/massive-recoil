@@ -20,9 +20,7 @@ func _ready() -> void:
 	if not is_initialized:
 		return
 
-	animated_sprite_2d.play(id)
-	global_position = global_pos
-	linear_velocity = linear_vel
+	_assign_children_properties()
 
 
 func initialize(given_id: StringName, pos: Vector2) -> void:
@@ -35,9 +33,21 @@ func initialize(given_id: StringName, pos: Vector2) -> void:
 	) * randf_range(POP_SPEED_MIN, POP_SPEED_MAX)
 
 	if is_node_ready():
-		animated_sprite_2d.play(id)
-		global_position = global_pos
-		linear_velocity = linear_vel
+		_assign_children_properties()
+
+
+func _assign_children_properties() -> void:
+	assert(
+		animated_sprite_2d.sprite_frames.has_animation(id),
+		"Loot: No anim for: " + id,
+	)
+	if not animated_sprite_2d.sprite_frames.has_animation(id):
+		push_error("Loot: No anim for: " + id)
+		return
+
+	animated_sprite_2d.play(id)
+	global_position = global_pos
+	linear_velocity = linear_vel
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI (one shot)
@@ -52,4 +62,6 @@ func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI 
 		GameState.add_one_to_money()
 	elif GameState.weapon_exists(id):
 		GameState.pick_up_a_weapon_by_id(id)
+	else:
+		push_warning("Loot: unknown id on collection: " + id)
 	queue_free()

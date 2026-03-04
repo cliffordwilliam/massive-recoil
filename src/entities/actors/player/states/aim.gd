@@ -11,8 +11,10 @@ var real_angle: float = 0.0:
 	set(value):
 		real_angle = value
 		if player:
-			player.body.frame = int(
-				remap(real_angle, PI / 2.0, -PI / 2.0, 0, player.aim_frames - 1),
+			player.body.frame = clampi(
+				int(remap(real_angle, PI / 2.0, -PI / 2.0, 0, player.aim_frames - 1)),
+				0,
+				player.aim_frames - 1,
 			)
 			player.ray.rotation = PI - real_angle if player.body.flip_h else real_angle
 
