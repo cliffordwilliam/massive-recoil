@@ -10,7 +10,7 @@ const AIM_SMOOTH: float = 0.05
 var aim_frames: int = 0
 
 @onready var arms: Arms = $Body/Arms
-@onready var body: CustomAnimatedSprite = $Body
+@onready var body: MyAnimatedSprite = $Body
 @onready var ray: Ray = $Ray
 @onready var state_machine: StateMachine = $StateMachine
 

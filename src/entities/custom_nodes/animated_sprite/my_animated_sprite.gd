@@ -1,5 +1,5 @@
 # Upgraded AnimatedSprite2D that adds a flip_h signal and transition animation feature.
-class_name CustomAnimatedSprite
+class_name MyAnimatedSprite
 extends AnimatedSprite2D
 
 # Warning: always use set_flip instead of setting AnimatedSprite2D.flip_h directly,
@@ -7,10 +7,6 @@ extends AnimatedSprite2D
 signal flip_h_changed
 
 @export var animation_transitions: Dictionary[StringName, StringName] = { }
-
-
-func _ready() -> void:
-	animation_finished.connect(_on_animation_finished)
 
 
 # In Godot you cannot override the setter of an existing/built‑in property.
@@ -22,6 +18,6 @@ func set_flip(value: bool) -> void:
 		flip_h_changed.emit()
 
 
-func _on_animation_finished() -> void:
+func _on_animation_finished() -> void: # Connected via engine GUI
 	if animation_transitions.has(animation):
 		play(animation_transitions[animation])

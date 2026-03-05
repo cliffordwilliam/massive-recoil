@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cpjofrgm72i3c"]
 
 [ext_resource type="Script" uid="uid://561ep14ey5sv" path="res://src/entities/actors/player/player.gd" id="1_abrql"]
+[ext_resource type="PackedScene" uid="uid://bavsmakgj1ro7" path="res://src/entities/custom_nodes/animated_sprite/my_animated_sprite.tscn" id="2_nqxrs"]
 [ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
-[ext_resource type="Script" uid="uid://skmpd278tn72" path="res://src/entities/custom_nodes/animated_sprite/custom_animated_sprite.gd" id="3_sglur"]
 [ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://src/entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://src/entities/actors/player/states/idle.gd" id="5_8fjmc"]
@@ -39,11 +39,10 @@ size = Vector2(8, 24)
 collision_mask = 4
 script = ExtResource("1_abrql")
 
-[node name="Body" type="AnimatedSprite2D" parent="." unique_id=1265583741]
+[node name="Body" parent="." unique_id=1711271908 instance=ExtResource("2_nqxrs")]
 position = Vector2(0, -21)
 sprite_frames = ExtResource("2_qiwj3")
 animation = &"idle"
-script = ExtResource("3_sglur")
 animation_transitions = Dictionary[StringName, StringName]({
 &"crouch_to_idle": &"idle",
 &"land": &"idle",
@@ -52,7 +51,6 @@ animation_transitions = Dictionary[StringName, StringName]({
 &"to_fall": &"down",
 &"to_run": &"run"
 })
-metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="Arms" type="AnimatedSprite2D" parent="Body" unique_id=869633070 node_paths=PackedStringArray("player")]
 sprite_frames = ExtResource("4_7thud")
