@@ -1,10 +1,17 @@
 # GameState
-# Single source of truth for all runtime game state.
+# Single source of truth autoload for all runtime game state.
 #
-# Weapons: preload() returns the engine-cached resource instance, so HANDGUN and RIFLE
-# are the same objects for the entire session. This is intentional — there are no
-# duplicate weapons and this is single-player, so the cached instance IS the live state.
-# Do not call .duplicate() on them; that would break the shared-instance contract.
+# Weapon architecture:
+# - WeaponData resources are preloaded once and engine-cached.
+# - Each weapon (HANDGUN, RIFLE, etc.) has exactly ONE Resource instance per session.
+# - These instances represent the live mutable runtime state.
+# - They start empty, are hydrated from save data on load,
+#   mutated during gameplay, and serialized into the save file.
+#
+# IMPORTANT:
+# - Do NOT duplicate() weapon resources.
+# - Do NOT ResourceSaver.save() the .tres files.
+# - The .tres is only a template container; persistence is handled separately.
 extends Node
 
 signal new_weapon_equipped
@@ -14,7 +21,19 @@ const RIFLE: WeaponData = preload("uid://bu1h08icwgww")
 
 # Player
 var money: int = 5
-var equipped_weapon_id: StringName = &""
+var equipped_weapon: WeaponData = null
+var equipped_weapon_id: StringName = &"":
+	set(value):
+		if value == equipped_weapon_id:
+			return
+
+		if not weapon_exists_and_is_owned(value):
+			push_warning("Attempted to equip unowned or invalid weapon: ", value)
+			return
+
+		equipped_weapon_id = value
+		equipped_weapon = weapons[equipped_weapon_id]
+		new_weapon_equipped.emit()
 # Weapons
 var weapons: Dictionary[StringName, WeaponData] = {
 	&"handgun": HANDGUN,
@@ -37,35 +56,27 @@ func get_weapon_reserve_ammo_by_id(id: StringName) -> int:
 
 
 func equipped_weapon_can_reload() -> bool:
-	if not weapon_exists(equipped_weapon_id):
+	if not equipped_weapon:
 		return false
-	var weapon: WeaponData = weapons[equipped_weapon_id]
-	return weapon.reserve_ammo > 0 and weapon.magazine_current < weapon.magazine_size
+	return equipped_weapon.can_reload()
 
 
 func reload_weapon_by_id(id: StringName) -> void:
 	if not weapon_exists(id):
 		return
-	var weapon: WeaponData = weapons[id]
-	var needed: int = weapon.magazine_size - weapon.magazine_current
-	var available: int = mini(needed, weapon.reserve_ammo)
-	weapon.magazine_current += available
-	weapon.reserve_ammo -= available
+	weapons[id].reload()
 
 
 func try_consume_ammo() -> bool:
-	if not weapon_exists(equipped_weapon_id):
+	if not equipped_weapon:
 		return false
-	if weapons[equipped_weapon_id].magazine_current > 0:
-		weapons[equipped_weapon_id].magazine_current -= 1
-		return true
-	return false
+	return equipped_weapon.try_consume_ammo()
 
 
 func get_equipped_weapon_reload_speed() -> float:
-	if not weapon_exists(equipped_weapon_id):
+	if not equipped_weapon:
 		return 0.0
-	return weapons[equipped_weapon_id].reload_speed
+	return equipped_weapon.reload_speed
 
 
 func get_weapon_description_by_id(id: StringName) -> Texture2D:
@@ -91,28 +102,26 @@ func add_one_to_money() -> void:
 func pick_up_a_weapon_by_id(id: StringName) -> void:
 	if not weapon_exists(id):
 		return
-	weapons[id].is_owned = true
-
 	# A weapon picked up from loot would have was_bought true, so it does not show "new" tag.
 	# This is intended. If it was picked up once, then its not new in store anymore to the player.
-	weapons[id].was_bought = true
+	weapons[id].mark_as_owned()
 
 
 func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
 	if not weapon_exists(id):
 		return false
-	if money >= weapons[id].price and not weapons[id].is_owned:
-		money -= weapons[id].price
-		weapons[id].was_bought = true
-		weapons[id].is_owned = true
+	var weapon: WeaponData = weapons[id]
+	if money >= weapon.price and not weapon.is_owned:
+		money -= weapon.price
+		weapon.mark_as_owned()
 		return true
 	return false
 
 
 func get_new_equipped_weapon_arms_sprite() -> SpriteFrames:
-	if not weapon_exists(equipped_weapon_id):
+	if not equipped_weapon:
 		return null
-	return weapons[equipped_weapon_id].arms_sprite
+	return equipped_weapon.arms_sprite
 
 
 func get_all_weapons() -> Array[WeaponData]:
@@ -135,8 +144,4 @@ func weapon_exists_and_is_owned(id: StringName) -> bool:
 
 
 func equip_a_new_weapon_by_id(id: StringName) -> void:
-	if not weapon_exists_and_is_owned(id):
-		return
-
 	equipped_weapon_id = id
-	new_weapon_equipped.emit()
