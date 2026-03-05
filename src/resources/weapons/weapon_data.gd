@@ -12,10 +12,12 @@
 # - Do NOT save the .tres file via ResourceSaver.
 # - The .tres acts as a static template + runtime container.
 #   Persistence is handled externally.
+#
+# For more details please read this: res://docs/decisions/how_weapon_works.md
 class_name WeaponData
 extends Resource
 
-# Only meant to be set once via GUI when you instance tres and be left alone forever
+# Only meant to be set once via GUI when you instance tres and be left alone forever.
 @export var id: StringName
 @export var arms_sprite: SpriteFrames
 @export var icon_sprite: Texture2D
@@ -23,22 +25,25 @@ extends Resource
 @export var buy_page_list_item_scene: PackedScene
 @export var inv_page_list_item_scene: PackedScene
 @export var price: int
-@export var magazine_size: int
-@export var reload_speed: float
+@export var magazine_size: UpgradeListData
+@export var reload_speed: UpgradeListData
+@export var damage: UpgradeListData
+@export var fire_rate: UpgradeListData
 
-# These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save
+# These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save.
 var magazine_current: int
 var reserve_ammo: int
 var is_owned: bool
 var was_bought: bool
 
 
+# API for GameState to use
 func can_reload() -> bool:
-	return reserve_ammo > 0 and magazine_current < magazine_size
+	return reserve_ammo > 0 and magazine_current < int(magazine_size.get_value())
 
 
 func reload() -> void:
-	var needed: int = magazine_size - magazine_current
+	var needed: int = int(magazine_size.get_value()) - magazine_current
 	var available: int = mini(needed, reserve_ammo)
 	magazine_current += available
 	reserve_ammo -= available

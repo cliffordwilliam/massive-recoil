@@ -123,20 +123,16 @@ Think of a Resource like an image template.
 
 1. Create a base tree image.
 2. Create instances:
-
    * Red
    * Green
    * Blue
 3. Assign Red to two nodes:
-
    * Node A → Red
    * Node B → Red
 4. Change Red to Blue during gameplay:
-
    * Node A → Blue
    * Node B → Blue
 5. Close and reopen the game:
-
    * Node A → Red
    * Node B → Red
 

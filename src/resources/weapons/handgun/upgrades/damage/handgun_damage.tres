@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://dxcmhlbu3ptet"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_vgfdm"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_d0i0l"]
+[ext_resource type="Resource" uid="uid://4lbrdr6fj6c2" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_0.tres" id="2_rc6eu"]
+[ext_resource type="Resource" uid="uid://4e7rm67x3btv" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_1.tres" id="3_m4mg3"]
+[ext_resource type="Resource" uid="uid://cclbj5c4s3cj3" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_2.tres" id="4_y2ahd"]
+[ext_resource type="Resource" uid="uid://coc0a0u7ui1ls" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_3.tres" id="5_cyrsa"]
+[ext_resource type="Resource" uid="uid://bg5rv2qwe2e8c" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_4.tres" id="6_l3gt6"]
+[ext_resource type="Resource" uid="uid://bxs8g1on78yx0" path="res://src/resources/weapons/handgun/upgrades/damage/handgun_damage_5.tres" id="7_f1svw"]
+
+[resource]
+script = ExtResource("2_d0i0l")
+items = Array[ExtResource("1_vgfdm")]([ExtResource("2_rc6eu"), ExtResource("3_m4mg3"), ExtResource("4_y2ahd"), ExtResource("5_cyrsa"), ExtResource("6_l3gt6"), ExtResource("7_f1svw")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

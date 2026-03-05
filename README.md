@@ -2,9 +2,9 @@
 
 ## TODO
 - Make ammo drops
-- Weapon upgrade
+- Weapon upgrade props are ready, but missing FE interface (just show buttons to upgrade any props)
 - Switch room
-- Add new prop so weapons can be hidden from shop (reveal on certain events)
+- Add new prop so weapons/upgrades can be hidden from shop (reveal on certain events)
 - Save point
 
 ## ANIMATION PIPELINE

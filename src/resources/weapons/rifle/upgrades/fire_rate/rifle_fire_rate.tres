@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://dft54hqpx10k7"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_4j7y7"]
+[ext_resource type="Resource" uid="uid://ctgsrth7cvkg4" path="res://src/resources/weapons/rifle/upgrades/fire_rate/rifle_fire_rate_0.tres" id="2_cvfeo"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_vogho"]
+
+[resource]
+script = ExtResource("2_vogho")
+items = Array[ExtResource("1_4j7y7")]([ExtResource("2_cvfeo")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

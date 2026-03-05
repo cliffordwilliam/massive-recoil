@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://b788tx6b7u51v"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_u3f8e"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_ic1qa"]
+[ext_resource type="Resource" uid="uid://br5i4oxx5vij5" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_0.tres" id="2_lsr6r"]
+[ext_resource type="Resource" uid="uid://by8wygjexsovk" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_1.tres" id="3_85d1m"]
+[ext_resource type="Resource" uid="uid://b217j2gtrgbdv" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_2.tres" id="4_tykuc"]
+[ext_resource type="Resource" uid="uid://ds3cfeb0hgtpu" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_3.tres" id="5_r2qs8"]
+[ext_resource type="Resource" uid="uid://cq6qj2ue83764" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_4.tres" id="6_for31"]
+[ext_resource type="Resource" uid="uid://dygtx3fb8eiqm" path="res://src/resources/weapons/handgun/upgrades/magazine_size/handgun_magazine_size_5.tres" id="7_ayc3r"]
+
+[resource]
+script = ExtResource("2_ic1qa")
+items = Array[ExtResource("1_u3f8e")]([ExtResource("2_lsr6r"), ExtResource("3_85d1m"), ExtResource("4_tykuc"), ExtResource("5_r2qs8"), ExtResource("6_for31"), ExtResource("7_ayc3r")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

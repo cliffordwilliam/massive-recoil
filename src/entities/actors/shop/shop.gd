@@ -30,9 +30,9 @@ func _set_active(value: bool, body: Node2D) -> void:
 		set_process_unhandled_input(value)
 
 
-func _on_body_entered(body: Node2D) -> void:
+func _on_body_entered(body: Node2D) -> void: # Connected via engine GUI
 	_set_active(true, body)
 
 
-func _on_body_exited(body: Node2D) -> void:
+func _on_body_exited(body: Node2D) -> void: # Connected via engine GUI
 	_set_active(false, body)

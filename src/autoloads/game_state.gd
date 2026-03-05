@@ -12,6 +12,8 @@
 # - Do NOT duplicate() weapon resources.
 # - Do NOT ResourceSaver.save() the .tres files.
 # - The .tres is only a template container; persistence is handled separately.
+#
+# For more details please read this: res://docs/decisions/how_weapon_works.md
 extends Node
 
 signal new_weapon_equipped
@@ -41,6 +43,7 @@ var weapons: Dictionary[StringName, WeaponData] = {
 }
 
 
+# API that manages dynamic resource properties to be hydrated/dump to/from disk
 func get_equipped_weapon_id() -> StringName:
 	return equipped_weapon_id
 
@@ -76,7 +79,7 @@ func try_consume_ammo() -> bool:
 func get_equipped_weapon_reload_speed() -> float:
 	if not equipped_weapon:
 		return 0.0
-	return equipped_weapon.reload_speed
+	return equipped_weapon.reload_speed.get_value()
 
 
 func get_weapon_description_by_id(id: StringName) -> Texture2D:

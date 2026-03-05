@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://ykf3krcxl5gw"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_0r370"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_elmk1"]
+[ext_resource type="Resource" uid="uid://b4dyxv03t2jt" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_0.tres" id="2_gsfa7"]
+[ext_resource type="Resource" uid="uid://b3n4lwjcwiur3" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_1.tres" id="3_irnjs"]
+[ext_resource type="Resource" uid="uid://c5ue6fd0q0i11" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_2.tres" id="4_sny0o"]
+[ext_resource type="Resource" uid="uid://dkvt0xyxhgnb3" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_3.tres" id="5_yei32"]
+[ext_resource type="Resource" uid="uid://cimbo4h4p3obe" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_4.tres" id="6_eshjt"]
+[ext_resource type="Resource" uid="uid://dpop3mup0jvgy" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed_5.tres" id="7_g60ch"]
+
+[resource]
+script = ExtResource("2_elmk1")
+items = Array[ExtResource("1_0r370")]([ExtResource("2_gsfa7"), ExtResource("3_irnjs"), ExtResource("4_sny0o"), ExtResource("5_yei32"), ExtResource("6_eshjt"), ExtResource("7_g60ch")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

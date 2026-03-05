@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3 uid="uid://bu1h08icwgww"]
+
+[ext_resource type="SpriteFrames" uid="uid://bd23x5s463v8v" path="res://assets/sprites/rifles.tres" id="1_wqcjq"]
+[ext_resource type="PackedScene" uid="uid://dwrd7ddvl26x3" path="res://src/autoloads/ui/pages/buy_page/buy_page_rifle_list_item.tscn" id="2_xb1h3"]
+[ext_resource type="Resource" uid="uid://dvqeh4edcrtay" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange.tres" id="3_53ejx"]
+[ext_resource type="Texture2D" uid="uid://pmadodqocwuj" path="res://assets/textures/ui/buy_page/rifle_description.png" id="4_d81ix"]
+[ext_resource type="Resource" uid="uid://dft54hqpx10k7" path="res://src/resources/weapons/rifle/upgrades/fire_rate/rifle_fire_rate.tres" id="5_d1aeh"]
+[ext_resource type="Texture2D" uid="uid://dj2ky63h5gknm" path="res://assets/textures/ui/shared/rifle_thumbnail.png" id="6_bdj6b"]
+[ext_resource type="PackedScene" uid="uid://dnb2k8vk62fni" path="res://src/autoloads/ui/pages/inventory_page/inventory_page_rifle_list_item.tscn" id="7_hqgii"]
+[ext_resource type="Resource" uid="uid://drwcke11rtw1b" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size.tres" id="8_4gitp"]
+[ext_resource type="Resource" uid="uid://ykf3krcxl5gw" path="res://src/resources/weapons/rifle/upgrades/reload_speed/rifle_reload_speed.tres" id="9_t2uyk"]
+[ext_resource type="Script" uid="uid://lplpq2v706yn" path="res://src/resources/weapons/weapon_data.gd" id="10_nyrew"]
+
+[resource]
+script = ExtResource("10_nyrew")
+id = &"rifle"
+arms_sprite = ExtResource("1_wqcjq")
+icon_sprite = ExtResource("6_bdj6b")
+description_sprite = ExtResource("4_d81ix")
+buy_page_list_item_scene = ExtResource("2_xb1h3")
+inv_page_list_item_scene = ExtResource("7_hqgii")
+price = 10
+magazine_size = ExtResource("8_4gitp")
+reload_speed = ExtResource("9_t2uyk")
+damage = ExtResource("3_53ejx")
+fire_rate = ExtResource("5_d1aeh")
+metadata/_custom_type_script = "uid://lplpq2v706yn"

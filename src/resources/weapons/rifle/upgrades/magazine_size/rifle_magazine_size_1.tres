@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="UpgradeItemData" format=3 uid="uid://celgra5d2r4ol"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_3lpsv"]
+
+[resource]
+script = ExtResource("1_3lpsv")
+metadata/_custom_type_script = "uid://dpmeatakbekdl"

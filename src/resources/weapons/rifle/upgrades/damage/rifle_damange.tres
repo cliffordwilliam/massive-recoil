@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://dvqeh4edcrtay"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_3yo4o"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_ijb50"]
+[ext_resource type="Resource" uid="uid://vbhrw6q5fr7c" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_0.tres" id="2_tvopo"]
+[ext_resource type="Resource" uid="uid://c8cwcpotoylxr" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_1.tres" id="3_q4lgu"]
+[ext_resource type="Resource" uid="uid://cl1t6nrspqifh" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_2.tres" id="4_esgrb"]
+[ext_resource type="Resource" uid="uid://de0dct2woavck" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_3.tres" id="5_4ay0s"]
+[ext_resource type="Resource" uid="uid://c8orh1pyipbrk" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_4.tres" id="6_cob74"]
+[ext_resource type="Resource" uid="uid://b2d5oqygpgq5w" path="res://src/resources/weapons/rifle/upgrades/damage/rifle_damange_5.tres" id="7_mymp3"]
+
+[resource]
+script = ExtResource("2_ijb50")
+items = Array[ExtResource("1_3yo4o")]([ExtResource("2_tvopo"), ExtResource("3_q4lgu"), ExtResource("4_esgrb"), ExtResource("5_4ay0s"), ExtResource("6_cob74"), ExtResource("7_mymp3")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

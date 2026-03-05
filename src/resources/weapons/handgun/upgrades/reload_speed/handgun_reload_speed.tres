@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UpgradeListData" format=3 uid="uid://byjhhfu853wsu"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_bqvx8"]
+[ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_s2eh4"]
+[ext_resource type="Resource" uid="uid://dq7orp1j5f452" path="res://src/resources/weapons/handgun/upgrades/reload_speed/handgun_reload_speed_0.tres" id="2_xk070"]
+[ext_resource type="Resource" uid="uid://csh5m6ylea6wq" path="res://src/resources/weapons/handgun/upgrades/reload_speed/handgun_reload_speed_1.tres" id="3_g5sfc"]
+[ext_resource type="Resource" uid="uid://b7s5my63eijq4" path="res://src/resources/weapons/handgun/upgrades/reload_speed/handgun_reload_speed_2.tres" id="4_6a2md"]
+
+[resource]
+script = ExtResource("2_s2eh4")
+items = Array[ExtResource("1_bqvx8")]([ExtResource("2_xk070"), ExtResource("3_g5sfc"), ExtResource("4_6a2md")])
+metadata/_custom_type_script = "uid://d1aegfwrjo28b"

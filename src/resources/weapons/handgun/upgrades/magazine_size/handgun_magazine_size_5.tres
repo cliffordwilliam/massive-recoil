@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="UpgradeItemData" format=3 uid="uid://dygtx3fb8eiqm"]
+
+[ext_resource type="Script" uid="uid://dpmeatakbekdl" path="res://src/resources/weapons/upgrade_item_data.gd" id="1_1lq5j"]
+
+[resource]
+script = ExtResource("1_1lq5j")
+value = 25.0
+cost = 12000
+metadata/_custom_type_script = "uid://dpmeatakbekdl"

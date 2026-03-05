@@ -52,6 +52,7 @@ func transition_to(target_state_name: StringName, previous_state: StringName) ->
 	if not states.has(target_state_name):
 		push_error("StateMachine: No state found for: " + target_state_name)
 		return
+
 	var target_state: BaseState = states[target_state_name]
 
 	if current_state:
