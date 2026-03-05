@@ -8,7 +8,7 @@ signal page_closed
 var current_page: BasePage = null
 
 # My list of BasePage instances goes here.
-# These cannot be null, I add them via scene tree GUI, game will not even run if its not valid
+# These cannot be null, I add them via scene tree GUI, game will not even run if its not valid.
 @onready var inventory_page: InventoryPage = $InventoryPage
 @onready var buy_page: BuyPage = $BuyPage
 
@@ -27,7 +27,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only
+	# This game uses keyboard input only.
 	if event is not InputEventKey:
 		return
 
@@ -36,7 +36,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_close_page()
 		get_viewport().set_input_as_handled()
 
-	# Open inventory page
+	# Open inventory page.
 	elif event.is_action_pressed("inventory") and not current_page:
 		_open_inventory_page()
 		get_viewport().set_input_as_handled()

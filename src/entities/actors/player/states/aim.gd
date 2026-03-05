@@ -1,4 +1,4 @@
-# State where the player aims
+# State where the player aims.
 # the aim animation here is a function of angle and this state handles shoot and reload input.
 class_name PlayerAimState
 extends PlayerState
@@ -20,27 +20,28 @@ var real_angle: float = 0.0:
 
 
 func enter(previous_state: StringName) -> void:
-	player.body.animation = "aim" # This sets frame index to 0
+	player.body.animation = "aim" # This sets frame index to 0.
 	player.velocity.x = 0.0
-	player.body.pause() # Here frame is a function of angle
+	player.body.pause() # Here frame is a function of angle.
 	dest_angle = 0.0
 	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
 	player.ray.is_active = true
 
 
 func exit() -> void:
-	player.body.play() # Let frame be function of time again
+	player.body.play() # Let frame be function of time again.
 	player.ray.is_active = false
 
 
 func handle_input(event: InputEvent) -> void:
-	# TODO: Add a timer node to this to support weapon automatic fire rate feature
+	# TODO: Add a timer node to this to support weapon automatic fire rate feature.
 	if event.is_action_pressed("shoot"):
-		# If shot is fired (there is ammo), do recoil
+		# If shot is fired (there is ammo), do recoil.
 		if player.ray.shoot():
 			dest_angle -= RECOIL_KICK
 			dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
 			get_viewport().set_input_as_handled()
+
 	elif event.is_action_pressed("reload"):
 		if GameState.equipped_weapon_can_reload():
 			state_machine.transition_to(&"PlayerReloadState", name)

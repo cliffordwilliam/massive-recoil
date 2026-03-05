@@ -2,7 +2,7 @@
 class_name NumberDisplay
 extends Node2D
 
-@export var digit_scene: PackedScene # Set via engine GUI
+@export var digit_scene: PackedScene # Set via engine GUI.
 @export var right_aligned: bool = false
 @export var pad: bool = false
 @export var digits: int = 6
@@ -18,7 +18,7 @@ func _ready() -> void:
 		push_error("NumberDisplay: digit_scene must be set in the inspector")
 		return
 	# Given that x is the top‑left NumberDisplay origin, we can render either like this:
-	# 123x = this is right‑aligned
+	# 123x = this is right‑aligned.
 	# x123
 	# In both cases we always add digit sprites from left to right.
 	for i in range(digits):
@@ -50,7 +50,7 @@ func display_number(number: int) -> void:
 			push_error("NumberDisplay: all children must be Digit")
 			continue
 
-		# Set digit sprite frames and visibility
+		# Set digit sprite frames and visibility.
 		d.frame = text[i].to_int()
 
 		var should_show_digit: bool

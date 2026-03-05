@@ -47,7 +47,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only
+	# This game uses keyboard input only.
 	if event is not InputEventKey:
 		return
 
@@ -97,7 +97,8 @@ func set_items(new_items: Array[ListItem]) -> void:
 	var first_item: ListItem = items_container.get_child(0)
 	item_height = first_item.get_height()
 
-	# The population size has changed, so ensure that offset and cursor stay within the new valid range.
+	# The population size has changed,
+	# so ensure that offset and cursor stay within the new valid range.
 	offset = clampi(offset, 0, max(0, items_container.get_child_count() - page_size))
 	cursor_row = clampi(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
 	_update_render()
@@ -107,7 +108,7 @@ func _update_render() -> void:
 	if not is_active:
 		return
 
-	# Adjust page content
+	# Adjust page content.
 	for i in items_container.get_child_count():
 		var list_item: ListItem = items_container.get_child(i)
 		var row: int = i - offset

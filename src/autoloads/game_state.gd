@@ -21,7 +21,7 @@ signal new_weapon_equipped
 const HANDGUN: WeaponData = preload("uid://bh7bnh8qqxn1b")
 const RIFLE: WeaponData = preload("uid://bu1h08icwgww")
 
-# Player
+# Player.
 var money: int = 5
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
@@ -36,14 +36,14 @@ var equipped_weapon_id: StringName = &"":
 		equipped_weapon_id = value
 		equipped_weapon = weapons[equipped_weapon_id]
 		new_weapon_equipped.emit()
-# Weapons
+# Weapons.
 var weapons: Dictionary[StringName, WeaponData] = {
 	&"handgun": HANDGUN,
 	&"rifle": RIFLE,
 }
 
 
-# API that manages dynamic resource properties to be hydrated/dump to/from disk
+# API that manages dynamic resource properties to be hydrated/dump to/from disk.
 func get_equipped_weapon_id() -> StringName:
 	return equipped_weapon_id
 

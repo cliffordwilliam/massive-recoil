@@ -23,11 +23,11 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	GameState.new_weapon_equipped.disconnect(_hydrate_ui)
-	_kill_recoil_tween_if_exists()
+	_kill_tween_if_exists()
 
 
 # Warning: Must be called by Player._ready().
-func start() -> void: # Connected via engine GUI
+func start() -> void: # Connected via engine GUI.
 	_hydrate_ui()
 
 
@@ -35,21 +35,21 @@ func _play_recoil_animation(angle: float) -> void:
 	var direction: Vector2 = Vector2(-1, 0).rotated(angle)
 	position = direction * RECOIL_DISTANCE
 
-	_kill_recoil_tween_if_exists()
+	_kill_tween_if_exists()
 
 	recoil_tween = create_tween()
 	recoil_tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
 
 
-func _kill_recoil_tween_if_exists() -> void:
+func _kill_tween_if_exists() -> void:
 	if recoil_tween:
 		recoil_tween.kill()
 		recoil_tween = null
 
 
 func _hydrate_ui() -> void:
-	# Swapping sprite_frames mid-animation could glitch if new sprite has a different frame count
-	# If it happens so be it, it must not happen since all of these came from 1 aseprite file
+	# Swapping sprite_frames mid-animation could glitch if new sprite has a different frame count.
+	# If it happens so be it, it must not happen since all of these came from 1 aseprite file.
 	var equipped_weapon_arms_sprite: SpriteFrames = GameState.get_new_equipped_weapon_arms_sprite()
 
 	if equipped_weapon_arms_sprite:
@@ -61,18 +61,18 @@ func _hydrate_ui() -> void:
 	frame = player.body.frame
 
 
-func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI
+func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI.
 	_play_recoil_animation(given_rotation)
 
 
 # Follow the body master at all costs.
-func _on_body_animation_changed() -> void: # Connected via engine GUI
+func _on_body_animation_changed() -> void: # Connected via engine GUI.
 	animation = player.body.animation
 
 
-func _on_body_frame_changed() -> void: # Connected via engine GUI
+func _on_body_frame_changed() -> void: # Connected via engine GUI.
 	frame = player.body.frame
 
 
-func _on_body_flip_h_changed() -> void: # Connected via engine GUI
+func _on_body_flip_h_changed() -> void: # Connected via engine GUI.
 	flip_h = player.body.flip_h

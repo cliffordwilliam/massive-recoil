@@ -11,7 +11,7 @@ extends Area2D
 
 
 func on_died() -> void:
-	pass # Children may override on_died logic here (e.g. drops, sounds)
+	pass # Children may override on_died logic here (e.g. drops, sounds).
 
 
 func ouch(damage: int) -> void:
@@ -19,11 +19,11 @@ func ouch(damage: int) -> void:
 
 
 # Linger around a bit before disappearing after being destroyed, by design.
-func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one shot)
+func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one shot).
 	queue_free()
 
 
-func _on_health_counter_died() -> void: # Connected via engine GUI (one shot)
+func _on_health_counter_died() -> void: # Connected via engine GUI (one shot).
 	collision_layer = 0
 	queue_free_timer.start()
 	animated_sprite_2d.play("dead")

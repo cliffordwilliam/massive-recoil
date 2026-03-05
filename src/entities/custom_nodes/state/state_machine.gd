@@ -1,4 +1,4 @@
-# State machine to manage BaseState
+# State machine to manage BaseState.
 class_name StateMachine
 extends Node
 
@@ -28,7 +28,7 @@ func _ready() -> void:
 
 	current_state = initial_state
 
-	# Disable processing until start() is called by the owner's _ready()
+	# Disable processing until start() is called by the owner's _ready().
 	set_physics_process(false)
 	set_process_unhandled_input(false)
 
@@ -39,7 +39,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only
+	# This game uses keyboard input only.
 	if event is not InputEventKey:
 		return
 

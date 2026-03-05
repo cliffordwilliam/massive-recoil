@@ -3,7 +3,7 @@
 #
 # Think of this like a sprite sheet resource:
 # - You create multiple .tres instances (Handgun Upgrades, Rifle Upgrades, etc.)
-# - Weapon scenes reference one of these resources
+# - Weapon scenes reference one of these resources.
 #
 # This resource contains static list definition that get sets in GUI for one time only.
 # It also has dynamic index that moves along the list that gets mutated in gameplay.

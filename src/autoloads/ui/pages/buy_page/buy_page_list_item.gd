@@ -6,7 +6,7 @@ var is_new_tag_visible: bool = false
 var is_out_tag_visible: bool = false
 
 @onready var new_tag: Sprite2D = $NewTag
-@onready var out_tag: Sprite2D = $OutTag # out_tag means sold out
+@onready var out_tag: Sprite2D = $OutTag # out_tag means sold out.
 
 
 func _ready() -> void:

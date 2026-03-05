@@ -21,5 +21,5 @@ func initialize(pos: Vector2, facing_left: bool) -> void:
 
 
 # Autostart is set via the engine GUI.
-func _on_timer_timeout() -> void: # Connected via engine GUI
+func _on_timer_timeout() -> void: # Connected via engine GUI.
 	queue_free()

@@ -3,7 +3,7 @@
 #
 # Think of this like a sprite sheet resource:
 # - You create multiple .tres instances (Weak Zombie Variant, Normal Zombie Variant, etc.)
-# - Enemy scenes reference one of these resources
+# - Enemy scenes reference one of these resources.
 #
 # This resource contains static definition data only.
 # Only meant to be set once via GUI when you instance tres and be left alone forever.

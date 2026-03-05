@@ -14,7 +14,7 @@ func _hydrate_ui() -> void:
 	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(&"rifle"))
 	money.display_number(GameState.get_money_count())
 	# Pages regenerate all list items every open.
-	# This is Acceptable since game has small item counts (less than 20)
+	# This is Acceptable since game has small item counts (less than 20).
 	scroll_list.set_items(_get_owned_weapons_list_item())
 
 
@@ -37,6 +37,6 @@ func _create_list_item(weapon_data: WeaponData) -> InventoryPageListItem:
 	return item
 
 
-func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI
+func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI.
 	GameState.equip_a_new_weapon_by_id(id)
 	_hydrate_ui()

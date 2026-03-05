@@ -17,7 +17,7 @@ var equipped_weapon_reload_speed: float = 0.0
 
 
 func _exit_tree() -> void:
-	_kill_tween()
+	_kill_tween_if_exists()
 
 
 func enter(_old_state: StringName) -> void:
@@ -42,11 +42,11 @@ func enter(_old_state: StringName) -> void:
 
 
 func exit() -> void:
-	_kill_tween()
+	_kill_tween_if_exists()
 	reload_timer.stop()
 
 
-func _kill_tween() -> void:
+func _kill_tween_if_exists() -> void:
 	if reload_tween:
 		reload_tween.kill()
 		reload_tween = null
@@ -67,6 +67,7 @@ func _start_reload_animation() -> void:
 		player.body.play("reload")
 		reload_timer.wait_time = equipped_weapon_reload_speed
 		reload_timer.start()
+
 	# If there is no wait time, then just reload now.
 	else:
 		GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
@@ -74,6 +75,6 @@ func _start_reload_animation() -> void:
 
 
 # Reload is only ever successful when the reload timer runs out.
-func _on_reload_timer_timeout() -> void: # Connected via engine GUI
+func _on_reload_timer_timeout() -> void: # Connected via engine GUI.
 	GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
 	try_exit()

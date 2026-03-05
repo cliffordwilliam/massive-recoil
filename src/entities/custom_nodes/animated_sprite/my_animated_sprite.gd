@@ -18,6 +18,6 @@ func set_flip(value: bool) -> void:
 		flip_h_changed.emit()
 
 
-func _on_animation_finished() -> void: # Connected via engine GUI
+func _on_animation_finished() -> void: # Connected via engine GUI.
 	if animation_transitions.has(animation):
 		play(animation_transitions[animation])

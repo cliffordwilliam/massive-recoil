@@ -50,7 +50,7 @@ func _assign_children_properties() -> void:
 	linear_velocity = linear_vel
 
 
-func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI (one shot)
+func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI (one shot).
 	if is_collected:
 		return
 
@@ -58,10 +58,12 @@ func _on_area_2d_body_entered(body: Node2D) -> void: # Connected via engine GUI 
 		return
 
 	is_collected = true
+
 	if id == &"money":
 		GameState.add_one_to_money()
 	elif GameState.weapon_exists(id):
 		GameState.pick_up_a_weapon_by_id(id)
 	else:
 		push_warning("Loot: unknown id on collection: " + id)
+
 	queue_free()

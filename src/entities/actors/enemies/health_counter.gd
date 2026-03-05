@@ -1,4 +1,4 @@
-# All enemies have this health counter
+# All enemies have this health counter.
 # it just tracks health and emits a signal when it reaches zero.
 # It needs an EnemyData resource for good DX.
 # (e.g. change the red dino max health resource and all red dinos get updated)
@@ -18,7 +18,7 @@ var health: int:
 		if is_dead:
 			return
 
-		# Health can only decrease
+		# Health can only decrease.
 		if value > _health:
 			return
 
