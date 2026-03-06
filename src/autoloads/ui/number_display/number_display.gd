@@ -9,13 +9,7 @@ extends Node2D
 
 
 func _ready() -> void:
-	# assert() fires only in debug/editor builds and is completely stripped in exported builds.
-	# push_error() always fires, ensuring this misconfiguration is caught in all builds.
-	# Ref: docs/godot/tutorials/scripting/gdscript/gdscript_basics.rst
-	# — "assertions are ignored in non-debug builds"
-	assert(digit_scene, "NumberDisplay: digit_scene must be set in the inspector")
-	if not digit_scene:
-		push_error("NumberDisplay: digit_scene must be set in the inspector")
+	if not Utils.require(digit_scene != null, "NumberDisplay: digit_scene must be set in the inspector"):
 		return
 	# Given that x is the top‑left NumberDisplay origin, we can render either like this:
 	# 123x = this is right‑aligned.
@@ -28,6 +22,9 @@ func _ready() -> void:
 
 
 func display_number(number: int) -> void:
+	if not Utils.require(get_child_count() > 0, "NumberDisplay: no digit children — digit_scene was not set in the inspector"):
+		return
+
 	# The number is clamped to fit the available digit sprites.
 	# With 3 digit sprites, input 12000 is clamped to 999.
 	number = clampi(number, 0, int(pow(10, digits)) - 1)
@@ -44,10 +41,7 @@ func display_number(number: int) -> void:
 	# we iterate over them to set frames correctly.
 	for i in get_child_count():
 		var d: Digit = get_child(i)
-		# assert() fires only in debug/editor builds — see _ready() comment for full context.
-		assert(d is Digit, "NumberDisplay: all children must be Digit")
-		if not d is Digit:
-			push_error("NumberDisplay: all children must be Digit")
+		if not Utils.require(d is Digit, "NumberDisplay: all children must be Digit"):
 			continue
 
 		# Set digit sprite frames and visibility.

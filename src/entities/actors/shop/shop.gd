@@ -10,12 +10,12 @@ func _ready() -> void:
 	set_process_unhandled_input(false)
 
 	# Plays animation.
-	var tween: Tween = create_tween().set_loops()
+	var tween: Tween = create_tween().bind_node(self).set_loops()
 	tween.tween_property(black_overlay, "modulate:a", 0.0, 1.0)
 	tween.tween_property(black_overlay, "modulate:a", 1.0, 1.0)
 
 
-# Only check for the open‑shop input while I am active.
+# Only check for the open‑shop input while I am awake.
 func _unhandled_input(event: InputEvent) -> void:
 	# This game uses keyboard input only.
 	if event is not InputEventKey:

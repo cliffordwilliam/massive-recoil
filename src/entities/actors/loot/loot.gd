@@ -1,5 +1,4 @@
-# Things that bounce around in the world like coins and similar collectibles
-# that the player can pick up.
+# Things that bounce around in the world like coins that the player can pick up.
 class_name Loot
 extends RigidBody2D
 
@@ -37,16 +36,14 @@ func initialize(given_id: StringName, pos: Vector2) -> void:
 
 
 func _assign_children_properties() -> void:
-	assert(
-		animated_sprite_2d.sprite_frames.has_animation(id),
-		"Loot: No anim for: " + id,
-	)
-	if not animated_sprite_2d.sprite_frames.has_animation(id):
-		push_error("Loot: No anim for: " + id)
+	if not Utils.require(animated_sprite_2d.sprite_frames.has_animation(id), "Loot: No anim for: " + id):
 		return
 
 	animated_sprite_2d.play(id)
 	global_position = global_pos
+	# One-time init — sporadic assignment is explicitly permitted by the docs.
+	# Doc ref: docs/godot/classes/class_rigidbody2d.rst — linear_velocity:
+	# "Can be used sporadically, but don't set this every frame."
 	linear_velocity = linear_vel
 
 

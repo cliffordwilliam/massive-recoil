@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cpjofrgm72i3c"]
 
 [ext_resource type="Script" uid="uid://561ep14ey5sv" path="res://src/entities/actors/player/player.gd" id="1_abrql"]
-[ext_resource type="PackedScene" uid="uid://bavsmakgj1ro7" path="res://src/entities/custom_nodes/animated_sprite/my_animated_sprite.tscn" id="2_nqxrs"]
+[ext_resource type="PackedScene" uid="uid://bavsmakgj1ro7" path="res://src/entities/custom_nodes/my_animated_sprite/my_animated_sprite.tscn" id="2_nqxrs"]
 [ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
 [ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://src/entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
@@ -58,7 +58,6 @@ animation = &"idle"
 speed_scale = 0.0
 script = ExtResource("5_pinno")
 player = NodePath("../..")
-metadata/_custom_type_script = "uid://skmpd278tn72"
 
 [node name="Ray" type="RayCast2D" parent="." unique_id=2096537396 node_paths=PackedStringArray("player")]
 visible = false
@@ -114,6 +113,9 @@ metadata/_custom_type_script = "uid://bg1tuev4y2oo"
 script = ExtResource("12_a1qjk")
 metadata/_custom_type_script = "uid://bqm28nciccrdb"
 
+[node name="FireTimer" type="Timer" parent="StateMachine/PlayerAimState" unique_id=506117829]
+one_shot = true
+
 [node name="PlayerWalkBackState" type="Node" parent="StateMachine" unique_id=60641086]
 script = ExtResource("14_6jj1q")
 metadata/_custom_type_script = "uid://coluh5v8a85h5"
@@ -130,4 +132,5 @@ one_shot = true
 [connection signal="flip_h_changed" from="Body" to="Body/Arms" method="_on_body_flip_h_changed"]
 [connection signal="frame_changed" from="Body" to="Body/Arms" method="_on_body_frame_changed"]
 [connection signal="shot" from="Ray" to="Body/Arms" method="_on_ray_shot"]
+[connection signal="timeout" from="StateMachine/PlayerAimState/FireTimer" to="StateMachine/PlayerAimState" method="_on_fire_timer_timeout"]
 [connection signal="timeout" from="StateMachine/PlayerReloadState/ReloadTimer" to="StateMachine/PlayerReloadState" method="_on_reload_timer_timeout"]

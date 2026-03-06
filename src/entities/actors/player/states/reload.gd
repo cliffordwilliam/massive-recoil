@@ -10,7 +10,7 @@ extends PlayerState
 const DEST_RELOAD_AIM_FRAME: float = 5.0
 const FRAME_TRANSITION_SPEED: float = 20.0
 
-var reload_tween: Tween
+var tween: Tween
 var equipped_weapon_reload_speed: float = 0.0
 
 @onready var reload_timer: Timer = $ReloadTimer
@@ -33,12 +33,12 @@ func enter(_old_state: StringName) -> void:
 		return
 
 	# Otherwise, spend time traveling to the reload angle first, then play the reload animation.
-	if reload_tween:
-		reload_tween.kill()
+	if tween:
+		tween.kill()
 
-	reload_tween = create_tween()
-	reload_tween.tween_method(_set_aim_frame, start_frame, DEST_RELOAD_AIM_FRAME, duration)
-	reload_tween.tween_callback(_start_reload_animation)
+	tween = create_tween()
+	tween.tween_method(_set_aim_frame, start_frame, DEST_RELOAD_AIM_FRAME, duration)
+	tween.tween_callback(_start_reload_animation)
 
 
 func exit() -> void:
@@ -47,9 +47,9 @@ func exit() -> void:
 
 
 func _kill_tween_if_exists() -> void:
-	if reload_tween:
-		reload_tween.kill()
-		reload_tween = null
+	if tween:
+		tween.kill()
+		tween = null
 
 
 func _set_aim_frame(value: float) -> void:
@@ -62,13 +62,13 @@ func _set_aim_frame(value: float) -> void:
 
 # Plays when the aim angle reaches the reload aim destination angle.
 func _start_reload_animation() -> void:
-	# If there is wait time, play the reload animation.
-	if equipped_weapon_reload_speed:
+	# If there is wait time, start timer and play the reload animation.
+	if equipped_weapon_reload_speed > 0.0:
 		player.body.play("reload")
 		reload_timer.wait_time = equipped_weapon_reload_speed
 		reload_timer.start()
 
-	# If there is no wait time, then just reload now.
+	# If there is no wait time, then just reload now and exit.
 	else:
 		GameState.reload_weapon_by_id(GameState.get_equipped_weapon_id())
 		try_exit()

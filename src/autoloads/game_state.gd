@@ -3,14 +3,14 @@
 #
 # Weapon architecture:
 # - WeaponData resources are preloaded once and engine-cached.
-# - Each weapon (HANDGUN, RIFLE, etc.) has exactly ONE Resource instance per session.
+# - Each weapon (handgun, rifle, etc.) has exactly one Resource instance per session.
 # - These instances represent the live mutable runtime state.
 # - They start empty, are hydrated from save data on load,
 #   mutated during gameplay, and serialized into the save file.
 #
-# IMPORTANT:
-# - Do NOT duplicate() weapon resources.
-# - Do NOT ResourceSaver.save() the .tres files.
+# Important:
+# - Do not duplicate() weapon resources.
+# - Do not ResourceSaver.save() the .tres files.
 # - The .tres is only a template container; persistence is handled separately.
 #
 # For more details please read this: res://docs/decisions/how_weapon_works.md
@@ -20,6 +20,8 @@ signal new_weapon_equipped
 
 const HANDGUN: WeaponData = preload("uid://bh7bnh8qqxn1b")
 const RIFLE: WeaponData = preload("uid://bu1h08icwgww")
+const HANDGUN_ID: StringName = &"handgun"
+const RIFLE_ID: StringName = &"rifle"
 
 # Player.
 var money: int = 5
@@ -38,8 +40,8 @@ var equipped_weapon_id: StringName = &"":
 		new_weapon_equipped.emit()
 # Weapons.
 var weapons: Dictionary[StringName, WeaponData] = {
-	&"handgun": HANDGUN,
-	&"rifle": RIFLE,
+	HANDGUN_ID: HANDGUN,
+	RIFLE_ID: RIFLE,
 }
 
 
@@ -74,6 +76,26 @@ func try_consume_ammo() -> bool:
 	if not equipped_weapon:
 		return false
 	return equipped_weapon.try_consume_ammo()
+
+
+func get_equipped_weapon_is_automatic() -> bool:
+	if not equipped_weapon:
+		return false
+	return equipped_weapon.is_automatic
+
+
+func get_equipped_weapon_fire_rate() -> float:
+	if not equipped_weapon:
+		return 0.0
+	var rate: float = equipped_weapon.fire_rate.get_value()
+	Utils.require(rate > 0.0, "GameState: equipped weapon fire_rate must be > 0.0")
+	return rate
+
+
+func get_equipped_weapon_damage() -> int:
+	if not equipped_weapon:
+		return 0
+	return int(equipped_weapon.damage.get_value())
 
 
 func get_equipped_weapon_reload_speed() -> float:

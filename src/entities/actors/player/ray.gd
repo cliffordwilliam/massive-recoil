@@ -21,9 +21,7 @@ var is_active: bool = false:
 
 func _ready() -> void:
 	is_active = false
-	assert(player is Player, "Ray: player must be a Player")
-	if not player is Player:
-		push_error("Ray: player must be a Player")
+	Utils.require(player is Player, "Ray: player must be a Player")
 
 	# _physics_process relies on StateMachine running before Ray (sibling node order).
 	# Validate that assumption so a scene-tree reorder is caught immediately.
@@ -74,7 +72,7 @@ func shoot() -> bool:
 			# Hit an enemy logic.
 			if collider is BaseEnemy:
 				var enemy: BaseEnemy = collider
-				enemy.ouch(1) # TODO: Set this with weapon damage prop later
+				enemy.ouch(GameState.get_equipped_weapon_damage())
 
 			# Hit a solid tile logic.
 			else:

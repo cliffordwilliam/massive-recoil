@@ -24,6 +24,9 @@ func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one sho
 
 
 func _on_health_counter_died() -> void: # Connected via engine GUI (one shot).
+	if not Utils.require(animated_sprite_2d.sprite_frames.has_animation("dead"), "BaseEnemy: requires dead animation"):
+		return
+
 	collision_layer = 0
 	queue_free_timer.start()
 	animated_sprite_2d.play("dead")

@@ -4,4 +4,5 @@
 
 [resource]
 script = ExtResource("1_g8q73")
+value = 30.0
 metadata/_custom_type_script = "uid://dpmeatakbekdl"

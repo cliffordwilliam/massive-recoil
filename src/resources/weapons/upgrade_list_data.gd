@@ -1,8 +1,8 @@
 # UpgradeListData
-# Base Resource template for weapon upgrades.
+# Base Resource template for weapon upgrade tracks.
 #
 # Think of this like a sprite sheet resource:
-# - You create multiple .tres instances (Handgun Upgrades, Rifle Upgrades, etc.)
+# - You create multiple .tres instances (handgun upgrades, rifle upgrades, etc.)
 # - Weapon scenes reference one of these resources.
 #
 # This resource contains static list definition that get sets in GUI for one time only.
@@ -18,20 +18,27 @@ extends Resource
 @export var items: Array[UpgradeItemData]
 
 # These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save.
-var index: int = 0
+var index: int = 0:
+	set(value):
+		index = clampi(value, 0, max(0, items.size() - 1))
 
 
 # API for GameState to use
 func get_current() -> UpgradeItemData:
-	assert(items.size() > 0, "UpgradeListData: I cannot be empty")
-
-	var clamped: int = clampi(index, 0, items.size() - 1)
-	return items[clamped]
+	if items.is_empty():
+		return null
+	return items[clampi(index, 0, items.size() - 1)]
 
 
 func get_value() -> float:
-	return get_current().value
+	var current: UpgradeItemData = get_current()
+	if not Utils.require(current != null, "UpgradeListData: I cannot be empty"):
+		return 0.0
+	return current.value
 
 
 func get_cost() -> int:
-	return get_current().cost
+	var current: UpgradeItemData = get_current()
+	if not Utils.require(current != null, "UpgradeListData: I cannot be empty"):
+		return 0
+	return current.cost

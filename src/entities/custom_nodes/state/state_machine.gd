@@ -9,20 +9,20 @@ var states: Dictionary[StringName, BaseState] = { }
 
 
 func _ready() -> void:
-	assert(initial_state is BaseState, "StateMachine: Initial state must be BaseState")
-	if not initial_state is BaseState:
-		push_error("StateMachine: Initial state must be BaseState")
+	if not Utils.require(
+		initial_state is BaseState,
+		"StateMachine: Initial state must be BaseState",
+	):
 		return
 
-	assert(get_child_count() > 0, "StateMachine: I have no state children")
-	if get_child_count() == 0:
-		push_error("StateMachine: I have no state children")
+	if not Utils.require(get_child_count() > 0, "StateMachine: I have no state children"):
 		return
 
 	for c in get_children():
-		assert(c is BaseState, "StateMachine: I can only have BaseState children")
-		if not c is BaseState:
-			push_error("StateMachine: I can only have BaseState children, got: " + c.name)
+		if not Utils.require(
+			c is BaseState,
+			"StateMachine: I can only have BaseState children, got: " + c.name,
+		):
 			continue
 		states[c.name] = c
 
@@ -48,9 +48,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func transition_to(target_state_name: StringName, previous_state: StringName) -> void:
-	assert(states.has(target_state_name), "StateMachine: No state found for: " + target_state_name)
-	if not states.has(target_state_name):
-		push_error("StateMachine: No state found for: " + target_state_name)
+	if not Utils.require(states.has(target_state_name), "StateMachine: No state found for: " + target_state_name):
 		return
 
 	var target_state: BaseState = states[target_state_name]

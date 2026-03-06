@@ -2,7 +2,7 @@
 # Configuration resource for UpgradeList items.
 #
 # Think of this like a sprite sheet resource:
-# - You create multiple .tres instances (Handgun Upgrade 1, Handgun Upgrade 2, etc.)
+# - You create multiple .tres instances (handgun damage upgrade 1, handgun damage upgrade 2, etc.)
 # - UpgradeList holds references to these resources.
 #
 # This resource contains static definition data only.

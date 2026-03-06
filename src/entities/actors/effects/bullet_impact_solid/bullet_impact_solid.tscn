@@ -10,4 +10,3 @@ position = Vector2(16, 0)
 rotation = 1.5707964
 sprite_frames = ExtResource("1_rtpjr")
 animation = &"bullet_impact_solid"
-autoplay = "bullet_impact_solid"

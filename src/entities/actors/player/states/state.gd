@@ -7,6 +7,9 @@ extends BaseState
 
 
 # The priority order (aim > walk_back > idle > turn > run > walk)
+# Contract: only call this from physics_update() (polling context).
+# Input.is_action_pressed() and Input.get_axis() are safe there.
+# Do NOT call this from handle_input() (event-driven context).
 func try_exit() -> bool:
 	var new_state_name: StringName
 

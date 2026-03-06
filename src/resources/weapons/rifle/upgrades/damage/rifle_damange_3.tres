@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_clf4f")
+value = 0.8
+cost = 18000
 metadata/_custom_type_script = "uid://dpmeatakbekdl"

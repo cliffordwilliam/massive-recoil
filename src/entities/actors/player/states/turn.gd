@@ -5,6 +5,16 @@ extends PlayerState
 
 
 func enter(_old_state: StringName) -> void:
+	# animation_finished is not emitted for looping animations — a looping "turn" would
+	# trap the player in this state permanently.
+	# Doc ref: docs/godot/classes/class_animatedsprite2d.rst — animation_finished signal:
+	# "This signal is not emitted if an animation is looping."
+	# Doc ref: docs/godot/classes/class_spriteframes.rst — get_animation_loop():
+	# "Returns true if the given animation is configured to loop when it finishes playing."
+	Utils.require(
+		not player.body.sprite_frames.get_animation_loop(&"turn"),
+		"PlayerTurnState: 'turn' animation must not loop — animation_finished will never emit",
+	)
 	player.body.set_flip(not player.body.flip_h)
 	player.body.play("turn")
 	player.velocity.x = 0.0

@@ -26,20 +26,14 @@ var is_active: bool = false:
 
 
 func _ready() -> void:
-	assert(get_parent() is BasePage, "ScrollList: my parent must be a BasePage")
-	if not get_parent() is BasePage:
-		push_error("ScrollList: my parent must be a BasePage")
+	Utils.require(get_parent() is BasePage, "ScrollList: my parent must be a BasePage")
 
-	assert(cursor_scene, "ScrollList: cursor_scene is missing")
-	if not cursor_scene:
-		push_error("ScrollList: cursor_scene is missing")
+	if not Utils.require(cursor_scene != null, "ScrollList: cursor_scene is missing"):
 		return
 
 	cursor = cursor_scene.instantiate()
 
-	assert(cursor is Node2D, "ScrollList: cursor must inherit Node2D")
-	if not cursor is Node2D:
-		push_error("ScrollList: cursor must inherit Node2D")
+	if not Utils.require(cursor is Node2D, "ScrollList: cursor must inherit Node2D"):
 		cursor.queue_free()
 		return
 
@@ -60,7 +54,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 	elif event.is_action_pressed("up") or event.is_action_pressed("down"):
-		var dir: int = int(Input.get_axis("up", "down"))
+		var dir: int = 1 if event.is_action_pressed("down") else -1
 		var idx: int = clampi(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
 		offset = clampi(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
 		cursor_row = idx - offset
@@ -71,12 +65,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func set_items(new_items: Array[ListItem]) -> void:
 	var seen: Dictionary[StringName, bool] = { }
 	for i: ListItem in new_items:
-		assert(
-			not seen.has(i.name),
-			"ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name,
-		)
-		if seen.has(i.name):
-			push_error("ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name)
+		Utils.require(not seen.has(i.name), "ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name)
 		seen[i.name] = true
 
 	for old_item: ListItem in items_container.get_children():

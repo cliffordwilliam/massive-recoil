@@ -2,14 +2,14 @@
 # Base Resource template for weapons.
 #
 # Architecture:
-# - Each weapon (HANDGUN, RIFLE, etc.) has exactly ONE Resource instance per session.
+# - Each weapon (handgun, rifle, etc.) has exactly one Resource instance per session.
 # - That instance represents the live mutable runtime state.
 # - It is hydrated from save data on load, mutated during gameplay,
 #   and serialized into a separate save file.
 #
-# IMPORTANT:
-# - Do NOT duplicate() weapon resources.
-# - Do NOT save the .tres file via ResourceSaver.
+# Important:
+# - Do not duplicate() weapon resources.
+# - Do not save the .tres file via ResourceSaver.
 # - The .tres acts as a static template + runtime container.
 #   Persistence is handled externally.
 #
@@ -29,6 +29,7 @@ extends Resource
 @export var reload_speed: UpgradeListData
 @export var damage: UpgradeListData
 @export var fire_rate: UpgradeListData
+@export var is_automatic: bool
 
 # These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save.
 var magazine_current: int
@@ -39,14 +40,16 @@ var was_bought: bool
 
 # API for GameState to use
 func can_reload() -> bool:
-	return reserve_ammo > 0 and magazine_current < int(magazine_size.get_value())
+	var has_reserve_ammo: bool = reserve_ammo > 0
+	var magazine_is_not_full: bool = magazine_current < int(magazine_size.get_value())
+	return has_reserve_ammo and magazine_is_not_full
 
 
 func reload() -> void:
-	var needed: int = int(magazine_size.get_value()) - magazine_current
-	var available: int = mini(needed, reserve_ammo)
-	magazine_current += available
-	reserve_ammo -= available
+	var requested: int = int(magazine_size.get_value()) - magazine_current
+	var given: int = mini(requested, reserve_ammo)
+	magazine_current += given
+	reserve_ammo -= given
 
 
 func try_consume_ammo() -> bool:

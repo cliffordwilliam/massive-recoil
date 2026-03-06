@@ -9,4 +9,3 @@
 position = Vector2(16, 0)
 sprite_frames = ExtResource("1_i173v")
 animation = &"flash"
-autoplay = "flash"

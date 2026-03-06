@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bavsmakgj1ro7"]
 
-[ext_resource type="Script" uid="uid://dd4yhki0oldpp" path="res://src/entities/custom_nodes/animated_sprite/my_animated_sprite.gd" id="1_jmrdf"]
+[ext_resource type="Script" uid="uid://dd4yhki0oldpp" path="res://src/entities/custom_nodes/my_animated_sprite/my_animated_sprite.gd" id="1_jmrdf"]
 
 [node name="MyAnimatedSprite" type="AnimatedSprite2D" unique_id=1711271908]
 script = ExtResource("1_jmrdf")

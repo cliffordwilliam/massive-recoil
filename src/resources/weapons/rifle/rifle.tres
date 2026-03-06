@@ -24,4 +24,5 @@ magazine_size = ExtResource("8_4gitp")
 reload_speed = ExtResource("9_t2uyk")
 damage = ExtResource("3_53ejx")
 fire_rate = ExtResource("5_d1aeh")
+is_automatic = true
 metadata/_custom_type_script = "uid://lplpq2v706yn"

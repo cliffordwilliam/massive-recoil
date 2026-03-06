@@ -2,7 +2,7 @@
 # Configuration resource for enemy variants.
 #
 # Think of this like a sprite sheet resource:
-# - You create multiple .tres instances (Weak Zombie Variant, Normal Zombie Variant, etc.)
+# - You create multiple .tres instances (weak zombie stats, normal zombie stats, etc.)
 # - Enemy scenes reference one of these resources.
 #
 # This resource contains static definition data only.

@@ -1,6 +1,6 @@
 # This is the skin that gets swapped when the equipped weapon changes (handgun, rifle, etc.).
 # It has the exact same frames as the body, so it always follows the body sprite's frame state.
-# It must have Player as its direct parent and hold a reference to the player's body sprite master.
+# It must have a reference to the player's body sprite master via Player reference.
 # It also has a recoil animation that plays when the player shoots.
 class_name Arms
 extends AnimatedSprite2D
@@ -10,24 +10,31 @@ const RECOIL_SMOOTH: float = 15.0
 
 @export var player: Player
 
-var recoil_tween: Tween
+var tween: Tween
 
 
 func _ready() -> void:
-	assert(player is Player, "Arms: player must be a Player")
-	if not player is Player:
-		push_error("Arms: player must be a Player")
+	if not Utils.require(player is Player, "Arms: player must be a Player"):
 		return
 	GameState.new_weapon_equipped.connect(_hydrate_ui)
 
 
 func _exit_tree() -> void:
-	GameState.new_weapon_equipped.disconnect(_hydrate_ui)
+	# If the signal connection was never established
+	# (e.g. _ready() returned early due to the player guard on line 18-19),
+	# calling disconnect() on a non-existent connection generates an error.
+	# In practice this is unlikely since the _ready() guard and _exit_tree() are closely coupled,
+	# but the Godot docs explicitly recommend using is_connected() first.
+	# Doc reference: docs/godot/classes/class_signal.rst — disconnect():
+	# "If the connection does not exist, generates an error.
+	# Use is_connected() to make sure that the connection exists."
+	if GameState.new_weapon_equipped.is_connected(_hydrate_ui):
+		GameState.new_weapon_equipped.disconnect(_hydrate_ui)
 	_kill_tween_if_exists()
 
 
 # Warning: Must be called by Player._ready().
-func start() -> void: # Connected via engine GUI.
+func start() -> void:
 	_hydrate_ui()
 
 
@@ -37,14 +44,14 @@ func _play_recoil_animation(angle: float) -> void:
 
 	_kill_tween_if_exists()
 
-	recoil_tween = create_tween()
-	recoil_tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
+	tween = create_tween().bind_node(self)
+	tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
 
 
 func _kill_tween_if_exists() -> void:
-	if recoil_tween:
-		recoil_tween.kill()
-		recoil_tween = null
+	if tween:
+		tween.kill()
+		tween = null
 
 
 func _hydrate_ui() -> void:

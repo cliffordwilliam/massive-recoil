@@ -24,6 +24,6 @@ func _ready() -> void:
 	PageRouter.page_closed.connect(_on_page_router_page_closed)
 
 
-func _on_page_router_page_closed() -> void: # Connected via engine GUI.
+func _on_page_router_page_closed() -> void:
 	# To avoid edge cases like going to a shop while the player is reloading, etc.
 	state_machine.reset()

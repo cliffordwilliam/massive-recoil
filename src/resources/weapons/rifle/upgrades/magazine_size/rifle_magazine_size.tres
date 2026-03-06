@@ -5,8 +5,11 @@
 [ext_resource type="Script" uid="uid://d1aegfwrjo28b" path="res://src/resources/weapons/upgrade_list_data.gd" id="2_lhswp"]
 [ext_resource type="Resource" uid="uid://celgra5d2r4ol" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size_1.tres" id="3_pt1cs"]
 [ext_resource type="Resource" uid="uid://d0hjpekfjb6si" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size_2.tres" id="4_7033b"]
+[ext_resource type="Resource" uid="uid://dkvt0xyxhgnb3" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size_3.tres" id="5_0h7n2"]
+[ext_resource type="Resource" uid="uid://cimbo4h4p3obe" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size_4.tres" id="6_oqk0m"]
+[ext_resource type="Resource" uid="uid://dpop3mup0jvgy" path="res://src/resources/weapons/rifle/upgrades/magazine_size/rifle_magazine_size_5.tres" id="7_3ntp5"]
 
 [resource]
 script = ExtResource("2_lhswp")
-items = Array[ExtResource("1_g8q73")]([ExtResource("2_bw5hd"), ExtResource("3_pt1cs"), ExtResource("4_7033b")])
+items = Array[ExtResource("1_g8q73")]([ExtResource("2_bw5hd"), ExtResource("3_pt1cs"), ExtResource("4_7033b"), ExtResource("5_0h7n2"), ExtResource("6_oqk0m"), ExtResource("7_3ntp5")])
 metadata/_custom_type_script = "uid://d1aegfwrjo28b"
