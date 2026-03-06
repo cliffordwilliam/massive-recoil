@@ -11,7 +11,7 @@ signal died
 
 var is_dead: bool = false
 # Intentional: Once dead, the setter silently ignores all future sets. There is no healing feature.
-var health: int:
+var health: float:
 	get:
 		return _health
 	set(value):
@@ -24,10 +24,10 @@ var health: int:
 
 		_health = max(value, 0)
 
-		if _health == 0:
+		if not _health > 0.0:
 			is_dead = true
 			died.emit()
-var _health: int = 0
+var _health: float = 0
 
 
 func _ready() -> void:

@@ -14,4 +14,4 @@ class_name EnemyData
 extends Resource
 
 # Only meant to be set once via GUI when you instance tres and be left alone forever.
-@export var max_health: int
+@export var max_health: float

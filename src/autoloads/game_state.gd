@@ -105,10 +105,10 @@ func get_equipped_weapon_fire_rate() -> float:
 	return maxf(rate, 0.05)
 
 
-func get_equipped_weapon_damage() -> int:
+func get_equipped_weapon_damage() -> float:
 	if not equipped_weapon:
 		return 0
-	return int(equipped_weapon.damage.get_value())
+	return equipped_weapon.damage.get_value()
 
 
 func get_equipped_weapon_reload_speed() -> float:
