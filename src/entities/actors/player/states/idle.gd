@@ -4,7 +4,7 @@ extends PlayerState
 
 
 func enter(previous_state: StringName) -> void:
-	player.body.play("stop" if previous_state == &"PlayerRunState" else "idle")
+	player.body.play("stop" if previous_state == RUN else "idle")
 	player.velocity.x = 0.0
 
 

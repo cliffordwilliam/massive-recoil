@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bavsmakgj1ro7" path="res://src/entities/custom_nodes/my_animated_sprite/my_animated_sprite.tscn" id="2_nqxrs"]
 [ext_resource type="SpriteFrames" uid="uid://c7cc0j5admx15" path="res://assets/sprites/body.tres" id="2_qiwj3"]
 [ext_resource type="Material" uid="uid://rnaoxp3urobw" path="res://assets/materials/white_rim_flash_material.tres" id="3_eg2j6"]
+[ext_resource type="Shader" uid="uid://dd08ejectgak2" path="res://assets/shaders/white_flash.gdshader" id="3_iloh8"]
 [ext_resource type="SpriteFrames" uid="uid://bwtavvs3i1wy2" path="res://assets/sprites/arms.tres" id="4_7thud"]
 [ext_resource type="Script" uid="uid://dxqaagfsb2ut8" path="res://src/entities/custom_nodes/state/state_machine.gd" id="4_fkugw"]
 [ext_resource type="Script" uid="uid://tfy2e576agq2" path="res://src/entities/actors/player/states/idle.gd" id="5_8fjmc"]
@@ -18,6 +19,12 @@
 [ext_resource type="Script" uid="uid://bqm28nciccrdb" path="res://src/entities/actors/player/states/aim.gd" id="12_a1qjk"]
 [ext_resource type="Script" uid="uid://coluh5v8a85h5" path="res://src/entities/actors/player/states/walk_back.gd" id="14_6jj1q"]
 [ext_resource type="Script" uid="uid://d1gyiws53uv61" path="res://src/entities/actors/player/states/reload.gd" id="15_mekkp"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_283t5"]
+resource_local_to_scene = true
+shader = ExtResource("3_iloh8")
+shader_parameter/flash = false
+shader_parameter/angle = 0.0
 
 [sub_resource type="Gradient" id="Gradient_nqxrs"]
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
@@ -39,7 +46,7 @@ collision_mask = 4
 script = ExtResource("1_abrql")
 
 [node name="Body" parent="." unique_id=1711271908 instance=ExtResource("2_nqxrs")]
-material = ExtResource("3_eg2j6")
+material = SubResource("ShaderMaterial_283t5")
 position = Vector2(0, -21)
 sprite_frames = ExtResource("2_qiwj3")
 animation = &"idle"

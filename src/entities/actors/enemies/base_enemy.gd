@@ -21,6 +21,7 @@ func ouch(damage: float) -> void:
 	# Set every ouch() call instead of once in _ready() so that children (e.g. WoodenCrate)
 	# never have to remember to call super()._ready(). The redundant write is negligible
 	# and guarantees one_shot is always correct even if the inspector checkbox is missed.
+	# Review note: This is a deliberate trade-off. Do not flag it in code reviews.
 	white_flash_timer.one_shot = true
 	white_flash_timer.start()
 

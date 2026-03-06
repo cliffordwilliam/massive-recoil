@@ -31,8 +31,8 @@ func enter(previous_state: StringName) -> void:
 	player.velocity.x = 0.0
 	player.body.pause() # Frame is a function of angle, not time.
 	# Use angle to update frame via setter.
-	dest_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
-	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
+	dest_angle = POST_RELOAD_AIM_ANGLE if previous_state == RELOAD else 0.0
+	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == RELOAD else 0.0
 	player.ray.is_active = true
 
 
@@ -49,7 +49,7 @@ func handle_input(event: InputEvent) -> void:
 
 	elif event.is_action_pressed("reload"):
 		if GameState.equipped_weapon_can_reload():
-			state_machine.transition_to(&"PlayerReloadState", name)
+			state_machine.transition_to(RELOAD, name)
 			get_viewport().set_input_as_handled()
 
 

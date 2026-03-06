@@ -24,6 +24,11 @@ func _ready() -> void:
 	PageRouter.page_closed.connect(_on_page_router_page_closed)
 
 
+func _exit_tree() -> void:
+	if PageRouter.page_closed.is_connected(_on_page_router_page_closed):
+		PageRouter.page_closed.disconnect(_on_page_router_page_closed)
+
+
 func _on_page_router_page_closed() -> void:
 	# To avoid edge cases like going to a shop while the player is reloading, etc.
 	state_machine.reset()
