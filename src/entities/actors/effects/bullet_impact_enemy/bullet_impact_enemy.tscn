@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cks82sgm4ltll"]
+
+[ext_resource type="PackedScene" uid="uid://b41uu6dvbpdvc" path="res://src/entities/actors/effects/auto_free_animated_effect.tscn" id="1_skh5b"]
+[ext_resource type="SpriteFrames" uid="uid://dn8iekxlgnl38" path="res://assets/sprites/bullet_impact_enemy.tres" id="2_3am6y"]
+
+[node name="BulletImpactEnemy" unique_id=203475575 instance=ExtResource("1_skh5b")]
+
+[node name="AnimatedSprite2D" parent="." index="0" unique_id=1325095269]
+sprite_frames = ExtResource("2_3am6y")
+animation = &"bullet_hit"

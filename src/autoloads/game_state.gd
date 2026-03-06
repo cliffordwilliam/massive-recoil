@@ -24,7 +24,7 @@ const HANDGUN_ID: StringName = &"handgun"
 const RIFLE_ID: StringName = &"rifle"
 
 # Player.
-var money: int = 5
+var money: int = 100
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
 	set(value):
@@ -88,8 +88,21 @@ func get_equipped_weapon_fire_rate() -> float:
 	if not equipped_weapon:
 		return 0.0
 	var rate: float = equipped_weapon.fire_rate.get_value()
-	Utils.require(rate > 0.0, "GameState: equipped weapon fire_rate must be > 0.0")
-	return rate
+	# assert() crashes in debug but strips from release exports.
+	# In release, a fire_rate of 0.0 would cause the fire timer to expire every frame,
+	# resulting in unlimited fire rate. Early-return a safe fallback to prevent this.
+	# Doc ref: docs/godot/classes/class_timer.rst — wait_time:
+	# "An unstable framerate may cause the timer to end inconsistently,
+	# which is especially noticeable if the wait time is lower than roughly 0.05 seconds."
+	# Doc ref: docs/godot/tutorials/scripting/gdscript/gdscript_basics.rst — Assert keyword.
+	if not Utils.require(rate > 0.0, "GameState: equipped weapon fire_rate must be > 0.0"):
+		return 1.0
+	# Clamp to the Timer's reliable minimum. Values below ~0.05 s behave inconsistently
+	# because timers can only process once per physics or process frame.
+	# Doc ref: docs/godot/classes/class_timer.rst — wait_time:
+	# "An unstable framerate may cause the timer to end inconsistently,
+	# which is especially noticeable if the wait time is lower than roughly 0.05 seconds."
+	return maxf(rate, 0.05)
 
 
 func get_equipped_weapon_damage() -> int:

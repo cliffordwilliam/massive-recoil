@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://brkax245qceky"]
 
 [ext_resource type="Texture2D" uid="uid://dpvscjnfo0adj" path="res://assets/textures/props/bullet_casing.png" id="1_84ayk"]
-[ext_resource type="Script" uid="uid://m86ca75cvenv" path="res://src/entities/actors/bullet_casing/bullet_casing.gd" id="1_to7w3"]
+[ext_resource type="Script" uid="uid://m86ca75cvenv" path="res://src/entities/actors/effects/bullet_casing/bullet_casing.gd" id="1_to7w3"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_to7w3"]
 bounce = 0.7

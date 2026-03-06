@@ -63,17 +63,26 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func set_items(new_items: Array[ListItem]) -> void:
+	# Skip duplicate-named items so item_selected always emits the correct id.
+	# Utils.require only logs — assert is stripped in release builds, so without
+	# this guard a duplicate would silently slip into the list.
+	# Doc ref: docs/godot/tutorials/scripting/gdscript/gdscript_basics.rst — Assert keyword:
+	# "These assertions are ignored in non-debug builds."
 	var seen: Dictionary[StringName, bool] = { }
+	var unique_items: Array[ListItem] = []
 	for i: ListItem in new_items:
-		Utils.require(not seen.has(i.name), "ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name)
+		if not Utils.require(not seen.has(i.name), "ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name):
+			i.queue_free()
+			continue
 		seen[i.name] = true
+		unique_items.append(i)
 
 	for old_item: ListItem in items_container.get_children():
 		# This is okay since no one else references the contents of my item container.
 		items_container.remove_child(old_item)
 		old_item.queue_free()
 
-	for new_item: ListItem in new_items:
+	for new_item: ListItem in unique_items:
 		items_container.add_child(new_item)
 
 	is_active = items_container.get_child_count() > 0

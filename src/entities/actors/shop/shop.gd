@@ -10,7 +10,10 @@ func _ready() -> void:
 	set_process_unhandled_input(false)
 
 	# Plays animation.
-	var tween: Tween = create_tween().bind_node(self).set_loops()
+	# Node.create_tween() already binds to self — no need for bind_node(self).
+	# Ref: docs/godot/classes/class_node.rst — create_tween():
+	# "This is the equivalent of doing: get_tree().create_tween().bind_node(self)"
+	var tween: Tween = create_tween().set_loops()
 	tween.tween_property(black_overlay, "modulate:a", 0.0, 1.0)
 	tween.tween_property(black_overlay, "modulate:a", 1.0, 1.0)
 

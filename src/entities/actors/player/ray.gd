@@ -69,17 +69,19 @@ func shoot() -> bool:
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider:
+			var collision_point: Vector2 = get_collision_point()
+			var normal: Vector2 = get_collision_normal()
+			var impact_rot: float = normal.angle()
+
 			# Hit an enemy logic.
 			if collider is BaseEnemy:
 				var enemy: BaseEnemy = collider
 				enemy.ouch(GameState.get_equipped_weapon_damage())
+				Spawner.spawn_bullet_impact_enemy(collision_point, impact_rot)
 
 			# Hit a solid tile logic.
 			else:
-				var collision_point: Vector2 = get_collision_point()
-				var normal: Vector2 = get_collision_normal()
-				var impact_rot: float = normal.angle()
-				Spawner.spawn_bullet_impact(collision_point, impact_rot)
+				Spawner.spawn_bullet_impact_solid(collision_point, impact_rot)
 
 	# Shot fired, may miss or hit something.
 	return true

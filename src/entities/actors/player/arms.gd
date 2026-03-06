@@ -44,7 +44,10 @@ func _play_recoil_animation(angle: float) -> void:
 
 	_kill_tween_if_exists()
 
-	tween = create_tween().bind_node(self)
+	# Node.create_tween() already binds to self — no need for bind_node(self).
+	# Ref: docs/godot/classes/class_node.rst — create_tween():
+	# "This is the equivalent of doing: get_tree().create_tween().bind_node(self)"
+	tween = create_tween()
 	tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
 
 

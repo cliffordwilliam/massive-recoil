@@ -7,6 +7,7 @@ const MUZZLE_FLASH = preload("uid://cja3dkktxxtpw")
 const BULLET_TRAIL = preload("uid://bwhu4xdomjxnx")
 const LOOT = preload("uid://cgcf4l0byw3ur")
 const BULLET_IMPACT_SOLID = preload("uid://csa5spk8g82e0")
+const BULLET_IMPACT_ENEMY = preload("uid://cks82sgm4ltll")
 
 
 func spawn_money(pos: Vector2) -> void:
@@ -19,32 +20,42 @@ func spawn_money(pos: Vector2) -> void:
 	loot.initialize(&"money", pos)
 
 
-func spawn_shoot_effects(p1: Vector2, p2: Vector2, rot: float, flip_h: bool) -> void:
+func spawn_shoot_effects(muzzle_pos: Vector2, hit_pos: Vector2, rot: float, flip_h: bool) -> void:
 	var container: Node = _get_effect_container()
 	if not container:
 		return
 
 	var casing: BulletCasing = BULLET_CASING.instantiate()
 	container.add_child(casing)
-	casing.initialize(p1, flip_h)
+	casing.initialize(muzzle_pos, flip_h)
 
 	var flash: AutoFreeAnimatedEffect = MUZZLE_FLASH.instantiate()
 	container.add_child(flash)
-	flash.initialize(p1, rot)
+	flash.initialize(muzzle_pos, rot)
 
 	var trail: BulletTrail = BULLET_TRAIL.instantiate()
 	container.add_child(trail)
-	trail.initialize(p1, p2)
+	trail.initialize(muzzle_pos, hit_pos)
 
 
-func spawn_bullet_impact(pos: Vector2, rot: float) -> void:
+func spawn_bullet_impact_enemy(hit_pos: Vector2, rot: float) -> void:
+	var container: Node = _get_effect_container()
+	if not container:
+		return
+
+	var impact: AutoFreeAnimatedEffect = BULLET_IMPACT_ENEMY.instantiate()
+	container.add_child(impact)
+	impact.initialize(hit_pos, rot)
+
+
+func spawn_bullet_impact_solid(hit_pos: Vector2, rot: float) -> void:
 	var container: Node = _get_effect_container()
 	if not container:
 		return
 
 	var impact: AutoFreeAnimatedEffect = BULLET_IMPACT_SOLID.instantiate()
 	container.add_child(impact)
-	impact.initialize(pos, rot)
+	impact.initialize(hit_pos, rot)
 
 
 func _get_effect_container() -> Node:

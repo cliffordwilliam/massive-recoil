@@ -26,7 +26,10 @@ func initialize(pos: Vector2, given_rot: float) -> void:
 
 
 func _assign_children_properties() -> void:
-	if not Utils.require(animated_sprite_2d.sprite_frames != null, "AutoFreeAnimatedEffect: requires sprite_frames assigned"):
+	if not Utils.require(
+		animated_sprite_2d.sprite_frames != null,
+		"AutoFreeAnimatedEffect: requires sprite_frames assigned",
+	):
 		return
 	global_position = global_pos
 	rotation = rot

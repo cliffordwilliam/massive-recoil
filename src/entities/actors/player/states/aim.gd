@@ -33,6 +33,7 @@ func enter(previous_state: StringName) -> void:
 func exit() -> void:
 	player.body.play() # Let frame be function of time again.
 	player.ray.is_active = false
+	fire_timer.stop()
 
 
 func handle_input(event: InputEvent) -> void:
