@@ -4,7 +4,6 @@ class_name PlayerAimState
 extends PlayerState
 
 const POST_RELOAD_AIM_ANGLE: float = 0.6
-const RECOIL_KICK: float = 0.1 # TODO: Later move recoil kick as a weapon prop.
 
 var dest_angle: float = 0.0
 var real_angle: float = 0.0:
@@ -25,7 +24,8 @@ func enter(previous_state: StringName) -> void:
 	player.body.play("aim") # Resets frame to 0.
 	player.velocity.x = 0.0
 	player.body.pause() # Frame is a function of angle, not time.
-	dest_angle = 0.0 # Use angle to update frame via setter.
+	# Use angle to update frame via setter.
+	dest_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
 	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == &"PlayerReloadState" else 0.0
 	player.ray.is_active = true
 
@@ -37,7 +37,6 @@ func exit() -> void:
 
 
 func handle_input(event: InputEvent) -> void:
-	# TODO: Add a timer node to this to support weapon automatic fire rate feature.
 	if event.is_action_pressed("shoot"):
 		if _try_fire():
 			get_viewport().set_input_as_handled()
@@ -70,7 +69,7 @@ func _try_fire() -> bool:
 
 	# If shot is fired (there is ammo), do recoil.
 	if player.ray.shoot():
-		dest_angle -= RECOIL_KICK
+		dest_angle -= GameState.get_equipped_weapon_recoil_kick()
 		dest_angle = clampf(dest_angle, -PI / 2.0, PI / 2.0)
 
 		fire_timer.start(GameState.get_equipped_weapon_fire_rate())

@@ -20,6 +20,7 @@ var is_active: bool = false:
 
 
 func _ready() -> void:
+	light.modulate.a = 0.0
 	is_active = false
 	Utils.require(player is Player, "Ray: player must be a Player")
 

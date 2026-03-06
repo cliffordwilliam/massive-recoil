@@ -63,5 +63,5 @@ animations = [{
 }],
 "loop": false,
 "name": &"flash",
-"speed": 62.5
+"speed": 125.0
 }]

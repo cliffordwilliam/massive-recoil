@@ -30,10 +30,11 @@ extends Resource
 @export var damage: UpgradeListData
 @export var fire_rate: UpgradeListData
 @export var is_automatic: bool
+@export var recoil_kick: float
 
 # These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save.
 var magazine_current: int
-var reserve_ammo: int = 100
+var reserve_ammo: int = 999 # TODO: This is dev only, please set it back to none later.
 var is_owned: bool
 var was_bought: bool
 

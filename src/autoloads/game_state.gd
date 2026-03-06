@@ -24,7 +24,7 @@ const HANDGUN_ID: StringName = &"handgun"
 const RIFLE_ID: StringName = &"rifle"
 
 # Player.
-var money: int = 100
+var money: int = 999999 # TODO: This is dev only, please set it back to none later.
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
 	set(value):
@@ -105,9 +105,15 @@ func get_equipped_weapon_fire_rate() -> float:
 	return maxf(rate, 0.05)
 
 
+func get_equipped_weapon_recoil_kick() -> float:
+	if not equipped_weapon:
+		return 0.0
+	return equipped_weapon.recoil_kick
+
+
 func get_equipped_weapon_damage() -> float:
 	if not equipped_weapon:
-		return 0
+		return 0.0
 	return equipped_weapon.damage.get_value()
 
 

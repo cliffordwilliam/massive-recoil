@@ -1,7 +1,13 @@
 [gd_scene format=3 uid="uid://bwhu4xdomjxnx"]
 
 [ext_resource type="Script" uid="uid://dpfr3tn6h58eg" path="res://src/entities/actors/effects/bullet_trail/bullet_trail.gd" id="1_5d6nu"]
+[ext_resource type="Material" uid="uid://dfwh0upeitm7h" path="res://assets/materials/glow_material.tres" id="1_83ec2"]
+
+[sub_resource type="Gradient" id="Gradient_jjt51"]
 
 [node name="BulletTrail" type="Line2D" unique_id=433119364]
+material = ExtResource("1_83ec2")
 width = 1.0
+default_color = Color(0.13333334, 0.06666667, 0.6, 1)
+gradient = SubResource("Gradient_jjt51")
 script = ExtResource("1_5d6nu")

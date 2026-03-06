@@ -2,10 +2,12 @@
 
 [ext_resource type="PackedScene" uid="uid://b41uu6dvbpdvc" path="res://src/entities/actors/effects/auto_free_animated_effect.tscn" id="1_54evp"]
 [ext_resource type="SpriteFrames" uid="uid://p7iyra6as41f" path="res://assets/sprites/muzzle_flash.tres" id="1_i173v"]
+[ext_resource type="Material" uid="uid://dfwh0upeitm7h" path="res://assets/materials/glow_material.tres" id="2_3lf6e"]
 
 [node name="MuzzleFlash" unique_id=1325095269 instance=ExtResource("1_54evp")]
 
 [node name="AnimatedSprite2D" parent="." index="0" unique_id=1325095269]
+material = ExtResource("2_3lf6e")
 position = Vector2(16, 0)
 sprite_frames = ExtResource("1_i173v")
 animation = &"flash"

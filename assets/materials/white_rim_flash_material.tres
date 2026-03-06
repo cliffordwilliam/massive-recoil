@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://rnaoxp3urobw"]
+
+[ext_resource type="Shader" uid="uid://dd08ejectgak2" path="res://assets/shaders/white_flash.gdshader" id="1_ltwef"]
+
+[resource]
+resource_local_to_scene = true
+shader = ExtResource("1_ltwef")
+shader_parameter/flash = false
+shader_parameter/angle = 0.0

@@ -18,6 +18,7 @@ func on_died() -> void:
 func ouch(damage: float) -> void:
 	health_counter.health -= damage
 	animated_sprite_2d.material.set_shader_parameter("flash", true)
+	white_flash_timer.one_shot = true # So that child does not have to call super() in _ready.
 	white_flash_timer.start()
 
 

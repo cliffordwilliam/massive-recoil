@@ -1,8 +1,8 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://cehibfbjcwkm7"]
 
-[ext_resource type="Shader" uid="uid://dd08ejectgak2" path="res://assets/shaders/white_flash.gdshader" id="1_r73uw"]
+[ext_resource type="Shader" uid="uid://bjhfygeey626n" path="res://assets/shaders/white_rim_flash.gdshader" id="1_r73uw"]
 
 [resource]
 resource_local_to_scene = true
 shader = ExtResource("1_r73uw")
-shader_parameter/flash_amount = 0.0
+shader_parameter/angle = 0.0

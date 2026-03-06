@@ -12,11 +12,14 @@ const RECOIL_SMOOTH: float = 15.0
 
 var tween: Tween
 
+@onready var white_rim_flash_timer: Timer = $WhiteRimFlashTimer
+
 
 func _ready() -> void:
 	if not Utils.require(player is Player, "Arms: player must be a Player"):
 		return
 	GameState.new_weapon_equipped.connect(_hydrate_ui)
+	white_rim_flash_timer.one_shot = true
 
 
 func _exit_tree() -> void:
@@ -49,6 +52,28 @@ func _play_recoil_animation(angle: float) -> void:
 	# "This is the equivalent of doing: get_tree().create_tween().bind_node(self)"
 	tween = create_tween()
 	tween.tween_property(self, "position", Vector2.ZERO, RECOIL_DISTANCE / RECOIL_SMOOTH)
+	# Show rim light on body.
+	_set_rim(true, angle)
+
+
+func _set_rim(value: bool, angle: float = 0.0) -> void:
+	if value:
+		white_rim_flash_timer.start()
+
+	var corrected_angle: float = angle
+
+	# Fix vertical axis (screen space vs math space)
+	corrected_angle = -corrected_angle
+
+	# Mirror when sprite is flipped
+	if not player.body.flip_h:
+		corrected_angle = PI - corrected_angle
+
+	player.body.material.set_shader_parameter("flash", value)
+	player.body.material.set_shader_parameter("angle", corrected_angle)
+
+	material.set_shader_parameter("flash", value)
+	material.set_shader_parameter("angle", corrected_angle)
 
 
 func _kill_tween_if_exists() -> void:
@@ -86,3 +111,7 @@ func _on_body_frame_changed() -> void: # Connected via engine GUI.
 
 func _on_body_flip_h_changed() -> void: # Connected via engine GUI.
 	flip_h = player.body.flip_h
+
+
+func _on_white_rim_flash_timer_timeout() -> void: # Connected via engine GUI.
+	_set_rim(false)

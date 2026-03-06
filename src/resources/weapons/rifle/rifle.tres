@@ -25,4 +25,5 @@ reload_speed = ExtResource("9_t2uyk")
 damage = ExtResource("3_53ejx")
 fire_rate = ExtResource("5_d1aeh")
 is_automatic = true
+recoil_kick = 0.05
 metadata/_custom_type_script = "uid://lplpq2v706yn"
