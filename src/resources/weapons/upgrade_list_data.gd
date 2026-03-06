@@ -27,7 +27,7 @@ var index: int = 0:
 func get_current() -> UpgradeItemData:
 	if items.is_empty():
 		return null
-	return items[clampi(index, 0, items.size() - 1)]
+	return items[index]
 
 
 func get_value() -> float:

@@ -21,6 +21,10 @@ func _exit_tree() -> void:
 
 
 func enter(_old_state: StringName) -> void:
+	# Reload duration should be deterministic across frame rates.
+	# Ref: docs/godot/classes/class_timer.rst — wait_time:
+	# "An unstable framerate may cause the timer to end inconsistently."
+	reload_timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
 	player.velocity.x = 0.0
 	equipped_weapon_reload_speed = GameState.get_equipped_weapon_reload_speed()
 

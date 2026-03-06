@@ -21,6 +21,12 @@ var real_angle: float = 0.0:
 
 
 func enter(previous_state: StringName) -> void:
+	# Fire rate is a gameplay mechanic that should be deterministic across frame rates.
+	# Default TIMER_PROCESS_IDLE ties resolution to render FPS; physics processing keeps
+	# it locked to the fixed timestep.
+	# Ref: docs/godot/classes/class_timer.rst — wait_time:
+	# "An unstable framerate may cause the timer to end inconsistently."
+	fire_timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
 	player.body.play("aim") # Resets frame to 0.
 	player.velocity.x = 0.0
 	player.body.pause() # Frame is a function of angle, not time.

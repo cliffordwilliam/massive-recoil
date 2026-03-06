@@ -18,7 +18,10 @@ func on_died() -> void:
 func ouch(damage: float) -> void:
 	health_counter.health -= damage
 	animated_sprite_2d.material.set_shader_parameter("flash", true)
-	white_flash_timer.one_shot = true # So that child does not have to call super() in _ready.
+	# Set every ouch() call instead of once in _ready() so that children (e.g. WoodenCrate)
+	# never have to remember to call super()._ready(). The redundant write is negligible
+	# and guarantees one_shot is always correct even if the inspector checkbox is missed.
+	white_flash_timer.one_shot = true
 	white_flash_timer.start()
 
 

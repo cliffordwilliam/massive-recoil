@@ -25,7 +25,12 @@ func _ready() -> void:
 	Utils.require(player is Player, "Ray: player must be a Player")
 
 	# _physics_process relies on StateMachine running before Ray (sibling node order).
-	# Validate that assumption so a scene-tree reorder is caught immediately.
+	# This only affects the laser sight visual (one frame of dot/line lag if reordered).
+	# Shooting itself (shoot()) runs from _unhandled_input, which always fires before
+	# _physics_process, so collision data is one-tick stale regardless of sibling order.
+	# Moving shoot to _physics_process would lose is_action_pressed edge detection and
+	# set_input_as_handled(), so the current split is intentional.
+	# Validate the assumption so a scene-tree reorder is caught immediately.
 	var sm: Node = player.state_machine if player else null
 	if sm and sm.get_index() > get_index():
 		push_warning("Ray: StateMachine must be ordered before Ray in the scene tree")
