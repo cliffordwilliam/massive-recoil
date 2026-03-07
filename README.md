@@ -26,3 +26,24 @@ Go to Godot
 - Auto create means (wooden_crate.png + wooden_crate.json = wooden_crate.tres)
 - Use it in AnimatedSprite2D
 - This is hot reloaded too, can repeat from step 1 again as Engine is running
+
+## FONT
+The font being used for the FE pages pre rendered images is this
+
+```text
+# CREDITS
+
+Monogram is a free and Creative Commons Zero pixel font,
+made by Vinícius Menézio (@vmenezio).
+
+https://datagoblin.itch.io/monogram
+
+
+# SPECIAL THANKS
+
+thanks to Ateş Göral (@atesgoral) for creating the bitmap font converter:
+https://codepen.io/atesgoral/details/RwGOvPZ
+
+thanks to Éric Araujo (@merwok_) for the inital port of monogram to PICO-8:
+https://itch.io/post/2625522
+```
