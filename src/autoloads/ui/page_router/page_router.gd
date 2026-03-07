@@ -61,7 +61,8 @@ func _close_page() -> bool:
 
 
 func _open_page(new_page: BasePage) -> bool:
-	assert(new_page is BasePage, "PageRouter: _open_page can only receive BasePage")
+	if not Utils.require(new_page is BasePage, "PageRouter: _open_page can only receive BasePage"):
+		return false
 
 	if not current_page:
 		current_page = new_page

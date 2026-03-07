@@ -17,7 +17,7 @@ var equipped_weapon_reload_speed: float = 0.0
 
 
 func _exit_tree() -> void:
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 
 
 func enter(_old_state: StringName) -> void:
@@ -37,23 +37,15 @@ func enter(_old_state: StringName) -> void:
 		return
 
 	# Otherwise, spend time traveling to the reload angle first, then play the reload animation.
-	if tween:
-		tween.kill()
-
+	tween = Utils.kill_tween(tween)
 	tween = create_tween()
 	tween.tween_method(_set_aim_frame, start_frame, DEST_RELOAD_AIM_FRAME, duration)
 	tween.tween_callback(_start_reload_animation)
 
 
 func exit() -> void:
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 	reload_timer.stop()
-
-
-func _kill_tween_if_exists() -> void:
-	if tween:
-		tween.kill()
-		tween = null
 
 
 func _set_aim_frame(value: float) -> void:

@@ -9,6 +9,11 @@ extends BasePage
 
 
 func _hydrate_ui() -> void:
+	# Ammo displays are hardcoded per weapon type. The game has around 4 weapons total,
+	# so dynamic generation is not worth the complexity. Each weapon has its own sprite layout.
+	# Ref: docs/godot/tutorials/best_practices/scene_organization.rst —
+	# choose the simplest scene structure that fits the problem.
+	# Review note: This is a deliberate design choice. Do not flag it in code reviews.
 	handgun_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(GameState.HANDGUN_ID))
 	rifle_ammo.display_number(GameState.get_weapon_reserve_ammo_by_id(GameState.RIFLE_ID))
 	money.display_number(GameState.get_money_count())

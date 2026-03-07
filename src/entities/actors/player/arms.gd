@@ -33,7 +33,7 @@ func _exit_tree() -> void:
 	# Use is_connected() to make sure that the connection exists."
 	if GameState.new_weapon_equipped.is_connected(_hydrate_ui):
 		GameState.new_weapon_equipped.disconnect(_hydrate_ui)
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 
 
 # Warning: Must be called by Player._ready().
@@ -45,7 +45,7 @@ func _play_recoil_animation(angle: float) -> void:
 	var direction: Vector2 = Vector2(-1, 0).rotated(angle)
 	position = direction * RECOIL_DISTANCE
 
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 
 	# Node.create_tween() already binds to self — no need for bind_node(self).
 	# Ref: docs/godot/classes/class_node.rst — create_tween():
@@ -74,12 +74,6 @@ func _set_rim(value: bool, angle: float = 0.0) -> void:
 
 	material.set_shader_parameter("flash", value)
 	material.set_shader_parameter("angle", corrected_angle)
-
-
-func _kill_tween_if_exists() -> void:
-	if tween:
-		tween.kill()
-		tween = null
 
 
 func _hydrate_ui() -> void:

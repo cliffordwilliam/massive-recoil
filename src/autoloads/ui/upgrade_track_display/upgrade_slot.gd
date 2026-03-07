@@ -12,4 +12,6 @@ func show_bright() -> void:
 
 
 func get_width() -> int:
+	if not Utils.require(texture != null, "UpgradeSlot: texture must be assigned in the inspector"):
+		return 0
 	return texture.get_width()

@@ -9,18 +9,12 @@ var tween: Tween
 
 
 func _exit_tree() -> void:
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 
 
 func flash(pos: Vector2) -> void:
 	position = pos
 	modulate.a = 1.0
-	_kill_tween_if_exists()
+	tween = Utils.kill_tween(tween)
 	tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, FLASH_DURATION)
-
-
-func _kill_tween_if_exists() -> void:
-	if tween:
-		tween.kill()
-		tween = null

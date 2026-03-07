@@ -16,3 +16,11 @@ static func require(condition: bool, message: String) -> bool:
 		push_error(message)
 		return false
 	return true
+
+
+# Kills a tween if it exists and returns null to clear the caller's reference.
+# Usage: tween = Utils.kill_tween(tween)
+static func kill_tween(t: Tween) -> Tween:
+	if t:
+		t.kill()
+	return null
