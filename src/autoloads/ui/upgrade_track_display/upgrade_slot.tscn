@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cj34cauflpoee"]
+
+[ext_resource type="Script" uid="uid://bgdenofqsvqqh" path="res://src/autoloads/ui/upgrade_track_display/upgrade_slot.gd" id="1_eoqdh"]
+[ext_resource type="Texture2D" uid="uid://b6au3tlgg5hfs" path="res://assets/textures/ui/shared/weapon_upgrade_slot.png" id="1_lnbry"]
+
+[node name="Slot" type="Sprite2D" unique_id=334907790]
+texture = ExtResource("1_lnbry")
+script = ExtResource("1_eoqdh")

@@ -32,6 +32,13 @@ func _on_queue_free_timer_timeout() -> void: # Connected via engine GUI (one sho
 
 
 func _on_health_counter_died() -> void: # Connected via engine GUI (one shot).
+	# sprite_frames has no default value and can be null if not assigned in the inspector.
+	# Calling .has_animation() on a null reference crashes before Utils.require can catch it.
+	# Guard null first, then check for the animation.
+	# Doc ref: docs/godot/classes/class_animatedsprite2d.rst — sprite_frames property
+	# (default value column is empty, meaning the property can be null).
+	if not Utils.require(animated_sprite_2d.sprite_frames != null, "BaseEnemy: sprite_frames must be assigned"):
+		return
 	if not Utils.require(
 		animated_sprite_2d.sprite_frames.has_animation("dead"),
 		"BaseEnemy: requires dead animation",

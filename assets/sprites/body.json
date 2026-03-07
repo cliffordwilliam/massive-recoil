@@ -681,7 +681,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 100
+    "duration": 55
    },
    {
     "filename": "reload-1",
@@ -690,7 +690,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 33
+    "duration": 55
    },
    {
     "filename": "reload-2",
@@ -699,7 +699,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 66
+    "duration": 55
    },
    {
     "filename": "reload-3",
@@ -708,7 +708,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 33
+    "duration": 55
    },
    {
     "filename": "reload-4",
@@ -717,7 +717,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 100
+    "duration": 55
    },
    {
     "filename": "reload-5",
@@ -726,7 +726,7 @@
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 64, "h": 64 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 66
+    "duration": 55
    },
    {
     "filename": "hurt-0",
@@ -740,7 +740,7 @@
  ],
  "meta": {
   "app": "http://www.aseprite.org/",
-  "version": "1.3.16.1-x64",
+  "version": "1.3.17-x64",
   "image": "body.png",
   "format": "RGBA8888",
   "size": { "w": 768, "h": 448 },

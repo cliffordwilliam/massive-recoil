@@ -24,7 +24,7 @@ const HANDGUN_ID: StringName = &"handgun"
 const RIFLE_ID: StringName = &"rifle"
 
 # Player.
-var money: int = 999999 # TODO: This is dev only, please set it back to none later.
+var money: int = 99999999 # TODO: This is dev only, please set it back to none later.
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
 	set(value):
@@ -46,6 +46,12 @@ var weapons: Dictionary[StringName, WeaponData] = {
 
 
 # API that manages dynamic resource properties to be hydrated/dump to/from disk.
+func get_weapon_by_id(id: StringName) -> WeaponData:
+	if not weapon_exists(id):
+		return null
+	return weapons[id]
+
+
 func get_equipped_weapon_id() -> StringName:
 	return equipped_weapon_id
 

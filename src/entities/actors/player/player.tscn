@@ -20,13 +20,14 @@
 [ext_resource type="Script" uid="uid://coluh5v8a85h5" path="res://src/entities/actors/player/states/walk_back.gd" id="14_6jj1q"]
 [ext_resource type="Script" uid="uid://d1gyiws53uv61" path="res://src/entities/actors/player/states/reload.gd" id="15_mekkp"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_283t5"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iloh8"]
 resource_local_to_scene = true
 shader = ExtResource("3_iloh8")
 shader_parameter/flash = false
 shader_parameter/angle = 0.0
 
 [sub_resource type="Gradient" id="Gradient_nqxrs"]
+offsets = PackedFloat32Array(0.6, 1)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
 metadata/_snap_enabled = true
 
@@ -46,7 +47,7 @@ collision_mask = 4
 script = ExtResource("1_abrql")
 
 [node name="Body" parent="." unique_id=1711271908 instance=ExtResource("2_nqxrs")]
-material = SubResource("ShaderMaterial_283t5")
+material = SubResource("ShaderMaterial_iloh8")
 position = Vector2(0, -21)
 sprite_frames = ExtResource("2_qiwj3")
 animation = &"idle"

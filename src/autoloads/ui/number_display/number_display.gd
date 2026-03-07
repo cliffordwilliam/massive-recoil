@@ -9,7 +9,9 @@ extends Node2D
 
 
 func _ready() -> void:
-	if not Utils.require(digit_scene != null, "NumberDisplay: digit_scene must be set in the inspector"):
+	if not Utils.require(
+		digit_scene != null, "NumberDisplay: digit_scene must be set in the inspector"
+	):
 		return
 	# Given that x is the top‑left NumberDisplay origin, we can render either like this:
 	# 123x = this is right‑aligned.

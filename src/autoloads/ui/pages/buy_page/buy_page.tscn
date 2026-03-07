@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://src/autoloads/ui/number_display/number_display.tscn" id="3_lkrp7"]
 [ext_resource type="PackedScene" uid="uid://cjn50xx4pdpow" path="res://src/autoloads/ui/scroll_list/scroll_list.tscn" id="4_iamwa"]
 [ext_resource type="PackedScene" uid="uid://b3s04747jk1vj" path="res://src/autoloads/ui/pages/buy_page/buy_page_cursor.tscn" id="5_t16gh"]
+[ext_resource type="PackedScene" uid="uid://s5lv6octjmqh" path="res://src/autoloads/ui/upgrade_track_display/upgrade_track_display.tscn" id="6_4ucrx"]
 
 [node name="BuyPage" type="Sprite2D" unique_id=319899825]
 texture = ExtResource("1_5nman")
@@ -27,6 +28,18 @@ cursor_scene = ExtResource("5_t16gh")
 [node name="Description" type="Sprite2D" parent="." unique_id=1967367512]
 position = Vector2(117, 125)
 centered = false
+
+[node name="Damage" parent="." unique_id=1417721199 instance=ExtResource("6_4ucrx")]
+position = Vector2(15, 99)
+
+[node name="FireRate" parent="." unique_id=654473317 instance=ExtResource("6_4ucrx")]
+position = Vector2(15, 120)
+
+[node name="ReloadSpeed" parent="." unique_id=282159790 instance=ExtResource("6_4ucrx")]
+position = Vector2(15, 140)
+
+[node name="MagazineSize" parent="." unique_id=2140981982 instance=ExtResource("6_4ucrx")]
+position = Vector2(15, 160)
 
 [connection signal="item_selected" from="ScrollList" to="." method="_on_scroll_list_item_selected"]
 [connection signal="render_updated" from="ScrollList" to="." method="_on_scroll_list_render_updated"]

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://s5lv6octjmqh"]
+
+[ext_resource type="Script" uid="uid://dyl2y7itthsup" path="res://src/autoloads/ui/upgrade_track_display/upgrade_track_display.gd" id="1_s8v36"]
+[ext_resource type="PackedScene" uid="uid://cj34cauflpoee" path="res://src/autoloads/ui/upgrade_track_display/upgrade_slot.tscn" id="2_8e55h"]
+
+[node name="UpgradeTrackDisplay" type="Node2D" unique_id=1417721199]
+script = ExtResource("1_s8v36")
+upgrade_slot_scene = ExtResource("2_8e55h")

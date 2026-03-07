@@ -36,6 +36,13 @@ func initialize(given_id: StringName, pos: Vector2) -> void:
 
 
 func _assign_children_properties() -> void:
+	# sprite_frames has no default value and can be null if not assigned in the inspector.
+	# Calling .has_animation() on a null reference crashes before Utils.require can catch it.
+	# Guard null first, then check for the animation.
+	# Doc ref: docs/godot/classes/class_animatedsprite2d.rst — sprite_frames property
+	# (default value column is empty, meaning the property can be null).
+	if not Utils.require(animated_sprite_2d.sprite_frames != null, "Loot: sprite_frames must be assigned"):
+		return
 	if not Utils.require(animated_sprite_2d.sprite_frames.has_animation(id), "Loot: No anim for: " + id):
 		return
 

@@ -1,5 +1,15 @@
 # massive-recoil
 
+## ENABLE FORMAT ON SAVE
+The most common way to use the formatter is to have it automatically format your code every time you save:
+1. Go to `Editor -> Editor Settings...`
+2. Scroll down to the `GDQuest GDScript Formatter` section.
+3. Enable the `Format On Save` checkbox.
+4. Enable the `Reorder Code` checkbox.
+5. Disable the `Safe Mode` checkbox.
+6. Enable the `Lint on Safe` checkbox.
+Now, every time you save a GDScript file with , the formatter will format your code. 
+
 ## TODO
 - Make ammo drops
 - Weapon upgrade props are ready, but missing FE interface (just show buttons to upgrade any props)

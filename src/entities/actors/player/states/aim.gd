@@ -31,7 +31,7 @@ func enter(previous_state: StringName) -> void:
 	player.velocity.x = 0.0
 	player.body.pause() # Frame is a function of angle, not time.
 	# Use angle to update frame via setter.
-	dest_angle = POST_RELOAD_AIM_ANGLE if previous_state == RELOAD else 0.0
+	dest_angle = 0.0
 	real_angle = POST_RELOAD_AIM_ANGLE if previous_state == RELOAD else 0.0
 	player.ray.is_active = true
 

@@ -7,6 +7,10 @@ extends BasePage
 @onready var icon: Sprite2D = $Icon
 @onready var scroll_list: ScrollList = $ScrollList
 @onready var description: Sprite2D = $Description
+@onready var damage: UpgradeTrackDisplay = $Damage
+@onready var fire_rate: UpgradeTrackDisplay = $FireRate
+@onready var reload_speed: UpgradeTrackDisplay = $ReloadSpeed
+@onready var magazine_size: UpgradeTrackDisplay = $MagazineSize
 
 
 func _hydrate_ui() -> void:
@@ -38,6 +42,17 @@ func _on_scroll_list_render_updated(id: StringName) -> void: # Connected via eng
 	if GameState.weapon_exists(id):
 		icon.texture = GameState.get_weapon_icon_by_id(id)
 		description.texture = GameState.get_weapon_description_by_id(id)
+		var weapon: WeaponData = GameState.get_weapon_by_id(id)
+		if weapon:
+			damage.display_track(weapon.damage)
+			fire_rate.display_track(weapon.fire_rate)
+			reload_speed.display_track(weapon.reload_speed)
+			magazine_size.display_track(weapon.magazine_size)
+		else:
+			damage.clear_previous_slots()
+			fire_rate.clear_previous_slots()
+			reload_speed.clear_previous_slots()
+			magazine_size.clear_previous_slots()
 	else:
 		push_warning("BuyPage: weapon does not exist")
 
