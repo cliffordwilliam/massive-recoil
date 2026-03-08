@@ -30,6 +30,14 @@ func display_track(data: UpgradeListData) -> void:
 
 
 func clear_previous_slots() -> void:
+	# get_children() returns an Array snapshot — iterating while calling remove_child() is safe.
+	# Doc ref: docs/godot/classes/class_node.rst — get_children():
+	# "Returns all children of this node inside an Array."
+	# remove_child() is called before queue_free() so the node is immediately
+	# detached from the tree. queue_free() alone would leave the child counted
+	# until end-of-frame; since display_track() re-populates children in the
+	# same frame, any get_child_count() read between clear and populate would
+	# see stale entries.
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()

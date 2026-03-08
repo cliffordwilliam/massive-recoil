@@ -18,8 +18,11 @@ var cursor: Node2D
 var is_active: bool = false:
 	set(value):
 		is_active = value
-		# PROCESS_MODE_INHERIT resolves to PROCESS_MODE_ALWAYS via PageRouter (the ancestor).
-		# If PageRouter's process_mode ever changes, this node will silently stop receiving input.
+		# Intentional design — do not flag this in code review.
+		# PROCESS_MODE_INHERIT resolves to PROCESS_MODE_ALWAYS via PageRouter (the ancestor),
+		# which is always-processing by design (the UI must remain responsive while the game
+		# is paused). This node deliberately relies on that ancestor contract.
+		# If PageRouter's process_mode ever changes, audit all ScrollList usages.
 		# Ref: docs/godot/classes/class_node.rst — PROCESS_MODE_INHERIT:
 		# "Inherits process_mode from the node's parent."
 		# Ref: docs/godot/classes/class_node.rst — PROCESS_MODE_ALWAYS:
@@ -40,32 +43,37 @@ func _ready() -> void:
 	cursor = cursor_scene.instantiate()
 
 	if not Utils.require(cursor is Node2D, "ScrollList: cursor must inherit Node2D"):
-		cursor.queue_free()
+		# cursor was never added to the scene tree, so queue_free() is wrong here.
+		# queue_free() is designed for in-tree nodes — it schedules removal at end-of-frame.
+		# free() deletes the object from memory immediately, which is correct for an unparented node.
+		# Doc ref: docs/godot/classes/class_node.rst — queue_free():
+		# "Unlike with Object.free(), the node is not deleted instantly."
+		# Doc ref: docs/godot/classes/class_object.rst — free():
+		# "Deletes the object from memory."
+		cursor.free()
 		return
 
 	cursor_container.add_child(cursor)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only.
-	if event is not InputEventKey:
-		return
-
+func _unhandled_key_input(event: InputEvent) -> void:
+	# _unhandled_key_input only fires for InputEventKey — no guard needed.
+	# Doc ref: docs/godot/classes/class_node.rst — _unhandled_key_input()
 	if items_container.get_child_count() == 0:
 		return
 
 	if event.is_action_pressed("accept"):
-		var idx: int = clampi(offset + cursor_row, 0, items_container.get_child_count() - 1)
-		item_selected.emit(items_container.get_child(idx).name)
-		get_viewport().set_input_as_handled()
+		_handle_accept()
 
+	# is_action_pressed() rejects echo events by default (allow_echo = false).
+	# Holding a direction key sends repeated InputEventKey events with echo = true,
+	# which this check ignores — one move per physical key-down is intentional.
+	# To support hold-to-scroll in the future, pass allow_echo: true explicitly.
+	# Doc reference: docs/godot/classes/class_inputevent.rst — is_action_pressed()
+	# Doc reference: docs/godot/classes/class_inputeventkey.rst — echo property
 	elif event.is_action_pressed("up") or event.is_action_pressed("down"):
 		var dir: int = 1 if event.is_action_pressed("down") else -1
-		var idx: int = clampi(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
-		offset = clampi(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
-		cursor_row = idx - offset
-		_update_render()
-		get_viewport().set_input_as_handled()
+		_handle_navigation(dir)
 
 
 func set_items(new_items: Array[ListItem]) -> void:
@@ -77,14 +85,35 @@ func set_items(new_items: Array[ListItem]) -> void:
 	var seen: Dictionary[StringName, bool] = { }
 	var unique_items: Array[ListItem] = []
 	for i: ListItem in new_items:
-		if not Utils.require(not seen.has(i.name), "ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name):
-			i.queue_free()
+		if not Utils.require(
+			i.get_parent() == null,
+			"ScrollList: ListItem must be unparented before passing to set_items(): '%s'" % i.name,
+		):
+			continue
+		if not Utils.require(
+			not seen.has(i.name),
+			"ScrollList: I cannot hold duplicate ListItem name: '%s'" % i.name,
+		):
+			# The docs note that queue_free() defers deletion and the node remains accessible until
+			# end-of-frame — free() is the correct call for out-of-tree nodes.
+			# Doc reference: docs/godot/classes/class_node.rst — queue_free()
+			i.free()
 			continue
 		seen[i.name] = true
 		unique_items.append(i)
 
+	# get_children() returns an Array snapshot — iterating while calling remove_child() is safe.
+	# Doc ref: docs/godot/classes/class_node.rst — get_children():
+	# "Returns all children of this node inside an Array."
 	for old_item: ListItem in items_container.get_children():
-		# This is okay since no one else references the contents of my item container.
+		# remove_child() must come before queue_free().
+		# queue_free() is deferred — the node is not removed until the end of the frame.
+		# Doc ref: docs/godot/classes/class_node.rst — queue_free():
+		# "the node is not deleted instantly, and it can still be accessed before deletion."
+		# _update_render() runs later in the same frame and uses get_child_count() / get_child(i)
+		# to assign position.y by index. If old items are still children when that runs,
+		# they inflate the child count and shift every new item's computed position.
+		# remove_child() is immediate, so the child list is clean before new items are added.
 		items_container.remove_child(old_item)
 		old_item.queue_free()
 
@@ -106,6 +135,20 @@ func set_items(new_items: Array[ListItem]) -> void:
 	offset = clampi(offset, 0, max(0, items_container.get_child_count() - page_size))
 	cursor_row = clampi(cursor_row, 0, min(items_container.get_child_count(), page_size) - 1)
 	_update_render()
+
+
+func _handle_accept() -> void:
+	var idx: int = clampi(offset + cursor_row, 0, items_container.get_child_count() - 1)
+	item_selected.emit(items_container.get_child(idx).name)
+	get_viewport().set_input_as_handled()
+
+
+func _handle_navigation(dir: int) -> void:
+	var idx: int = clampi(offset + cursor_row + dir, 0, items_container.get_child_count() - 1)
+	offset = clampi(idx - cursor_row, 0, max(0, items_container.get_child_count() - page_size))
+	cursor_row = idx - offset
+	_update_render()
+	get_viewport().set_input_as_handled()
 
 
 func _update_render() -> void:

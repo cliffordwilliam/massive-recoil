@@ -24,7 +24,7 @@ const HANDGUN_ID: StringName = &"handgun"
 const RIFLE_ID: StringName = &"rifle"
 
 # Player.
-var money: int = 99999999 # TODO: This is dev only, please set it back to none later.
+var money: int = 0
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
 	set(value):

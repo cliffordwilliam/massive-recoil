@@ -7,7 +7,7 @@ extends Area2D
 
 func _ready() -> void:
 	# Starts sleeping.
-	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
 
 	# Plays animation.
 	# Node.create_tween() already binds to self — no need for bind_node(self).
@@ -19,10 +19,10 @@ func _ready() -> void:
 
 
 # Only check for the open‑shop input while I am awake.
-func _unhandled_input(event: InputEvent) -> void:
+func _unhandled_key_input(event: InputEvent) -> void:
+	# _unhandled_key_input only fires for InputEventKey — no guard needed.
+	# Doc ref: docs/godot/classes/class_node.rst — _unhandled_key_input()
 	# This game uses keyboard input only.
-	if event is not InputEventKey:
-		return
 
 	if event.is_action_pressed("accept"):
 		PageRouter.open_shop_page()
@@ -32,7 +32,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # Only wakes up if player overlaps me.
 func _set_active(value: bool, body: Node2D) -> void:
 	if body is Player:
-		set_process_unhandled_input(value)
+		set_process_unhandled_key_input(value)
 
 
 func _on_body_entered(body: Node2D) -> void: # Connected via engine GUI.

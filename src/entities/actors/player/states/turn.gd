@@ -15,7 +15,7 @@ func enter(_old_state: StringName) -> void:
 		not player.body.sprite_frames.get_animation_loop(&"turn"),
 		"PlayerTurnState: 'turn' animation must not loop — animation_finished will never emit",
 	)
-	player.body.set_flip(not player.body.flip_h)
+	player.body.set_flip(not player.body.is_flipped_h())
 	player.body.play("turn")
 	player.velocity.x = 0.0
 

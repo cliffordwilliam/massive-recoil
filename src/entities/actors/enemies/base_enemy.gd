@@ -17,7 +17,8 @@ func on_died() -> void:
 
 func ouch(damage: float) -> void:
 	health_counter.health -= damage
-	animated_sprite_2d.material.set_shader_parameter("flash", true)
+	if animated_sprite_2d.material:
+		animated_sprite_2d.material.set_shader_parameter("flash", true)
 	# Set every ouch() call instead of once in _ready() so that children (e.g. WoodenCrate)
 	# never have to remember to call super()._ready(). The redundant write is negligible
 	# and guarantees one_shot is always correct even if the inspector checkbox is missed.
@@ -46,10 +47,15 @@ func _on_health_counter_died() -> void: # Connected via engine GUI (one shot).
 		return
 
 	collision_layer = 0
+	# Doc reference: docs/godot/classes/class_area2d.rst — monitorable property default: true.
+	# Any other Area2D overlapping this enemy as it dies may fire a spurious area_exited signal
+	# at an unexpected time. Explicitly set monitorable = false alongside collision_layer = 0
+	monitorable = false
 	queue_free_timer.start()
 	animated_sprite_2d.play("dead")
 	on_died()
 
 
 func _on_white_flash_timer_timeout() -> void: # Connected via engine GUI.
-	animated_sprite_2d.material.set_shader_parameter("flash", false)
+	if animated_sprite_2d.material:
+		animated_sprite_2d.material.set_shader_parameter("flash", false)

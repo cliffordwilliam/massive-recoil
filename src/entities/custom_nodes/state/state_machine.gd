@@ -30,7 +30,7 @@ func _ready() -> void:
 
 	# Disable processing until start() is called by the owner's _ready().
 	set_physics_process(false)
-	set_process_unhandled_input(false)
+	set_process_unhandled_key_input(false)
 
 
 func _physics_process(delta: float) -> void:
@@ -38,17 +38,11 @@ func _physics_process(delta: float) -> void:
 		current_state.physics_update(delta)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only.
-	if event is not InputEventKey:
-		return
-
-	if current_state:
-		current_state.handle_input(event)
-
-
 func transition_to(target_state_name: StringName, previous_state: StringName) -> void:
-	if not Utils.require(states.has(target_state_name), "StateMachine: No state found for: " + target_state_name):
+	if not Utils.require(
+		states.has(target_state_name),
+		"StateMachine: No state found for: " + target_state_name,
+	):
 		return
 
 	var target_state: BaseState = states[target_state_name]
@@ -69,7 +63,23 @@ func reset() -> void:
 # An empty StringName as the previous state means this is the initial entry.
 func start() -> void:
 	set_physics_process(true)
-	set_process_unhandled_input(true)
+	set_process_unhandled_key_input(true)
 
 	if current_state:
 		current_state.enter(&"")
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	# _unhandled_key_input only fires for InputEventKey — no guard needed.
+	# Doc ref: docs/godot/classes/class_node.rst — _unhandled_key_input()
+	# This game uses keyboard input only.
+	#
+	# handle_input() accepts InputEvent (not InputEventKey) because the Godot
+	# virtual method signature is _unhandled_key_input(event: InputEvent) — the
+	# engine types the parameter as the base class even though only InputEventKey
+	# events are dispatched here. Narrowing to InputEventKey in the override or in
+	# handle_input() would cause a type mismatch at the call site.
+	# Doc ref: docs/godot/classes/class_node.rst — _unhandled_key_input() signature.
+
+	if current_state:
+		current_state.handle_input(event)

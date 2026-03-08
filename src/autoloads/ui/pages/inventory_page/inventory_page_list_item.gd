@@ -13,6 +13,10 @@ var is_equipped_tag_visible: bool = false
 
 
 func _ready() -> void:
+	_assign_children_properties()
+
+
+func _assign_children_properties() -> void:
 	magazine_current.display_number(magazine_current_value)
 	equipped_tag.visible = is_equipped_tag_visible
 

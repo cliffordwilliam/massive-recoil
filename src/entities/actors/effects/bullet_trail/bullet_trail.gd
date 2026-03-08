@@ -5,6 +5,7 @@ extends Line2D
 var is_initialized: bool = false
 var from_pos: Vector2 = Vector2.ZERO
 var to_pos: Vector2 = Vector2.ZERO
+var tween: Tween
 
 
 func _ready() -> void:
@@ -30,10 +31,23 @@ func initialize(from: Vector2, to: Vector2) -> void:
 		_assign_children_properties()
 
 
+func _exit_tree() -> void:
+	# Defensive kill — create_tween() binds the tween to this node, so the engine
+	# already invalidates it automatically when the node exits the tree.
+	# The explicit kill ensures no callback (e.g. queue_free) fires if the node is
+	# removed mid-animation by an external caller rather than by the tween itself.
+	# Doc reference: docs/godot/classes/class_node.rst — create_tween():
+	# equivalent to get_tree().create_tween().bind_node(self)
+	# Doc reference: docs/godot/classes/class_tween.rst — bind_node()
+	tween = Utils.kill_tween(tween)
+
+
 func _assign_children_properties() -> void:
+	clear_points()
 	add_point(to_local(from_pos))
 	add_point(to_local(to_pos))
 
-	var tween: Tween = create_tween()
+	tween = Utils.kill_tween(tween)
+	tween = create_tween()
 	tween.tween_property(self, "modulate:a", 0.0, 0.125)
 	tween.tween_callback(queue_free)

@@ -126,6 +126,7 @@ script = ExtResource("12_a1qjk")
 metadata/_custom_type_script = "uid://bqm28nciccrdb"
 
 [node name="FireTimer" type="Timer" parent="StateMachine/PlayerAimState" unique_id=506117829]
+process_callback = 0
 one_shot = true
 
 [node name="PlayerWalkBackState" type="Node" parent="StateMachine" unique_id=60641086]
@@ -137,6 +138,7 @@ script = ExtResource("15_mekkp")
 metadata/_custom_type_script = "uid://d1gyiws53uv61"
 
 [node name="ReloadTimer" type="Timer" parent="StateMachine/PlayerReloadState" unique_id=268838170]
+process_callback = 0
 one_shot = true
 
 [connection signal="animation_changed" from="Body" to="Body/Arms" method="_on_body_animation_changed"]

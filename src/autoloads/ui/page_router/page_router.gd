@@ -18,29 +18,16 @@ func _ready() -> void:
 	# Staying visible in the editor is distracting, so I only show myself at runtime.
 	show()
 
-	# Me and my BasePage children always run no matter what, even during pause.
+	# PROCESS_MODE_ALWAYS is intentional — not PROCESS_MODE_WHEN_PAUSED.
+	# The player can press "inventory" during live gameplay (game not yet paused),
+	# so this node must process input before any pause is set. Switching to
+	# PROCESS_MODE_WHEN_PAUSED would silently drop that initial keypress.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 	# Turn all of my BasePage children off.
 	for child in get_children():
 		if child is BasePage:
 			child.is_active = false
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	# This game uses keyboard input only.
-	if event is not InputEventKey:
-		return
-
-	# Close the currently opened BasePage.
-	if event.is_action_pressed("cancel") and current_page:
-		close_page()
-		get_viewport().set_input_as_handled()
-
-	# Open inventory page.
-	elif event.is_action_pressed("inventory") and not current_page:
-		_open_inventory_page()
-		get_viewport().set_input_as_handled()
 
 
 func open_shop_page() -> bool:
@@ -59,6 +46,22 @@ func close_page() -> bool:
 		page_closed.emit()
 		return true
 	return false
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	# _unhandled_key_input only fires for InputEventKey — no guard needed.
+	# Doc ref: docs/godot/classes/class_node.rst — _unhandled_key_input()
+	# This game uses keyboard input only.
+
+	# Close the currently opened BasePage.
+	if event.is_action_pressed("cancel") and current_page:
+		close_page()
+		get_viewport().set_input_as_handled()
+
+	# Open inventory page.
+	elif event.is_action_pressed("inventory") and not current_page:
+		_open_inventory_page()
+		get_viewport().set_input_as_handled()
 
 
 func _open_inventory_page() -> bool:

@@ -66,14 +66,16 @@ func _set_rim(value: bool, angle: float = 0.0) -> void:
 	corrected_angle = -corrected_angle
 
 	# Mirror when sprite is flipped
-	if not player.body.flip_h:
+	if not player.body.is_flipped_h():
 		corrected_angle = PI - corrected_angle
 
-	player.body.material.set_shader_parameter("flash", value)
-	player.body.material.set_shader_parameter("angle", corrected_angle)
+	if player.body.material:
+		player.body.material.set_shader_parameter("flash", value)
+		player.body.material.set_shader_parameter("angle", corrected_angle)
 
-	material.set_shader_parameter("flash", value)
-	material.set_shader_parameter("angle", corrected_angle)
+	if material:
+		material.set_shader_parameter("flash", value)
+		material.set_shader_parameter("angle", corrected_angle)
 
 
 func _hydrate_ui() -> void:
@@ -86,8 +88,11 @@ func _hydrate_ui() -> void:
 	else:
 		sprite_frames = preload("uid://bwtavvs3i1wy2")
 
-	# Changing sprite frames resets me to 0; I must keep up with the master.
-	frame = player.body.frame
+	# This does not reset my frame progress when I change sprite frames.
+	# Doc reference: docs/godot/classes/class_animatedsprite2d.rst — frame property:
+	# "Setting this property also resets frame_progress. If this is not desired,
+	# use set_frame_and_progress()."
+	set_frame_and_progress(player.body.frame, player.body.frame_progress)
 
 
 func _on_ray_shot(given_rotation: float) -> void: # Connected via engine GUI.
@@ -100,11 +105,14 @@ func _on_body_animation_changed() -> void: # Connected via engine GUI.
 
 
 func _on_body_frame_changed() -> void: # Connected via engine GUI.
-	frame = player.body.frame
+	set_frame_and_progress(player.body.frame, player.body.frame_progress)
 
 
 func _on_body_flip_h_changed() -> void: # Connected via engine GUI.
-	flip_h = player.body.flip_h
+	# Arms extends bare AnimatedSprite2D, not MyAnimatedSprite, so there is no flip_h_changed
+	# signal to miss on this node. Setting flip_h directly is correct here.
+	# If Arms is ever refactored to extend MyAnimatedSprite, use set_flip() instead.
+	flip_h = player.body.is_flipped_h()
 
 
 func _on_white_rim_flash_timer_timeout() -> void: # Connected via engine GUI.

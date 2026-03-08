@@ -90,10 +90,10 @@ By the end of a session the player should feel:
 ```
 Enter Room
   → Kill Enemies
-    → Collect Loot (Money, [TBD: Ammo])
-      → Reach Shop
-        → Buy / Upgrade / Sell
-          → Enter Next Room
+	→ Collect Loot (Money, [TBD: Ammo])
+	  → Reach Shop
+		→ Buy / Upgrade / Sell
+		  → Enter Next Room
 ```
 
 **Session arc (TBD):** A full run is a short sequence of rooms ending in a boss or climax encounter. The upgrade path means the player should be meaningfully stronger at the end than the start.

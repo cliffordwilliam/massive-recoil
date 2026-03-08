@@ -26,7 +26,7 @@ func _ready() -> void:
 
 	# _physics_process relies on StateMachine running before Ray (sibling node order).
 	# This only affects the laser sight visual (one frame of dot/line lag if reordered).
-	# Shooting itself (shoot()) runs from _unhandled_input, which always fires before
+	# Shooting itself (shoot()) runs from _unhandled_key_input, which always fires before
 	# _physics_process, so collision data is one-tick stale regardless of sibling order.
 	# Moving shoot to _physics_process would lose is_action_pressed edge detection and
 	# set_input_as_handled(), so the current split is intentional.
@@ -66,15 +66,18 @@ func shoot() -> bool:
 	var muzzle_pos: Vector2 = line.to_global(line.get_point_position(0))
 	var hit_pos: Vector2 = line.to_global(line.get_point_position(1))
 	light.flash(to_local(muzzle_pos))
-	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.flip_h)
+	Spawner.spawn_shoot_effects(muzzle_pos, hit_pos, rotation, player.body.is_flipped_h())
 
-	# _unhandled_input fires before _physics_process, so is_colliding() here
+	# _unhandled_key_input fires before _physics_process, so is_colliding() here
 	# reflects the previous physics tick's world — collision is one tick stale.
 	# This is an accepted trade‑off for normal gameplay speeds; fast‑moving targets
 	# can be missed by one frame.
 	if is_colliding():
 		var collider: Object = get_collider()
 		if collider:
+			# get_collision_point() and get_collision_normal() are called within the
+			# is_colliding() guard above. GDScript is single-threaded, so collision
+			# state cannot change between those lines — both calls are safe.
 			var collision_point: Vector2 = get_collision_point()
 			var normal: Vector2 = get_collision_normal()
 			var impact_rot: float = normal.angle()

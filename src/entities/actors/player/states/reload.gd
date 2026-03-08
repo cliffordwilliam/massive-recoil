@@ -16,15 +16,22 @@ var equipped_weapon_reload_speed: float = 0.0
 @onready var reload_timer: Timer = $ReloadTimer
 
 
+func _ready() -> void:
+	# Reload duration must be deterministic across frame rates.
+	# TIMER_PROCESS_IDLE ties resolution to render FPS — must be set to PHYSICS in the inspector.
+	# Catch misconfiguration at startup rather than silently using the wrong callback.
+	# Doc reference: docs/godot/classes/class_timer.rst — process_callback property
+	Utils.require(
+		reload_timer.process_callback == Timer.TIMER_PROCESS_PHYSICS,
+		"PlayerReloadState: ReloadTimer.process_callback must be TIMER_PROCESS_PHYSICS set in inspector",
+	)
+
+
 func _exit_tree() -> void:
 	tween = Utils.kill_tween(tween)
 
 
 func enter(_old_state: StringName) -> void:
-	# Reload duration should be deterministic across frame rates.
-	# Ref: docs/godot/classes/class_timer.rst — wait_time:
-	# "An unstable framerate may cause the timer to end inconsistently."
-	reload_timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
 	player.velocity.x = 0.0
 	equipped_weapon_reload_speed = GameState.get_equipped_weapon_reload_speed()
 
@@ -49,10 +56,12 @@ func exit() -> void:
 
 
 func _set_aim_frame(value: float) -> void:
-	player.body.frame = clampi(
-		int(value),
-		0,
-		player.aim_frames - 1,
+	# set_frame_and_progress() avoids the side effect of resetting frame_progress
+	# that occurs when assigning frame directly.
+	# Doc ref: docs/godot/classes/class_animatedsprite2d.rst — frame property.
+	player.body.set_frame_and_progress(
+		clampi(int(value), 0, player.aim_frames - 1),
+		0.0,
 	)
 
 

@@ -34,7 +34,7 @@ extends Resource
 
 # These are meant to be hydrated on load, mutated in gameplay, dumped to disk on save.
 var magazine_current: int
-var reserve_ammo: int = 999 # TODO: This is dev only, please set it back to none later.
+var reserve_ammo: int
 var is_owned: bool
 var was_bought: bool
 
