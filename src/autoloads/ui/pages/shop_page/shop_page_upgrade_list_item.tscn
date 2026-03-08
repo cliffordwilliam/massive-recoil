@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c5bmsfwwlmivx"]
+
+[ext_resource type="Texture2D" uid="uid://cj6lqkac21jeh" path="res://assets/textures/ui/shop_page/shop_page_upgrade_list_item.png" id="1_rxgbf"]
+[ext_resource type="Script" uid="uid://bodvyfxo8uxxb" path="res://src/autoloads/ui/pages/shop_page/shop_page_list_item.gd" id="2_l68m5"]
+
+[node name="ShopPageCursor" type="Sprite2D" unique_id=909573912]
+texture = ExtResource("1_rxgbf")
+centered = false
+script = ExtResource("2_l68m5")

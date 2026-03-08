@@ -11,6 +11,7 @@ var current_page: BasePage = null
 # These cannot be null, I add them via scene tree GUI, game will not even run if its not valid.
 @onready var inventory_page: InventoryPage = $InventoryPage
 @onready var buy_page: BuyPage = $BuyPage
+@onready var shop_page: ShopPage = $ShopPage
 
 
 func _ready() -> void:
@@ -33,7 +34,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Close the currently opened BasePage.
 	if event.is_action_pressed("cancel") and current_page:
-		_close_page()
+		close_page()
 		get_viewport().set_input_as_handled()
 
 	# Open inventory page.
@@ -42,15 +43,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func open_shop_page() -> bool:
+	return _open_page(shop_page)
+
+
 func open_buy_page() -> bool:
 	return _open_page(buy_page)
 
 
-func _open_inventory_page() -> bool:
-	return _open_page(inventory_page)
-
-
-func _close_page() -> bool:
+func close_page() -> bool:
 	if current_page:
 		current_page.is_active = false
 		current_page = null
@@ -60,9 +61,15 @@ func _close_page() -> bool:
 	return false
 
 
+func _open_inventory_page() -> bool:
+	return _open_page(inventory_page)
+
+
 func _open_page(new_page: BasePage) -> bool:
 	if not Utils.require(new_page is BasePage, "PageRouter: _open_page can only receive BasePage"):
 		return false
+
+	close_page() # To handle when a page request another page to open.
 
 	if not current_page:
 		current_page = new_page

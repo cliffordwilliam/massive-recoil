@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://d00jmugb2068d" path="res://src/autoloads/ui/page_router/page_router.gd" id="1_wpstq"]
 [ext_resource type="PackedScene" uid="uid://cenchx8ug57g2" path="res://src/autoloads/ui/pages/inventory_page/inventory_page.tscn" id="2_mr2wf"]
 [ext_resource type="PackedScene" uid="uid://euoup28876nb" path="res://src/autoloads/ui/pages/buy_page/buy_page.tscn" id="3_05e4a"]
+[ext_resource type="PackedScene" uid="uid://cway7q4eylais" path="res://src/autoloads/ui/pages/shop_page/shop_page.tscn" id="4_b3hod"]
 
 [node name="PageRouter" type="CanvasLayer" unique_id=1385969563]
 visible = false
@@ -11,3 +12,5 @@ script = ExtResource("1_wpstq")
 [node name="InventoryPage" parent="." unique_id=332129556 instance=ExtResource("2_mr2wf")]
 
 [node name="BuyPage" parent="." unique_id=319899825 instance=ExtResource("3_05e4a")]
+
+[node name="ShopPage" parent="." unique_id=676480246 instance=ExtResource("4_b3hod")]

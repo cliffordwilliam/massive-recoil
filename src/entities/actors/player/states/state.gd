@@ -16,9 +16,13 @@ const WALK_BACK: StringName = &"PlayerWalkBackState"
 
 
 # The priority order (aim > walk_back > idle > turn > run > walk)
-# Contract: only call this from physics_update() (polling context).
-# Input.is_action_pressed() and Input.get_axis() are safe there.
-# Do NOT call this from handle_input() (event-driven context).
+# Contract: do NOT call this from handle_input() (event-driven input callback context).
+# Inside _input()/_unhandled_input() callbacks, the docs require using event.is_action_pressed()
+# rather than Input.is_action_pressed() to query the current event's action state.
+# Calling from physics_update(), timer timeouts, or tween callbacks is safe.
+# Ref: docs/godot/classes/class_input.rst — is_action_pressed():
+# "During input handling (e.g. Node._input()), use InputEvent.is_action_pressed() instead
+# to query the action state of the current event."
 func try_exit() -> bool:
 	var new_state_name: StringName
 

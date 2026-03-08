@@ -18,6 +18,12 @@ var cursor: Node2D
 var is_active: bool = false:
 	set(value):
 		is_active = value
+		# PROCESS_MODE_INHERIT resolves to PROCESS_MODE_ALWAYS via PageRouter (the ancestor).
+		# If PageRouter's process_mode ever changes, this node will silently stop receiving input.
+		# Ref: docs/godot/classes/class_node.rst — PROCESS_MODE_INHERIT:
+		# "Inherits process_mode from the node's parent."
+		# Ref: docs/godot/classes/class_node.rst — PROCESS_MODE_ALWAYS:
+		# "Always process. Keeps processing, ignoring SceneTree.paused."
 		process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
 		visible = is_active
 

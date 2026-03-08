@@ -38,3 +38,9 @@ func _assign_children_properties() -> void:
 
 func _on_animated_sprite_2d_animation_finished() -> void: # Connected via engine GUI (one shot).
 	queue_free()
+
+
+func _on_animated_sprite_2d_animation_looped() -> void: # Connected via engine GUI (one shot).
+	# This is here in case user forgets to make animation non looping. So it does not leak.
+	# Since this node does not support looping animation, its meant to play once only.
+	queue_free()

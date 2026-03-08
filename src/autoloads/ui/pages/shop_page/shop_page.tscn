@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cway7q4eylais"]
+
+[ext_resource type="Script" uid="uid://cu2u7k42xjc4s" path="res://src/autoloads/ui/pages/shop_page/shop_page.gd" id="1_rvccl"]
+[ext_resource type="Texture2D" uid="uid://bcp1nv1ovap4f" path="res://assets/textures/ui/shop_page/shop_page.png" id="1_y8cwp"]
+[ext_resource type="PackedScene" uid="uid://cjn50xx4pdpow" path="res://src/autoloads/ui/scroll_list/scroll_list.tscn" id="3_obsin"]
+[ext_resource type="PackedScene" uid="uid://hx1tr3n4te4u" path="res://src/autoloads/ui/pages/shop_page/shop_page_cursor.tscn" id="4_m1pv5"]
+
+[node name="ShopPage" type="Sprite2D" unique_id=676480246]
+texture = ExtResource("1_y8cwp")
+centered = false
+script = ExtResource("1_rvccl")
+
+[node name="ScrollList" parent="." unique_id=746833403 instance=ExtResource("3_obsin")]
+position = Vector2(61, 58)
+cursor_scene = ExtResource("4_m1pv5")
+
+[connection signal="item_selected" from="ScrollList" to="." method="_on_scroll_list_item_selected"]
