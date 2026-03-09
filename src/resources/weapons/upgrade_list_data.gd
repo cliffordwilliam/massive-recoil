@@ -42,3 +42,22 @@ func get_cost() -> int:
 	if not Utils.require(current != null, "UpgradeListData: I cannot be empty"):
 		return 0
 	return current.cost
+
+
+func get_next_index() -> int:
+	return index + 1
+
+
+func get_next_cost() -> int:
+	var next: int = index + 1
+	if next >= items.size():
+		return 0
+	return items[next].cost
+
+
+func is_maxed() -> bool:
+	return index >= items.size() - 1
+
+
+func advance() -> void:
+	index += 1

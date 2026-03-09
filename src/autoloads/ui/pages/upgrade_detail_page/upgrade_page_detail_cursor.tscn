@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://653xwcd5cig2"]
+
+[ext_resource type="Texture2D" uid="uid://dc0qtl0m5kcdj" path="res://assets/textures/ui/upgrade_page/upgrade_page_cursor.png" id="1_tsw7p"]
+
+[node name="UpgradePageCursor" type="Sprite2D" unique_id=1536014440]
+texture = ExtResource("1_tsw7p")
+centered = false

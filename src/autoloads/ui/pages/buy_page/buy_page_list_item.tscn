@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://bg3w5s0syb7ms"]
 
 [ext_resource type="Script" uid="uid://5s5e5yn4fwc3" path="res://src/autoloads/ui/pages/buy_page/buy_page_list_item.gd" id="2_78l45"]
-[ext_resource type="Texture2D" uid="uid://c7ehe60fxnep5" path="res://assets/textures/ui/buy_page/buy_page_new_tag.png" id="3_jqt1s"]
-[ext_resource type="Texture2D" uid="uid://c048feobhlfxf" path="res://assets/textures/ui/buy_page/buy_page_out_tag.png" id="4_mffqb"]
+[ext_resource type="Texture2D" uid="uid://c7ehe60fxnep5" path="res://assets/textures/ui/shared/new_tag.png" id="3_jqt1s"]
+[ext_resource type="Texture2D" uid="uid://c048feobhlfxf" path="res://assets/textures/ui/shared/out_tag.png" id="4_mffqb"]
 
 [node name="BuyPageListItem" type="Sprite2D" unique_id=758071222]
 centered = false

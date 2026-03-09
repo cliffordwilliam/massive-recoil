@@ -12,6 +12,9 @@ var current_page: BasePage = null
 @onready var inventory_page: InventoryPage = $InventoryPage
 @onready var buy_page: BuyPage = $BuyPage
 @onready var shop_page: ShopPage = $ShopPage
+@onready var upgrade_page: UpgradePage = $UpgradePage
+@onready var handgun_upgrade_page: HandgunUpgradePage = $HandgunUpgradePage
+@onready var rifle_upgrade_page: RifleUpgradePage = $RifleUpgradePage
 
 
 func _ready() -> void:
@@ -36,6 +39,18 @@ func open_shop_page() -> bool:
 
 func open_buy_page() -> bool:
 	return _open_page(buy_page)
+
+
+func open_upgrade_page() -> bool:
+	return _open_page(upgrade_page)
+
+
+func open_handgun_upgrade_page() -> bool:
+	return _open_page(handgun_upgrade_page)
+
+
+func open_rifle_upgrade_page() -> bool:
+	return _open_page(rifle_upgrade_page)
 
 
 func close_page() -> bool:

@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cu2ilugk8n5wn"]
+
+[ext_resource type="Script" uid="uid://btr3neuad4wt" path="res://src/autoloads/ui/pages/upgrade_page/upgrade_page_list_item.gd" id="1_87urb"]
+
+[node name="UpgradePageListItem" type="Sprite2D" unique_id=1536014440]
+centered = false
+script = ExtResource("1_87urb")

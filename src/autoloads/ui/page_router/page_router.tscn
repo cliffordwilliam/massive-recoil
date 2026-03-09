@@ -4,6 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://cenchx8ug57g2" path="res://src/autoloads/ui/pages/inventory_page/inventory_page.tscn" id="2_mr2wf"]
 [ext_resource type="PackedScene" uid="uid://euoup28876nb" path="res://src/autoloads/ui/pages/buy_page/buy_page.tscn" id="3_05e4a"]
 [ext_resource type="PackedScene" uid="uid://cway7q4eylais" path="res://src/autoloads/ui/pages/shop_page/shop_page.tscn" id="4_b3hod"]
+[ext_resource type="PackedScene" uid="uid://cn3mhvjvlqm3x" path="res://src/autoloads/ui/pages/upgrade_page/upgrade_page.tscn" id="5_rpha6"]
+[ext_resource type="PackedScene" uid="uid://2k75afy7ap3j" path="res://src/autoloads/ui/pages/upgrade_detail_page/handgun_upgrade_page/handgun_upgrade_page.tscn" id="6_uw7oy"]
+[ext_resource type="PackedScene" uid="uid://c43n6nnw325xj" path="res://src/autoloads/ui/pages/upgrade_detail_page/rifle_upgrade_page/rifle_upgrade_page.tscn" id="7_mcdfm"]
 
 [node name="PageRouter" type="CanvasLayer" unique_id=1385969563]
 visible = false
@@ -14,3 +17,9 @@ script = ExtResource("1_wpstq")
 [node name="BuyPage" parent="." unique_id=319899825 instance=ExtResource("3_05e4a")]
 
 [node name="ShopPage" parent="." unique_id=676480246 instance=ExtResource("4_b3hod")]
+
+[node name="UpgradePage" parent="." unique_id=521302652 instance=ExtResource("5_rpha6")]
+
+[node name="HandgunUpgradePage" parent="." unique_id=1703598087 instance=ExtResource("6_uw7oy")]
+
+[node name="RifleUpgradePage" parent="." unique_id=1190345791 instance=ExtResource("7_mcdfm")]

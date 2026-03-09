@@ -1,8 +1,8 @@
 # massive-recoil
 
 ## TODO
+- Clean up codebase, gd and tscn, use LLM to check if tscn are all uniform
 - Make ammo drops
-- Weapon upgrade props are ready, but missing FE interface (just show buttons to upgrade any props)
 - Switch room
 - Add new prop so weapons/upgrades can be hidden from shop (reveal on certain events)
 - Save point

@@ -24,6 +24,7 @@ extends Resource
 @export var description_sprite: Texture2D
 @export var buy_page_list_item_scene: PackedScene
 @export var inv_page_list_item_scene: PackedScene
+@export var upg_page_list_item_scene: PackedScene
 @export var price: int
 @export var magazine_size: UpgradeListData
 @export var reload_speed: UpgradeListData

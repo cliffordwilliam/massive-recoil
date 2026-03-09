@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://c7aqctua8g13s"]
+
+[ext_resource type="Script" uid="uid://1k4oa7opfg6t" path="res://src/autoloads/ui/pages/upgrade_detail_page/upgrade_detail_page_list_item.gd" id="1_yxad7"]
+[ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://src/autoloads/ui/number_display/number_display.tscn" id="2_53dsq"]
+
+[node name="UpgradeDetailPageItemList" type="Sprite2D" unique_id=1404814668]
+centered = false
+script = ExtResource("1_yxad7")
+
+[node name="Index" parent="." unique_id=1731197946 instance=ExtResource("2_53dsq")]
+position = Vector2(90, 5)
+
+[node name="Cost" parent="." unique_id=954610571 instance=ExtResource("2_53dsq")]
+position = Vector2(170, 5)
+right_aligned = true

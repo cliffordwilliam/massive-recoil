@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dg6syku8fq7ig" path="res://assets/textures/ui/shop_page/shop_page_sell_list_item.png" id="1_odmbm"]
 [ext_resource type="Script" uid="uid://bodvyfxo8uxxb" path="res://src/autoloads/ui/pages/shop_page/shop_page_list_item.gd" id="2_1ck8v"]
 
-[node name="ShopPageCursor" type="Sprite2D" unique_id=909573912]
+[node name="ShopPageSellListItem" type="Sprite2D" unique_id=909573912]
 texture = ExtResource("1_odmbm")
 centered = false
 script = ExtResource("2_1ck8v")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://pmadodqocwuj"
-path="res://.godot/imported/rifle_description.png-1151580e16261761c61060c6e9147533.ctex"
+uid="uid://yhccn118fmrk"
+path="res://.godot/imported/upgrade_page_rifle_list_item.png-ea4ec5a4f94e6aecfd0b0321bbaf9109.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/ui/buy_page/rifle_description.png"
-dest_files=["res://.godot/imported/rifle_description.png-1151580e16261761c61060c6e9147533.ctex"]
+source_file="res://assets/textures/ui/upgrade_page/upgrade_page_rifle_list_item.png"
+dest_files=["res://.godot/imported/upgrade_page_rifle_list_item.png-ea4ec5a4f94e6aecfd0b0321bbaf9109.ctex"]
 
 [params]
 

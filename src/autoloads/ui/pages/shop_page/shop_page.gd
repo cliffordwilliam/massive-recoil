@@ -45,6 +45,6 @@ func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engi
 	elif id == BUY_ID:
 		PageRouter.open_buy_page()
 	elif id == UPGRADE_ID:
-		pass # TODO: Make upgrade page
+		PageRouter.open_upgrade_page()
 	elif id == CANCEL_ID:
 		PageRouter.close_page()

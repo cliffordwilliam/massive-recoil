@@ -1,0 +1,63 @@
+# Shows owned weapons and money. Player can browse and pick one weapon to upgrade.
+class_name UpgradePage
+extends BasePage
+
+@onready var money: NumberDisplay = $Money
+@onready var icon: Sprite2D = $Icon
+@onready var scroll_list: ScrollList = $ScrollList
+@onready var description: Sprite2D = $Description
+@onready var damage: UpgradeTrackDisplay = $Damage
+@onready var fire_rate: UpgradeTrackDisplay = $FireRate
+@onready var reload_speed: UpgradeTrackDisplay = $ReloadSpeed
+@onready var magazine_size: UpgradeTrackDisplay = $MagazineSize
+
+
+func _hydrate_ui() -> void:
+	money.display_number(GameState.get_money_count())
+	# Pages regenerate all list items every open.
+	# This is Acceptable since game has small item counts (less than 20).
+	scroll_list.set_items(_get_owned_weapons_list_item())
+
+
+func _get_owned_weapons_list_item() -> Array[ListItem]:
+	# Array.map() always returns an untyped Array regardless of the callable's return type,
+	# so it cannot be passed to ScrollList.set_items(Array[ListItem]) without a type error.
+	# Docs: docs/godot/classes/class_array.rst — "Array map(method: Callable) const"
+	# Build a typed Array[ListItem] manually instead.
+	var result: Array[ListItem] = []
+	for weapon: WeaponData in GameState.get_owned_weapons():
+		result.append(_create_list_item(weapon))
+	return result
+
+
+func _create_list_item(weapon_data: WeaponData) -> UpgradePageListItem:
+	var item: UpgradePageListItem = weapon_data.upg_page_list_item_scene.instantiate()
+	item.set_id(weapon_data.id)
+	# TODO: Show new if there are new upgrade options
+	return item
+
+
+func _on_scroll_list_render_updated(id: StringName) -> void: # Connected via engine GUI.
+	if GameState.weapon_exists(id):
+		icon.texture = GameState.get_weapon_icon_by_id(id)
+		description.texture = GameState.get_weapon_description_by_id(id)
+		var weapon: WeaponData = GameState.get_weapon_by_id(id)
+		if weapon:
+			damage.display_track(weapon.damage)
+			fire_rate.display_track(weapon.fire_rate)
+			reload_speed.display_track(weapon.reload_speed)
+			magazine_size.display_track(weapon.magazine_size)
+		else:
+			damage.clear_previous_slots()
+			fire_rate.clear_previous_slots()
+			reload_speed.clear_previous_slots()
+			magazine_size.clear_previous_slots()
+	else:
+		push_warning("BuyPage: weapon does not exist")
+
+
+func _on_scroll_list_item_selected(id: StringName) -> void: # Connected via engine GUI.
+	if id == GameState.HANDGUN_ID:
+		PageRouter.open_handgun_upgrade_page()
+	elif id == GameState.RIFLE_ID:
+		PageRouter.open_rifle_upgrade_page()

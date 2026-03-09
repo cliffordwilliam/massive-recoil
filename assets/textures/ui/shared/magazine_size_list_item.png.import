@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7ehe60fxnep5"
-path="res://.godot/imported/buy_page_new_tag.png-ae698045724851337ddf1a5f271daf68.ctex"
+uid="uid://bv0apbufkird4"
+path="res://.godot/imported/magazine_size_list_item.png-e4cef7cf1c754b73ba2ebc8b50ed80b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/textures/ui/buy_page/buy_page_new_tag.png"
-dest_files=["res://.godot/imported/buy_page_new_tag.png-ae698045724851337ddf1a5f271daf68.ctex"]
+source_file="res://assets/textures/ui/shared/magazine_size_list_item.png"
+dest_files=["res://.godot/imported/magazine_size_list_item.png-e4cef7cf1c754b73ba2ebc8b50ed80b5.ctex"]
 
 [params]
 

@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://c43n6nnw325xj"]
+
+[ext_resource type="Texture2D" uid="uid://dqb7slgaat5xk" path="res://assets/textures/ui/rifle_upgrade_page/rifle_upgrade_page.png" id="1_b2y64"]
+[ext_resource type="Script" uid="uid://v4j4o3i1j348" path="res://src/autoloads/ui/pages/upgrade_detail_page/rifle_upgrade_page/rifle_upgrade_page.gd" id="2_buwh7"]
+[ext_resource type="PackedScene" uid="uid://db7dgie868s33" path="res://src/autoloads/ui/number_display/number_display.tscn" id="3_butnf"]
+[ext_resource type="PackedScene" uid="uid://cjn50xx4pdpow" path="res://src/autoloads/ui/scroll_list/scroll_list.tscn" id="4_ajt3n"]
+[ext_resource type="PackedScene" uid="uid://653xwcd5cig2" path="res://src/autoloads/ui/pages/upgrade_detail_page/upgrade_page_detail_cursor.tscn" id="5_b2y64"]
+[ext_resource type="PackedScene" uid="uid://s5lv6octjmqh" path="res://src/autoloads/ui/upgrade_track_display/upgrade_track_display.tscn" id="6_xgtyn"]
+
+[node name="RifleUpgradePage" type="Sprite2D" unique_id=1703598087]
+texture = ExtResource("1_b2y64")
+centered = false
+script = ExtResource("2_buwh7")
+
+[node name="Money" parent="." unique_id=1731197946 instance=ExtResource("3_butnf")]
+position = Vector2(294, 14)
+right_aligned = true
+digits = 8
+
+[node name="ScrollList" parent="." unique_id=746833403 instance=ExtResource("4_ajt3n")]
+position = Vector2(111, 33)
+cursor_scene = ExtResource("5_b2y64")
+
+[node name="Damage" parent="." unique_id=1417721199 instance=ExtResource("6_xgtyn")]
+position = Vector2(15, 99)
+
+[node name="FireRate" parent="." unique_id=170789506 instance=ExtResource("6_xgtyn")]
+position = Vector2(15, 120)
+
+[node name="ReloadSpeed" parent="." unique_id=217018174 instance=ExtResource("6_xgtyn")]
+position = Vector2(15, 140)
+
+[node name="MagazineSize" parent="." unique_id=1474452223 instance=ExtResource("6_xgtyn")]
+position = Vector2(15, 160)
+
+[connection signal="item_selected" from="ScrollList" to="." method="_on_scroll_list_item_selected"]

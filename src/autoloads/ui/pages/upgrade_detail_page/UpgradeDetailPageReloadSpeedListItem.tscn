@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://ba5kg1c1n162s"]
+
+[ext_resource type="PackedScene" uid="uid://c7aqctua8g13s" path="res://src/autoloads/ui/pages/upgrade_detail_page/UpgradeDetailPageItemList.tscn" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://6treh3aoi1sa" path="res://assets/textures/ui/shared/reload_speed_list_item.png" id="2_53dsq"]
+
+[node name="UpgradeDetailPageReloadSpeedListItem" unique_id=1404814668 instance=ExtResource("1_base")]
+texture = ExtResource("2_53dsq")

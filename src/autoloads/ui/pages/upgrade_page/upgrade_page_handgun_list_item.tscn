@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cdykkyoq5pdqj"]
+
+[ext_resource type="PackedScene" uid="uid://cu2ilugk8n5wn" path="res://src/autoloads/ui/pages/upgrade_page/upgrade_page_list_item.tscn" id="1_8ejtg"]
+[ext_resource type="Texture2D" uid="uid://j2j1282upgc0" path="res://assets/textures/ui/upgrade_page/upgrade_page_handgun_list_item.png" id="2_5c21e"]
+
+[node name="UpgradePageHandgunListItem" unique_id=1536014440 instance=ExtResource("1_8ejtg")]
+texture = ExtResource("2_5c21e")

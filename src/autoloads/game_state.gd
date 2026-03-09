@@ -24,7 +24,7 @@ const HANDGUN_ID: StringName = &"handgun"
 const RIFLE_ID: StringName = &"rifle"
 
 # Player.
-var money: int = 0
+var money: int = 99999999
 var equipped_weapon: WeaponData = null
 var equipped_weapon_id: StringName = &"":
 	set(value):
@@ -155,6 +155,58 @@ func pick_up_a_weapon_by_id(id: StringName) -> void:
 	# A weapon picked up from loot would have was_bought true, so it does not show "new" tag.
 	# This is intended. If it was picked up once, then its not new in store anymore to the player.
 	weapons[id].mark_as_owned()
+
+
+func try_to_buy_a_weapon_damage_upgrade_by_id(id: StringName) -> bool:
+	if not weapon_exists(id):
+		return false
+	var weapon: WeaponData = weapons[id]
+	if weapon.damage.is_maxed():
+		return false
+	if money >= weapon.damage.get_next_cost():
+		money -= weapon.damage.get_next_cost()
+		weapon.damage.advance()
+		return true
+	return false
+
+
+func try_to_buy_a_weapon_fire_rate_upgrade_by_id(id: StringName) -> bool:
+	if not weapon_exists(id):
+		return false
+	var weapon: WeaponData = weapons[id]
+	if weapon.fire_rate.is_maxed():
+		return false
+	if money >= weapon.fire_rate.get_next_cost():
+		money -= weapon.fire_rate.get_next_cost()
+		weapon.fire_rate.advance()
+		return true
+	return false
+
+
+func try_to_buy_a_weapon_reload_speed_upgrade_by_id(id: StringName) -> bool:
+	if not weapon_exists(id):
+		return false
+	var weapon: WeaponData = weapons[id]
+	if weapon.reload_speed.is_maxed():
+		return false
+	if money >= weapon.reload_speed.get_next_cost():
+		money -= weapon.reload_speed.get_next_cost()
+		weapon.reload_speed.advance()
+		return true
+	return false
+
+
+func try_to_buy_a_weapon_magazine_size_upgrade_by_id(id: StringName) -> bool:
+	if not weapon_exists(id):
+		return false
+	var weapon: WeaponData = weapons[id]
+	if weapon.magazine_size.is_maxed():
+		return false
+	if money >= weapon.magazine_size.get_next_cost():
+		money -= weapon.magazine_size.get_next_cost()
+		weapon.magazine_size.advance()
+		return true
+	return false
 
 
 func try_to_buy_a_weapon_by_id(id: StringName) -> bool:
