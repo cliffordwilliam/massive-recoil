@@ -1,6 +1,7 @@
 # massive-recoil
 
 ## TODO
+- Think about making dynamic UI render with new text display, this is tedious! Refactor!
 - Clean up codebase, gd and tscn, use LLM to check if tscn are all uniform
 - Make ammo drops
 - Switch room
