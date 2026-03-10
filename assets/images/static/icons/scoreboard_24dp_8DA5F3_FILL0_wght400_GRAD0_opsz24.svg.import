@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbdlm2i6e6727"
-path="res://.godot/imported/greybox_background.png-1fe6f3d7423d41644cf0567498db63fd.ctex"
+uid="uid://dy6e2m7k11w3v"
+path="res://.godot/imported/scoreboard_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg-ce48464f50c1bed185c1de9e22322924.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/images/static/greybox_background.png"
-dest_files=["res://.godot/imported/greybox_background.png-1fe6f3d7423d41644cf0567498db63fd.ctex"]
+source_file="res://assets/images/static/icons/scoreboard_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg"
+dest_files=["res://.godot/imported/scoreboard_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg-ce48464f50c1bed185c1de9e22322924.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

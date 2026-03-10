@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://chvkegpbdwnss"]
-
-[ext_resource type="Script" uid="uid://cb8yjpsvogds2" path="res://src/entities/ui/sprite_number/sprite_number.gd" id="1_lp6in"]
-
-[node name="SpriteNumber" type="Node2D" unique_id=478094572]
-script = ExtResource("1_lp6in")

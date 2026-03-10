@@ -33,3 +33,8 @@ Once installed, you can use it as follows. This setup has also been added to the
 gdformat file.gd
 gdlint file.gd
 ```
+
+## Icons
+
+Scenes use custom icons from [Material Design Icons](https://fonts.google.com/icons)
+with the color `#8da5f3`.
