@@ -38,3 +38,10 @@ gdlint file.gd
 
 Scenes use custom icons from [Material Design Icons](https://fonts.google.com/icons)
 with the color `#8da5f3`.
+
+
+## Fonts
+
+Monogram by datagoblin
+https://datagoblin.itch.io/monogram
+License: CC0 1.0 Universal (Public Domain)
