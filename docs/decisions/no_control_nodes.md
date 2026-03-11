@@ -1,50 +1,63 @@
-# Godot UI Nodes: Minimal Control Node Policy
+# Godot UI Nodes: Limited Control Node Policy
 
 ## Decision
 
 This project **avoids using most `Control` nodes** for UI and in-game overlays.
-All UI visuals and numbers are primarily rendered using `Sprite2D` nodes with custom logic.
+UI visuals are primarily rendered using `Sprite2D` nodes with custom logic.
 
-The **only permitted exception is the `Label` node**.
+However, **non-interactive `Control` nodes that act purely as rendering utilities are allowed**.
 
-`Label` may be used for simple text rendering because it does not introduce complex styling systems or interactive behavior.
+Examples of acceptable `Control` nodes include:
+
+* `Label`
+* `NinePatchRect`
+* Other **non-interactive display nodes**
+
+Interactive UI widgets such as buttons, scroll containers, and similar controls **must not be used**.
 
 ## Context
 
-* Most `Control` nodes provide layout, styling, and input logic intended for traditional UI workflows.
-* These systems introduce behaviors that can conflict with pixel-perfect rendering, including:
+Most `Control` nodes are designed for traditional application-style UI. They include built-in systems such as:
 
-  * Automatic anchoring and container layout.
-  * Theme-driven styling.
-  * Built-in mouse and focus behavior.
-* Interactive controls such as `Button`, `CheckBox`, `OptionButton`, and similar nodes bring additional visual and behavioral assumptions that are undesirable for a custom-styled game UI.
+* Automatic anchoring and layout behavior
+* Container-based layout systems
+* Theme-driven styling
+* Built-in mouse, focus, and navigation behavior
 
-However, the `Label` node is an acceptable exception because:
+While these features are useful for general UI development, they can conflict with **pixel-perfect rendering** and **custom-styled game interfaces**.
 
-* It is **lightweight and focused solely on text rendering**.
-* It **does not enforce interactive behavior** like buttons or selectors.
-* It **does not impose significant theme or style constraints** when used with a custom font.
-* It simplifies text rendering compared to building a full custom glyph system.
+Interactive controls such as:
 
-Because of this, `Label` provides a practical balance between **engine convenience and rendering control**.
+* `Button`
+* `CheckBox`
+* `OptionButton`
+* `ScrollContainer`
+* `ItemList`
+* Other complex widgets
+
+introduce visual assumptions and interaction behaviors that are undesirable for this project.
+
+However, some `Control` nodes function primarily as **simple rendering helpers** without significant behavioral overhead. Nodes like `Label` and `NinePatchRect` provide useful functionality while still allowing the project to maintain full visual control.
+
+Allowing these limited cases provides practical engine conveniences without adopting the full Control UI system.
 
 ## Consequences
 
-* Most UI elements will require **manual positioning and sizing logic** using `Sprite2D` nodes.
-* Interactive UI components must be implemented with **custom logic rather than built-in Control widgets**.
-* Text rendering may use `Label` nodes where appropriate.
-* Visual style and pixel fidelity remain fully under project control.
+* Most UI elements will use **`Sprite2D` nodes with custom logic**.
+* Interactive UI behavior must be implemented manually rather than using built-in widgets.
+* Some **passive rendering `Control` nodes** may be used when they simplify implementation.
+* Pixel-perfect rendering and stylistic consistency remain under project control.
 
 ## Alternatives Considered
 
-* **Using Control nodes for all UI:**
-  Rejected due to styling conflicts, built-in interaction behavior, and reduced visual control.
+**Using Control nodes for all UI**
+Rejected due to styling conflicts, built-in behaviors, and reduced visual control.
 
-* **Using only Sprite2D for everything (including text):**
-  Considered but rejected due to increased complexity for text rendering.
+**Using only `Sprite2D` nodes for everything**
+Considered but rejected because some rendering utilities (such as text and nine-patch scaling) are unnecessarily complex to reimplement.
 
-* **Hybrid approach with many Control nodes:**
-  Rejected to avoid mixing layout systems and to maintain visual consistency.
+**Hybrid approach using many Control nodes**
+Rejected to avoid reliance on container layout systems and complex UI behaviors.
 
-* **Allowing only `Label` from the Control system:**
-  Accepted as a minimal and practical compromise.
+**Allowing only `Label`**
+Initially considered, but expanded to allow other **non-interactive rendering Controls** such as `NinePatchRect`.
