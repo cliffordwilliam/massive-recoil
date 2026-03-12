@@ -1,3 +1,6 @@
+@icon("res://assets/images/static/icons/shopping_bag_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg")
+class_name UIShopItem
+extends Node2D
 ## UI element representing a single item entry in shop-related lists.
 ##
 ## This component is used to display items in **buy**, **sell**, and **upgrade**
@@ -16,9 +19,6 @@
 ## - `Tag` (`Sprite2D`) – Displays status tags such as **NEW** or **SOLD OUT**.
 ##
 ## Each page type uses different combinations of these visual elements.
-@icon("res://assets/images/static/icons/shopping_bag_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg")
-class_name UIShopItem
-extends Node2D
 
 ## Tag states used to visually mark items.
 enum TagType {
@@ -27,8 +27,11 @@ enum TagType {
 	## Item is marked as newly available.
 	NEW,
 	## Item is unavailable or sold out.
-	SOLD_OUT
+	SOLD_OUT,
 }
+
+## Frame index used for the **NEW** tag.
+const _PREFIX_TEXT: String = "X"
 
 ## Frame index used for the **NEW** tag.
 const _TAG_FRAME_NEW: int = 0
@@ -68,12 +71,12 @@ func _sanitize_title(text: String) -> String:
 
 ## Clamps a numeric value so it stays within the allowed range.
 func _sanitize_value(number: int) -> int:
-	return clamp(number, 0, _MAX_VALUE)
+	return clampi(number, 0, _MAX_VALUE)
 
 
 ## Clamps a price so it stays within the allowed price range.
 func _sanitize_price(number: int) -> int:
-	return clamp(number, 0, _MAX_PRICE)
+	return clampi(number, 0, _MAX_PRICE)
 
 
 ## Sets the visual tag state for the item.
@@ -126,7 +129,7 @@ func setup_buy(given_name: String, price_value: int, is_new: bool, sold_out: boo
 ## - `price_value` is the sell price.
 func setup_sell(given_name: String, count: int, price_value: int) -> void:
 	title.text = _sanitize_title(given_name)
-	prefix.text = "X"
+	prefix.text = _PREFIX_TEXT
 	value.text = str(_sanitize_value(count))
 	price.text = str(_sanitize_price(price_value))
 

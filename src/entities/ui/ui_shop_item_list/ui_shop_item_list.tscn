@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://6fiof8kokbi4"]
+
+[ext_resource type="Script" uid="uid://dn22d8s4igl7l" path="res://src/entities/ui/ui_shop_item_list/ui_shop_item_list.gd" id="1_2bcmr"]
+[ext_resource type="PackedScene" uid="uid://tp5vjtbnbywt" path="res://src/entities/ui/ui_shop_item/ui_shop_item.tscn" id="2_oax86"]
+[ext_resource type="Texture2D" uid="uid://biqsew4payo87" path="res://assets/images/static/ui/ui_container.png" id="3_oax86"]
+
+[node name="UIShopItemList" type="Node2D" unique_id=819571343]
+script = ExtResource("1_2bcmr")
+
+[node name="ItemContainer" type="NinePatchRect" parent="." unique_id=1449728882]
+offset_left = -3.0
+offset_top = -3.0
+offset_right = 181.0
+offset_bottom = 92.0
+texture = ExtResource("3_oax86")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="UIShopItem1" parent="ItemContainer" unique_id=1772759656 instance=ExtResource("2_oax86")]
+position = Vector2(3, 3)
+
+[node name="UIShopItem2" parent="ItemContainer" unique_id=359452103 instance=ExtResource("2_oax86")]
+position = Vector2(3, 21)
+
+[node name="UIShopItem3" parent="ItemContainer" unique_id=1442470158 instance=ExtResource("2_oax86")]
+position = Vector2(3, 39)
+
+[node name="UIShopItem4" parent="ItemContainer" unique_id=809074274 instance=ExtResource("2_oax86")]
+position = Vector2(3, 57)
+
+[node name="UIShopItem5" parent="ItemContainer" unique_id=263845038 instance=ExtResource("2_oax86")]
+position = Vector2(3, 75)
+
+[node name="ScrollbarContainer" type="NinePatchRect" parent="." unique_id=148142013]
+offset_left = 179.0
+offset_top = -3.0
+offset_right = 190.0
+offset_bottom = 92.0
+texture = ExtResource("3_oax86")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4

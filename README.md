@@ -16,6 +16,30 @@ Reusable prompts used during development are stored in `./prompts/`.
 The documentation evolves alongside the project. If something breaks or a better approach is
 discovered, the knowledge base is updated accordingly.
 
+## Project Structure
+
+The project follows a simple separation between **assets**, **data definitions**,
+**runtime state**, and **scene entities**.
+This helps keep gameplay logic, data, and rendering concerns isolated.
+
+```
+assets/     → art assets such as images and fonts
+docs/       → development notes and architectural decisions
+prompts/    → reusable prompts used during development
+src/        → game source code
+```
+
+Inside `src/` the codebase is organized into three main layers:
+
+```
+src/
+  editor/      → small editor utilities and tooling scripts
+  entities/    → scene objects (Node / Node2D) and gameplay UI (Node Objects)
+  resources/   → static data definitions (Resource scripts and .tres files) (data assets)
+  state/       → runtime gameplay state (RefCounted objects)
+  utils.gd     → shared helper functions
+```
+
 ## Formatter / Linter Setup
 
 This approach was chosen instead of using a Godot addon to avoid cluttering the project with extra
