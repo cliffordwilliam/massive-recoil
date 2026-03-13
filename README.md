@@ -33,9 +33,10 @@ Inside `src/` the codebase is organized into three main layers:
 
 ```
 src/
-  editor/      → small editor utilities and tooling scripts
+  autoload/    → global singletons registered in Project Settings
+  editor/      → editor utility scripts (run once, never shipped)
   entities/    → scene objects (Node / Node2D) and gameplay UI (Node Objects)
-  resources/   → static data definitions (Resource scripts and .tres files) (data assets)
+  resources/   → static data definitions (Resource scripts and generated .tres files)
   state/       → runtime gameplay state (RefCounted objects)
   utils.gd     → shared helper functions
 ```
@@ -69,3 +70,8 @@ with the color `#8da5f3`.
 Monogram by datagoblin
 https://datagoblin.itch.io/monogram
 License: CC0 1.0 Universal (Public Domain)
+
+## NOTES
+
+- [ ] Figure out a way to make upgrade resource management not painful,
+and making UI pages not painful too (making a new upgrade page was super painful back then)

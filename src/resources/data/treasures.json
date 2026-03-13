@@ -1,0 +1,22 @@
+{
+  "treasures": [
+	{
+	  "id": "ornate_pendant",
+	  "name": "Ornate Pendant",
+	  "sell_price": 4000,
+	  "description": "A finely crafted pendant with an empty gem socket."
+	},
+	{
+	  "id": "ruby_gem",
+	  "name": "Ruby Gem",
+	  "sell_price": 2500,
+	  "description": "A polished red gemstone."
+	},
+	{
+	  "id": "jeweled_pendant",
+	  "name": "Jeweled Pendant",
+	  "sell_price": 9000,
+	  "description": "An ornate pendant fitted with a brilliant ruby."
+	}
+  ]
+}

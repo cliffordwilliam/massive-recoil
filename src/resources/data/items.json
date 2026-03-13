@@ -1,0 +1,102 @@
+{
+  "items": [
+	{
+	  "id": "field_medkit",
+	  "name": "Field Medkit",
+	  "in_inventory": true,
+	  "size": {
+		"width": 2,
+		"height": 1
+	  },
+	  "sell_price": 2500,
+	  "buy_price": 5000,
+	  "stack_size": 1,
+	  "availability": 1,
+	  "description": "Restores full health. There are a limited number of these in the game. You get one at the start of the game and others are available from the Merchant as you progress."
+	},
+	{
+	  "id": "sterile_band",
+	  "name": "Sterile Band",
+	  "in_inventory": true,
+	  "size": {
+		"width": 2,
+		"height": 1
+	  },
+	  "sell_price": 300,
+	  "buy_price": 600,
+	  "stack_size": 5,
+	  "availability": 1,
+	  "description": "A clean bandage used to treat minor wounds. Restores a small amount of health."
+	},
+	{
+	  "id": "antiseptic",
+	  "name": "Antiseptic",
+	  "in_inventory": true,
+	  "size": {
+		"width": 1,
+		"height": 1
+	  },
+	  "sell_price": 400,
+	  "buy_price": 800,
+	  "stack_size": 5,
+	  "availability": 1,
+	  "description": "A small vial of antiseptic used to disinfect wounds. Can be combined with other medical supplies."
+	},
+	{
+	  "id": "treat_band",
+	  "name": "Treat Band",
+	  "in_inventory": true,
+	  "size": {
+		"width": 2,
+		"height": 1
+	  },
+	  "sell_price": 900,
+	  "buy_price": 1800,
+	  "stack_size": 3,
+	  "availability": 2,
+	  "description": "A sterile bandage treated with antiseptic. Restores a moderate amount of health."
+	},
+	{
+	  "id": "handgun_ammo",
+	  "name": "Handgun Ammo",
+	  "in_inventory": true,
+	  "size": {
+		"width": 2,
+		"height": 1
+	  },
+	  "sell_price": 50,
+	  "buy_price": 0,
+	  "stack_size": 50,
+	  "availability": 1,
+	  "description": "Standard handgun cartridges used by most sidearms."
+	},
+	{
+	  "id": "smg_ammo",
+	  "name": "SMG Ammo",
+	  "in_inventory": true,
+	  "size": {
+		"width": 2,
+		"height": 1
+	  },
+	  "sell_price": 20,
+	  "buy_price": 0,
+	  "stack_size": 100,
+	  "availability": 1,
+	  "description": "Lightweight cartridges designed for high-rate-of-fire submachine guns."
+	},
+	{
+	  "id": "pack_upgrade",
+	  "name": "Pack Upgrade",
+	  "in_inventory": false,
+	  "size": {
+		"width": 0,
+		"height": 0
+	  },
+	  "sell_price": 0,
+	  "buy_price": 30000,
+	  "stack_size": 1,
+	  "availability": 1,
+	  "description": "A reinforced expansion for your field pack that permanently increases inventory capacity."
+	}
+  ]
+}

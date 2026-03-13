@@ -1,0 +1,28 @@
+{
+  "keys": [
+	{
+	  "id": "maintenance_key",
+	  "name": "Maintenance Key",
+	  "location": "Inside a locker in the workshop",
+	  "description": "A worn key used by maintenance workers. It unlocks certain service doors."
+	},
+	{
+	  "id": "sun_emblem_fragment",
+	  "name": "Sun Emblem Fragment",
+	  "location": "Hidden behind a loose brick in the courtyard",
+	  "description": "A broken fragment of an emblem. It looks like it could fit with another piece."
+	},
+	{
+	  "id": "moon_emblem_fragment",
+	  "name": "Moon Emblem Fragment",
+	  "location": "Found inside an old well bucket",
+	  "description": "A curved fragment of an emblem. It appears incomplete."
+	},
+	{
+	  "id": "sun_moon_emblem",
+	  "name": "Sun & Moon Emblem",
+	  "location": null,
+	  "description": "Two fragments joined together to form a complete emblem."
+	}
+  ]
+}

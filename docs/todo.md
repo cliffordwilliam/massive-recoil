@@ -1,181 +1,299 @@
-# TODO
-- [ ] Figure out a way to make upgrade resource management not painful,
-and making UI pages not painful too (making a new upgrade page was super painful back then)
-- [ ] ...
+# Project TODO
 
-## Dummy Test Data
+## Data Layer
 
-**Simple Treasure (Static Price)**
+### Concrete `ShopItemData` subclasses
 
-```json
-{
-  "id": "blue_gem",
-  "name": "Blue Gem",
-  "category": "treasure",
-  "subcategory": "common",
-  "location": "",
-  "sell": [
-	{ "price": 1500, "condition": null }
-  ],
-  "attachments": null,
-  "note": null,
-  "part_of": null
-}
+* [x] Create **`BuySellItemData`**
+
+  * Overrides both `get_buy_price()` and `get_sell_price()`
+  * Used for:
+
+	* Medkit
+	* Bandages
+	* Antiseptic
+	* Treated bandage
+	* Weapons
+
+* [x] Create **`SellOnlyItemData`**
+
+  * Overrides only `get_sell_price()`
+  * Used for:
+
+	* Ammo
+
+* [x] Create **`BuyOnlyItemData`**
+
+  * Overrides only `get_buy_price()`
+  * Used for:
+
+	* Field pack upgrade
+
+---
+
+### ItemRegistry — load static data
+
+* [x] Load `items.json`
+
+  * Instantiate correct subclass depending on which price fields are present
+  * Done via `src/editor/generate_item_resources.gd` — run once to generate `.tres` files
+
+* [ ] Load `weapons.json`
+
+  * Instantiate `WeaponData` (`extends ItemData`)
+  * Includes upgrade trees
+
+* [ ] Load `treasures.json`
+
+  * Instantiate `TreasureData` (`extends ItemData`)
+
+* [ ] Load `keys.json`
+
+  * Instantiate `KeyData` (`extends ItemData`)
+
+* [ ] Load `recipes.json`
+
+  * Populate `RecipeRegistry`
+
+---
+
+## Runtime State
+
+### Weapon State
+
+* [ ] Create **`WeaponState`** (`extends RefCounted`)
+
+  * Holds reference to `WeaponData`
+  * Tracks upgrade levels:
+
+	* `power`
+	* `rate_of_fire`
+	* `reload_speed`
+	* `capacity`
+
+---
+
+### Inventory State
+
+* [ ] Create **`InventoryEntry`** (`extends RefCounted`)
+
+  * Holds:
+
+	* `ShopItemState` or `WeaponState`
+	* grid position `(x, y)`
+
+* [ ] Create **`InventoryGrid`** (`extends RefCounted`)
+
+  * Stores a **2D grid**
+  * Implement methods:
+
 ```
-
-**Complex Treasure (Variable Prices & Attachments)**
-
-```json
-{
-  "id": "mystic_mask",
-  "name": "Mystic Mask",
-  "category": "treasure",
-  "subcategory": "village",
-  "location": "Secret chamber near fountain",
-  "sell": [
-	{ "price": 2000, "condition": "(0 stones)" },
-	{ "price": 8000, "condition": "(1 stone)" },
-	{ "price": 12000, "condition": "(2 stones)" },
-	{ "price": 18000, "condition": "(3 stones)" }
-  ],
-  "attachments": ["Magic Stones"],
-  "note": null,
-  "part_of": null
-}
-```
-
-**Key (Combinable)**
-
-```json
-{
-  "id": "emerald_key_half",
-  "name": "Emerald Key (Left Half)",
-  "category": "keys",
-  "subcategory": "village",
-  "location": "Hidden under tower stairs",
-  "sell": null,
-  "attachments": null,
-  "note": null,
-  "part_of": "Emerald Key"
-}
+place(entry, x, y)
+remove(x, y)
+can_place(item, x, y)
+move(from, to)
 ```
 
 ---
 
-### 2️⃣ Consumables, Ammo, & Attache Cases
+### Key & Treasure Storage
 
-**Healing Item (Grid Size & Description)**
+* [ ] Create **`KeyState`**
 
-```json
-{
-  "id": "herb_mix_red_blue",
-  "name": "Herb Mix (R+B)",
-  "category": "healing",
-  "subcategory": "herb_mixed",
-  "size": { "width": 2, "height": 1 },
-  "sell_price": 7000,
-  "sell_price_per_unit": null,
-  "buy_price": null,
-  "box_size": null,
-  "ammo_for": null,
-  "availability": null,
-  "cost": null,
-  "description": "Combines a Red herb and a Blue herb to restore moderate health."
-}
+  * Holds reference to `KeyData`
+
+* [ ] Create **`TreasureState`**
+
+  * Holds reference to `TreasureData`
+  * Includes `count`
+
+* [ ] Create **`KeyRing`**
+
+  * `Array[KeyState]`
+  * Methods:
+
+	* `add`
+	* `remove`
+	* `has`
+
+* [ ] Create **`TreasurePouch`**
+
+  * `Array[TreasureState]`
+  * Methods:
+
+	* `add`
+	* `remove`
+
+---
+
+## Fix Existing Stubs
+
+* [ ] Fix **UPGRADE render mode** in
+  `ui_shop_item_list.gd:145`
+
+  * Pass real **upgrade level**
+  * Pass real **upgrade cost**
+  * Data should come from `WeaponState`
+
+---
+
+# UI
+
+## Inventory Grid
+
+* [ ] Create **`UIInventoryItem`**
+
+  * Renders a single item tile
+  * Size based on `width × height` grid cells
+
+* [ ] Create **`UIInventoryGrid`**
+
+  * Renders `InventoryGrid`
+  * Fixed cell size
+  * Displays items at their positions
+
+---
+
+### Inventory Interaction
+
+* [ ] Add **cursor / selection highlight**
+* [ ] Add **move action**
+
+Interaction flow:
+
 ```
-
-**Ammunition (Unit Pricing & Weapon Linking)**
-
-```json
-{
-  "id": "crossbow_bolts",
-  "name": "Crossbow Bolts",
-  "category": "ammo",
-  "subcategory": null,
-  "size": null,
-  "sell_price": null,
-  "sell_price_per_unit": 50,
-  "buy_price": null,
-  "box_size": 20,
-  "ammo_for": ["Crossbow", "Heavy Crossbow"],
-  "availability": null,
-  "cost": null,
-  "description": null
-}
-```
-
-**Attache Case Upgrade (System Upgrade)**
-
-```json
-{
-  "id": "attache_upgrade_l",
-  "name": "Attache Upgrade L",
-  "category": "attache_case",
-  "subcategory": null,
-  "size": { "width": 6, "height": 10 },
-  "sell_price": null,
-  "sell_price_per_unit": null,
-  "buy_price": null,
-  "box_size": null,
-  "ammo_for": null,
-  "availability": "chapter_2_1",
-  "cost": 25000,
-  "description": null
-}
+select item
+move cursor
+confirm
+reposition item
 ```
 
 ---
 
-### 3️⃣ Weapons
+# Recipe / Combination System
 
-**Upgradable Weapon**
+* [ ] Implement:
 
-```json
-{
-  "id": "blaster",
-  "name": "Blaster",
-  "upgrades": [
-	{
-	  "level": 1,
-	  "firepower": { "value": 3.5, "cost": 0 },
-	  "firing_speed": { "value": 1.5, "cost": 0 },
-	  "reload_speed": { "value": 3.0, "cost": 0 },
-	  "capacity": { "value": 6, "cost": 0 }
-	},
-	{
-	  "level": 2,
-	  "firepower": { "value": 4.0, "cost": 12000 },
-	  "firing_speed": null,
-	  "reload_speed": { "value": 2.5, "cost": 6000 },
-	  "capacity": { "value": 8, "cost": 7000 }
-	},
-	{
-	  "level": 5,
-	  "firepower": { "value": 7.0, "cost": 40000 },
-	  "firing_speed": null,
-	  "reload_speed": null,
-	  "capacity": { "value": 15, "cost": 18000 }
-	}
-  ]
-}
+```
+RecipeRegistry.find_recipe(id_a, id_b)
 ```
 
-**Static / Non-Upgradable Weapon**
+Requirements:
 
-```json
-{
-  "id": "mega_cannon",
-  "name": "Mega Cannon",
-  "upgrades": []
-}
+* Order-independent lookup
+* Returns recipe or `null`
+
+---
+
+### Combination Tests
+
+* [ ] `sterile_bandage + antiseptic_vial → treated_bandage`
+* [ ] `sun_emblem_fragment + moon_emblem_fragment → sun_moon_emblem`
+* [ ] `ornate_pendant + ruby_gem → jeweled_pendant`
+
+---
+
+# Test Scene
+
+Create a minimal playable sandbox to validate systems.
+
+---
+
+## Basic Input
+
+* [ ] Keyboard input:
+
+  * `up`
+  * `down`
+  * `left`
+  * `right`
+  * `confirm`
+
+---
+
+## Shop UI
+
+* [ ] Add **`UIShopItemList`** in **BUY mode**
+
+  * Populate from `ItemRegistry`
+  * Use mock `ShopItemState`
+  * Test **paging**
+
+* [ ] Add **SELL mode**
+
+  * Items with `count > 0`
+
+* [ ] Add **UPGRADE mode**
+
+  * Populate from `WeaponState`
+
+* [ ] Add **tab switching**
+
+  * BUY
+  * SELL
+  * UPGRADE
+
+---
+
+## Inventory Testing
+
+* [ ] Add **`UIInventoryGrid`** next to the shop
+* [ ] Test placing items of different sizes
+
+---
+
+## Economy
+
+* [ ] Add **currency counter**
+
+* [ ] Implement **BUY**
+
+  * Deduct currency
+  * Add item to inventory grid
+
+* [ ] Implement **SELL**
+
+  * Remove item from grid
+  * Add currency
+
+---
+
+## Combination
+
+* [ ] Add **combine action**
+
+Flow:
+
+```
+select item A
+select item B
+query RecipeRegistry
+if recipe exists:
+	remove ingredients
+	add result
 ```
 
 ---
 
-✅ These dummy items **preserve all the edge cases** you need:
+## Key & Treasure Display
 
-* Static vs variable sell prices
-* Combinable parts (`part_of`)
-* Nullable fields (`attachments`, `description`, `upgrades`)
-* Grid sizes, ammo box sizes, unit pricing
-* Upgrade trees with partially null values
+* [ ] Add **Key Ring UI**
+
+  * Populate from `KeyState`
+
+* [ ] Add **Treasure Pouch UI**
+
+  * Populate from `TreasureState`
+
+---
+
+# Final Goal
+
+A functional vertical slice including:
+
+* Merchant shop
+* Inventory grid
+* Weapon upgrades
+* Item combination
+* Keys & treasures
+* Buy / Sell loop

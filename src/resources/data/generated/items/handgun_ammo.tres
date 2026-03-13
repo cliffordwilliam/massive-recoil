@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BuySellItemData" format=3 uid="uid://c3cau2oeo6rpw"]
+
+[ext_resource type="Script" uid="uid://bbyvoni8tm1ie" path="res://src/resources/items/buy_sell_item_data.gd" id="1_k40uh"]
+
+[resource]
+script = ExtResource("1_k40uh")
+sell_price = 50
+inventory_size = Vector2i(2, 1)
+stack_size = 50
+id = &"handgun_ammo"
+display_name = "Handgun Ammo"
+description = "Standard handgun cartridges used by most sidearms."

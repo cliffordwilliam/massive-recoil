@@ -1,35 +1,35 @@
 class_name ShopItemState
 extends RefCounted
-## Runtime state for a shop item.
+## Runtime state for a shop item instance.
 ##
-## This object references a `ShopItemData` resource that describes the
-## item's static definition.
+## References a [ShopItemData] resource that defines the item's static data.
 ##
-## Conceptually this is similar to how a `Sprite2D` node references a
-## `Texture2D` resource:
+## Conceptually similar to how a [Sprite2D] node references a [Texture2D] resource:
 ##
-## - `Texture2D` contains immutable image data.
-## - `Sprite2D` holds mutable runtime state such as position and visibility.
+## - [Texture2D] contains immutable image data.
+## - [Sprite2D] holds mutable runtime state such as position and visibility.
 ##
-## In the same way:
+## Likewise:
 ##
-## - `ShopItemData` defines the static item template.
-## - `ShopItemState` stores mutable gameplay state such as quantity,
-##   upgrade level, and UI flags.
+## - [ShopItemData] defines the static item template.
+## - [ShopItemState] stores mutable gameplay state such as quantity and UI flags.
 
 ## Static template describing the item.
-var data: ShopItemData
+##
+## Must not be null. Assigning null indicates a logic error
+## and will trigger an error through `Utils.require`.
+var data: ShopItemData:
+	set(value):
+		if Utils.require(value != null, "ShopItemState: data cannot be null"):
+			data = value
 
-## Number of items owned (used for selling).
+## Number of items owned (used for selling and ammo stacks).
 var count: int = 0
-
-## Current upgrade level (used for upgradeable items).
-var level: int = 0
 
 ## Whether the item should display the **NEW** tag.
 var is_new: bool = false
 
-## Whether the item is sold out in the shop and if the item should display the **OUT** tag.
+## Whether the item is sold out and should display the **OUT** tag.
 var sold_out: bool = false
 
 

@@ -1,34 +1,45 @@
-@icon("res://assets/images/static/icons/apparel_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg")
 class_name ShopItemData
-extends Resource
-## Static definition for a shop item.
+extends ItemData
+## Base class for items that can appear in the merchant shop.
 ##
-## Think of this resource as a **database schema**, where each `.tres` file
-## represents a single row in the table.
+## The shop system supports several categories of items:
 ##
-## Each item has a unique `id` used for lookups and persistence.
+## | Item                          | Description                                                |
+## |-------------------------------|------------------------------------------------------------|
+## | Health potions                | Restore player health.                                     |
+## | Combinable health ingredients | Can only be sold. Can be combined to create other items.   |
+## | Weapon ammunition             | Stackable items used by weapons.                           |
+## | Inventory size upgrades       | Increase inventory capacity. Cannot be sold.               |
+## | Weapons                       | Unique items per gameplay session.                         |
+## | Weapon upgrades               | Upgrade nodes for weapons (power, etc). Cannot be sold.    |
+## | Simple treasures              | Can only be sold. Do not occupy inventory space.           |
+## | Complex treasures             | Similar to simple treasures but allow gem combinations.    |
 ##
-## The data stored here is **immutable design-time data**. It acts like a
-## lookup table describing what the item is, while runtime state (such as
-## quantity, upgrade level, or "new" flags) is stored separately.
+## Subclasses should override only the pricing methods relevant to their behavior.
+##
+## Returning `0` means the operation is not supported for the item.
+##
+## - Override [get_buy_price] if the merchant sells the item.
+## - Override [get_sell_price] if the player can sell the item.
 
-## Unique identifier used for save/load and lookups.
-@export var id: StringName
+## Grid size this item occupies in the inventory.
+## A size of `(0, 0)` means the item does not occupy any grid space.
+@export var inventory_size: Vector2i = Vector2i.ZERO
 
-## Display name shown in shop UI.
-@export var display_name: String
+## Maximum number of items that can be stacked in one inventory slot.
+@export var stack_size: int = 1
 
-## Whether this item can appear in the **buy page**.
-@export var can_buy: bool = false
+## Earliest chapter in which this item becomes available in the shop.
+@export var availability: int = 1
 
-## Whether this item can appear in the **sell page**.
-@export var can_sell: bool = false
 
-## Whether this item supports upgrades.
-@export var can_upgrade: bool = false
+## Returns the price to purchase this item from the merchant.
+## `0` means the item cannot be bought.
+func get_buy_price() -> int:
+	return 0
 
-## Price when purchasing the item.
-@export var buy_price: int = 0
 
-## Price received when selling the item.
-@export var sell_price: int = 0
+## Returns the price received when selling this item to the merchant.
+## `0` means the item cannot be sold.
+func get_sell_price() -> int:
+	return 0

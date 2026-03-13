@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BuySellItemData" format=3 uid="uid://dtmbpxfl6hxss"]
+
+[ext_resource type="Script" uid="uid://bbyvoni8tm1ie" path="res://src/resources/items/buy_sell_item_data.gd" id="1_uhbfo"]
+
+[resource]
+script = ExtResource("1_uhbfo")
+buy_price = 30000
+id = &"pack_upgrade"
+display_name = "Pack Upgrade"
+description = "A reinforced expansion for your field pack that permanently increases inventory capacity."

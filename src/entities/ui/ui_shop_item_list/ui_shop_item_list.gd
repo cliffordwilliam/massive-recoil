@@ -1,4 +1,3 @@
-@icon("res://assets/images/static/icons/shopping_cart_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg")
 class_name UIShopItemList
 extends Node2D
 ## Manages a paginated list of `UIShopItem` entries.
@@ -33,24 +32,22 @@ const _PAGE_SIZE: int = 5
 ##
 ## This determines which `UIShopItem` setup function will be called
 ## for visible entries.
-@export var _render_mode: RenderMode = RenderMode.BUY:
+@export var render_mode: RenderMode = RenderMode.BUY:
 	set(value):
-		if _render_mode == value:
+		if render_mode == value:
 			return
-		_render_mode = value
+		render_mode = value
 		_update_page()
 
 ## Internal list of items displayed by the shop list.
 ##
 ## The list stores generic data objects used by the renderer.
-## Each object is expected to expose the fields required by the
-## currently active `RenderMode`.
+## Each entry represents a [ShopItemState] instance used by the renderer.
 var _items: Array[ShopItemState] = []
 
 ## Current selected item index within `_items`.
 ##
-## Updating this value automatically clamps it to a valid range
-## and refreshes the visible page.
+## When updated, the value is clamped to a valid range
 var _current_index: int = 0:
 	set = set_current_index
 
@@ -66,6 +63,10 @@ var _current_index: int = 0:
 ]
 
 
+func _ready() -> void:
+	Utils.require(_entries.size() == _PAGE_SIZE, "Entry count must match _PAGE_SIZE")
+
+
 ## Sets the list of items displayed by this shop list.
 ##
 ## Resets the current index and refreshes the visible page.
@@ -75,7 +76,6 @@ var _current_index: int = 0:
 func set_items(new_items: Array[ShopItemState]) -> void:
 	_items = new_items
 	_current_index = 0
-	_update_page()
 
 
 ## Sets the currently selected item index.
@@ -120,6 +120,9 @@ func _get_page_start() -> int:
 ## Entries corresponding to valid item indices are rendered using
 ## the current `RenderMode`. Remaining slots are hidden.
 func _update_page() -> void:
+	if not is_node_ready():
+		return
+
 	var page_start: int = _get_page_start()
 
 	for local_slot: int in _PAGE_SIZE:
@@ -130,15 +133,17 @@ func _update_page() -> void:
 			var item: ShopItemState = _items[item_index]
 			var data: ShopItemData = item.data
 
-			match _render_mode:
+			match render_mode:
 				RenderMode.BUY:
-					entry.setup_buy(data.display_name, data.buy_price, item.is_new, item.sold_out)
+					entry.setup_buy(
+						data.display_name, data.get_buy_price(), item.is_new, item.sold_out
+					)
 
 				RenderMode.SELL:
-					entry.setup_sell(data.display_name, item.count, data.sell_price)
+					entry.setup_sell(data.display_name, item.count, data.get_sell_price())
 
 				RenderMode.UPGRADE:
-					entry.setup_upgrade(data.display_name, item.level, data.buy_price, item.is_new)
+					entry.setup_upgrade(data.display_name, 0, 0, item.is_new)
 
 			entry.show()
 		else:

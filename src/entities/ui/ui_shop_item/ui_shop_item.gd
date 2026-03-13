@@ -1,4 +1,3 @@
-@icon("res://assets/images/static/icons/shopping_bag_24dp_8DA5F3_FILL0_wght400_GRAD0_opsz24.svg")
 class_name UIShopItem
 extends Node2D
 ## UI element representing a single item entry in shop-related lists.
@@ -6,14 +5,14 @@ extends Node2D
 ## This component is used to display items in **buy**, **sell**, and **upgrade**
 ## menus. The same visual element adapts depending on the page configuration.
 ##
-## The item may represent:
+## Depending on the context, the item may represent:
 ## - Ammunition or items available for purchase.
 ## - Inventory items available for selling.
 ## - Equipment upgrades that can be bought.
 ##
 ## The node expects several child nodes to exist in the scene tree:
 ## - `Title` (`Label`) – Displays the item name.
-## - `X` (`Label`) – Displays the stack prefix when showing quantities.
+## - `Prefix` (`Label`) – Displays the stack prefix when showing quantities.
 ## - `Value` (`Label`) – Displays stack count or upgrade level.
 ## - `Price` (`Label`) – Displays the price value.
 ## - `Tag` (`Sprite2D`) – Displays status tags such as **NEW** or **SOLD OUT**.
@@ -30,7 +29,7 @@ enum TagType {
 	SOLD_OUT,
 }
 
-## Frame index used for the **NEW** tag.
+## Text content displayed in the prefix label for stacked items.
 const _PREFIX_TEXT: String = "X"
 
 ## Frame index used for the **NEW** tag.
@@ -49,32 +48,32 @@ const _MAX_VALUE: int = 999
 const _MAX_PRICE: int = 999999
 
 ## Label used to render the item title.
-@onready var title: Label = $Title
+@onready var _title: Label = $Title
 
 ## Optional label used to render the `"X"` prefix for stacked items.
-@onready var prefix: Label = $Prefix
+@onready var _prefix: Label = $Prefix
 
 ## Optional label used to render the stacked item amount or upgrade level.
-@onready var value: Label = $Value
+@onready var _value: Label = $Value
 
 ## Optional label used to render the item price.
-@onready var price: Label = $Price
+@onready var _price: Label = $Price
 
 ## Sprite used to display the item tag (NEW or SOLD OUT).
-@onready var tag: Sprite2D = $Tag
+@onready var _tag: Sprite2D = $Tag
 
 
-## Trims the provided title so it does not exceed the maximum length.
+## Trims the provided title so it does not exceed `_MAX_TITLE_LENGTH`.
 func _sanitize_title(text: String) -> String:
 	return text.substr(0, _MAX_TITLE_LENGTH)
 
 
-## Clamps a numeric value so it stays within the allowed range.
+## Clamps a numeric value to the allowed range for stack counts or levels.
 func _sanitize_value(number: int) -> int:
 	return clampi(number, 0, _MAX_VALUE)
 
 
-## Clamps a price so it stays within the allowed price range.
+## Clamps a price to the allowed range defined by `_MAX_PRICE`.
 func _sanitize_price(number: int) -> int:
 	return clampi(number, 0, _MAX_PRICE)
 
@@ -86,13 +85,13 @@ func _sanitize_price(number: int) -> int:
 func set_tag(type: TagType) -> void:
 	match type:
 		TagType.NONE:
-			tag.hide()
+			_tag.hide()
 		TagType.NEW:
-			tag.frame = _TAG_FRAME_NEW
-			tag.show()
+			_tag.frame = _TAG_FRAME_NEW
+			_tag.show()
 		TagType.SOLD_OUT:
-			tag.frame = _TAG_FRAME_SOLD_OUT
-			tag.show()
+			_tag.frame = _TAG_FRAME_SOLD_OUT
+			_tag.show()
 
 
 ## Configures the item to display information for the **buy page**.
@@ -105,11 +104,11 @@ func set_tag(type: TagType) -> void:
 ## - `is_new` determines if the item should display a **NEW** tag.
 ## - `sold_out` determines if the item should display a **SOLD OUT** tag.
 func setup_buy(given_name: String, price_value: int, is_new: bool, sold_out: bool) -> void:
-	title.text = _sanitize_title(given_name)
-	price.text = str(_sanitize_price(price_value))
+	_title.text = _sanitize_title(given_name)
+	_price.text = str(_sanitize_price(price_value))
 
-	prefix.hide()
-	value.hide()
+	_prefix.hide()
+	_value.hide()
 
 	if sold_out:
 		set_tag(TagType.SOLD_OUT)
@@ -128,13 +127,13 @@ func setup_buy(given_name: String, price_value: int, is_new: bool, sold_out: boo
 ## - `count` is the number of items in the stack.
 ## - `price_value` is the sell price.
 func setup_sell(given_name: String, count: int, price_value: int) -> void:
-	title.text = _sanitize_title(given_name)
-	prefix.text = _PREFIX_TEXT
-	value.text = str(_sanitize_value(count))
-	price.text = str(_sanitize_price(price_value))
+	_title.text = _sanitize_title(given_name)
+	_prefix.text = _PREFIX_TEXT
+	_value.text = str(_sanitize_value(count))
+	_price.text = str(_sanitize_price(price_value))
 
-	prefix.show()
-	value.show()
+	_prefix.show()
+	_value.show()
 
 	set_tag(TagType.NONE)
 
@@ -149,11 +148,11 @@ func setup_sell(given_name: String, count: int, price_value: int) -> void:
 ## - `price_value` is the upgrade cost.
 ## - `is_new` determines if the upgrade should be marked as **NEW**.
 func setup_upgrade(given_name: String, level: int, price_value: int, is_new: bool) -> void:
-	title.text = _sanitize_title(given_name)
-	value.text = str(_sanitize_value(level))
-	price.text = str(_sanitize_price(price_value))
+	_title.text = _sanitize_title(given_name)
+	_value.text = str(_sanitize_value(level))
+	_price.text = str(_sanitize_price(price_value))
 
-	prefix.hide()
-	value.show()
+	_prefix.hide()
+	_value.show()
 
 	set_tag(TagType.NEW if is_new else TagType.NONE)

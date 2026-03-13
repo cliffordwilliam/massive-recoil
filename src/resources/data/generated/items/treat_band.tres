@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BuySellItemData" format=3 uid="uid://do5ry4sbjy4nb"]
+
+[ext_resource type="Script" uid="uid://bbyvoni8tm1ie" path="res://src/resources/items/buy_sell_item_data.gd" id="1_v7kux"]
+
+[resource]
+script = ExtResource("1_v7kux")
+buy_price = 1800
+sell_price = 900
+inventory_size = Vector2i(2, 1)
+stack_size = 3
+availability = 2
+id = &"treat_band"
+display_name = "Treat Band"
+description = "A sterile bandage treated with antiseptic. Restores a moderate amount of health."

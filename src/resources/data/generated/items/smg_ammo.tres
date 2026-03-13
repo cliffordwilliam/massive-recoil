@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BuySellItemData" format=3 uid="uid://b0r3xfnfdop24"]
+
+[ext_resource type="Script" uid="uid://bbyvoni8tm1ie" path="res://src/resources/items/buy_sell_item_data.gd" id="1_xe326"]
+
+[resource]
+script = ExtResource("1_xe326")
+sell_price = 20
+inventory_size = Vector2i(2, 1)
+stack_size = 100
+id = &"smg_ammo"
+display_name = "SMG Ammo"
+description = "Lightweight cartridges designed for high-rate-of-fire submachine guns."
