@@ -36,6 +36,7 @@ src/
   autoload/    → global singletons registered in Project Settings
   editor/      → editor utility scripts (run once, never shipped)
   entities/    → scene objects (Node / Node2D) and gameplay UI (Node Objects)
+  overlays/    → UI overlays shown above the current scene (shop, save, etc.)
   resources/   → static data definitions (Resource scripts and generated .tres files)
   state/       → runtime gameplay state (RefCounted objects)
   utils.gd     → shared helper functions
@@ -58,12 +59,6 @@ Once installed, you can use it as follows. This setup has also been added to the
 gdformat file.gd
 gdlint file.gd
 ```
-
-## Icons
-
-Scenes use custom icons from [Material Design Icons](https://fonts.google.com/icons)
-with the color `#8da5f3`.
-
 
 ## Fonts
 
