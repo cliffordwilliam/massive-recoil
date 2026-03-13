@@ -1,6 +1,20 @@
 {
   "items": [
 	{
+	  "id": "waffle",
+	  "name": "Waffle",
+	  "in_inventory": true,
+	  "size": {
+		"width": 1,
+		"height": 1
+	  },
+	  "sell_price": 100,
+	  "buy_price": 100,
+	  "stack_size": 1,
+	  "availability": 1,
+	  "description": "A soft waffle."
+	},
+	{
 	  "id": "field_medkit",
 	  "name": "Field Medkit",
 	  "in_inventory": true,

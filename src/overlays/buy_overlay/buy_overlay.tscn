@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b7q2r81odv35y"]
+
+[ext_resource type="Script" uid="uid://c281srtxuvqt6" path="res://src/overlays/buy_overlay/buy_overlay.gd" id="1_j31s1"]
+[ext_resource type="PackedScene" uid="uid://6fiof8kokbi4" path="res://src/entities/ui/ui_shop_item_list/ui_shop_item_list.tscn" id="2_rstnc"]
+
+[node name="BuyOverlay" type="Node" unique_id=1607087003]
+script = ExtResource("1_j31s1")
+
+[node name="UIShopItemList" parent="." unique_id=819571343 instance=ExtResource("2_rstnc")]
+position = Vector2(64, 32)

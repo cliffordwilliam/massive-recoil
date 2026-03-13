@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="BuySellItemData" format=3 uid="uid://f2xrqwrt6o3h"]
+
+[ext_resource type="Script" uid="uid://bbyvoni8tm1ie" path="res://src/resources/items/buy_sell_item_data.gd" id="1_yosdr"]
+
+[resource]
+script = ExtResource("1_yosdr")
+buy_price = 100
+sell_price = 100
+inventory_size = Vector2i(1, 1)
+id = &"waffle"
+display_name = "Waffle"
+description = "A soft waffle."

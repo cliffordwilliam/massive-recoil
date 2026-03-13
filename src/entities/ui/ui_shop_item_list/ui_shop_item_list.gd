@@ -28,6 +28,12 @@ enum RenderMode {
 ## Maximum number of entries displayed on a single page.
 const _PAGE_SIZE: int = 5
 
+## Scroll thumb width in pixels.
+const _SCROLL_BAR_WIDTH: int = 5
+
+## Scroll thumb color.
+const _SCROLL_BAR_COLOR: Color = Color("767b84")
+
 ## Current rendering mode used when displaying items.
 ##
 ## This determines which `UIShopItem` setup function will be called
@@ -62,9 +68,25 @@ var _current_index: int = 0:
 	$ItemContainer/UIShopItem5 as UIShopItem,
 ]
 
+## The cursor node positioned over the currently selected entry.
+@onready var _cursor: Sprite2D = $Cursor
+
+## Top of the scroll track. The full track height represents all pages stacked.
+@onready var _scroll_ceiling: Marker2D = $ScrollCeilling
+
+## Bottom of the scroll track.
+@onready var _scroll_floor: Marker2D = $ScrollFloor
+
+## X position and top-left anchor for the scroll thumb.
+@onready var _scroll_bar_origin: Marker2D = $ScrollBarOrigin
+
+## Background of the scroll track.
+@onready var _scrollbar_background: NinePatchRect = $ScrollbarBackground
+
 
 func _ready() -> void:
 	Utils.require(_entries.size() == _PAGE_SIZE, "Entry count must match _PAGE_SIZE")
+	_scrollbar_background.show_behind_parent = true  # So that _draw here draws on top of it
 
 
 ## Sets the list of items displayed by this shop list.
@@ -148,3 +170,33 @@ func _update_page() -> void:
 			entry.show()
 		else:
 			entry.hide()
+
+	var selected_slot: int = _current_index % _PAGE_SIZE
+	_cursor.position = _entries[selected_slot].position
+
+	queue_redraw()
+
+
+## Draws the scroll thumb.
+##
+## The track spans from [member _scroll_ceiling] to [member _scroll_floor].
+## The thumb height represents one page relative to the total number of pages,
+## and steps downward by one thumb height per page.
+##
+## Hidden when all items fit on a single page.
+func _draw() -> void:
+	var total_pages: int = ceili(float(_items.size()) / _PAGE_SIZE)
+	if total_pages <= 1:
+		return
+
+	var track_top: float = _scroll_ceiling.position.y
+	var track_height: float = _scroll_floor.position.y - track_top
+	var thumb_height: float = track_height / total_pages
+
+	@warning_ignore("integer_division")
+	var current_page: int = _current_index / _PAGE_SIZE
+
+	var thumb_x: float = _scroll_bar_origin.position.x
+	var thumb_y: float = track_top + current_page * thumb_height
+
+	draw_rect(Rect2(thumb_x, thumb_y, _SCROLL_BAR_WIDTH, thumb_height), _SCROLL_BAR_COLOR)

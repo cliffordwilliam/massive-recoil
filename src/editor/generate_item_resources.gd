@@ -11,7 +11,8 @@ extends EditorScript
 ## The script is intended to be executed from the editor using
 ## [b]File > Run[/b] or [kbd]Ctrl + Shift + X[/kbd].
 ##
-## Re-running the script overwrites previously generated resources.
+## Re-running the script clears all existing resources first, then regenerates
+## them from JSON — so removed entries never leave stale files behind.
 ##
 ## Item type selection is determined by the presence of price fields:
 ##
@@ -34,14 +35,16 @@ const _OUTPUT_DIR: String = "res://src/resources/data/generated/items/"
 ##
 ## This function performs the following steps:
 ## 1. Ensures the output directory exists.
-## 2. Reads and parses the JSON item database.
-## 3. Iterates through all item entries.
-## 4. Builds the appropriate [ShopItemData] resource.
-## 5. Saves the generated `.tres` file to disk.
+## 2. Clears all existing [code].tres[/code] files from the output directory.
+## 3. Reads and parses the JSON item database.
+## 4. Iterates through all item entries.
+## 5. Builds the appropriate [ShopItemData] resource.
+## 6. Saves the generated [code].tres[/code] file to disk.
 ##
 ## Invalid or malformed entries are skipped and reported in the editor output.
 func _run() -> void:
 	_ensure_output_dir()
+	_clear_output_dir()
 
 	var json_text: String = FileAccess.get_file_as_string(_SOURCE_PATH)
 	if json_text.is_empty():
@@ -71,6 +74,7 @@ func _run() -> void:
 			print("GenerateItemResources: saved %s" % out_path)
 
 	print("GenerateItemResources: done — %d/%d resources saved." % [saved, items.size()])
+	EditorInterface.get_resource_filesystem().scan()
 
 
 ## Creates and populates the appropriate [ShopItemData] subclass
@@ -136,3 +140,17 @@ func _build_resource(item: Dictionary) -> ShopItemData:
 func _ensure_output_dir() -> void:
 	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(_OUTPUT_DIR)):
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_OUTPUT_DIR))
+
+
+## Deletes all [code].tres[/code] files in [constant _OUTPUT_DIR] before
+## regenerating, so removed JSON entries do not leave stale resources behind.
+func _clear_output_dir() -> void:
+	var dir: DirAccess = DirAccess.open(_OUTPUT_DIR)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			dir.remove(file_name)
+		file_name = dir.get_next()
