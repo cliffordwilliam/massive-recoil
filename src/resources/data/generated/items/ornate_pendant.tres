@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://dox5kmtrnt5n6"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_7lior"]
+
+[resource]
+script = ExtResource("1_7lior")
+id = &"ornate_pendant"
+type = 6
+display_name = "Ornate Pndnt"
+description = "Pendant with an empty gem socket."
+sell_price = 4000

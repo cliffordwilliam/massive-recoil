@@ -21,8 +21,6 @@ enum RenderMode {
 	BUY,
 	## Items are rendered using `UIShopItem.setup_sell()`.
 	SELL,
-	## Items are rendered using `UIShopItem.setup_upgrade()`.
-	UPGRADE,
 }
 
 ## Maximum number of entries displayed on a single page.
@@ -47,13 +45,12 @@ const _SCROLL_BAR_COLOR: Color = Color("767b84")
 
 ## Internal list of items displayed by the shop list.
 ##
-## The list stores generic data objects used by the renderer.
-## Each entry represents a [ShopItemState] instance used by the renderer.
-var _items: Array[ShopItemState] = []
+## Each entry represents a `ItemState` instance used by the renderer.
+var _items: Array[ItemState] = []
 
 ## Current selected item index within `_items`.
 ##
-## When updated, the value is clamped to a valid range
+## When updated, the value is clamped to a valid range.
 var _current_index: int = 0:
 	set = set_current_index
 
@@ -72,30 +69,25 @@ var _current_index: int = 0:
 @onready var _cursor: Sprite2D = $Cursor
 
 ## Top of the scroll track. The full track height represents all pages stacked.
-@onready var _scroll_ceiling: Marker2D = $ScrollCeilling
+@onready var _scroll_track_top: Marker2D = $ScrollTrackTop
 
 ## Bottom of the scroll track.
-@onready var _scroll_floor: Marker2D = $ScrollFloor
+@onready var _scroll_track_bottom: Marker2D = $ScrollTrackBottom
 
 ## X position and top-left anchor for the scroll thumb.
 @onready var _scroll_bar_origin: Marker2D = $ScrollBarOrigin
 
-## Background of the scroll track.
-@onready var _scrollbar_background: NinePatchRect = $ScrollbarBackground
-
 
 func _ready() -> void:
 	Utils.require(_entries.size() == _PAGE_SIZE, "Entry count must match _PAGE_SIZE")
-	_scrollbar_background.show_behind_parent = true  # So that _draw here draws on top of it
 
 
 ## Sets the list of items displayed by this shop list.
 ##
 ## Resets the current index and refreshes the visible page.
-##
-## `new_items` should contain the data objects required by the
-## currently selected `RenderMode`.
-func set_items(new_items: Array[ShopItemState]) -> void:
+## Page refresh is triggered by assigning [member _current_index], which always
+## calls [method set_current_index] regardless of whether the value changed.
+func set_items(new_items: Array[ItemState]) -> void:
 	_items = new_items
 	_current_index = 0
 
@@ -132,7 +124,6 @@ func _get_page_start() -> int:
 	if _items.is_empty():
 		return 0
 
-	# Read this "res://docs/godot/how_to_do_int_division.md".
 	@warning_ignore("integer_division")
 	return (_current_index / _PAGE_SIZE) * _PAGE_SIZE
 
@@ -152,20 +143,15 @@ func _update_page() -> void:
 		var item_index: int = page_start + local_slot
 
 		if item_index < _items.size():
-			var item: ShopItemState = _items[item_index]
-			var data: ShopItemData = item.data
+			var item: ItemState = _items[item_index]
+			var data: ItemData = item.data
 
 			match render_mode:
 				RenderMode.BUY:
-					entry.setup_buy(
-						data.display_name, data.get_buy_price(), item.is_new, item.sold_out
-					)
+					entry.setup_buy(data.display_name, data.buy_price, item.is_new)
 
 				RenderMode.SELL:
-					entry.setup_sell(data.display_name, item.count, data.get_sell_price())
-
-				RenderMode.UPGRADE:
-					entry.setup_upgrade(data.display_name, 0, 0, item.is_new)
+					entry.setup_sell(data.display_name, item.count, data.sell_price)
 
 			entry.show()
 		else:
@@ -179,7 +165,7 @@ func _update_page() -> void:
 
 ## Draws the scroll thumb.
 ##
-## The track spans from [member _scroll_ceiling] to [member _scroll_floor].
+## The track spans from `_scroll_track_top` to `_scroll_track_bottom`.
 ## The thumb height represents one page relative to the total number of pages,
 ## and steps downward by one thumb height per page.
 ##
@@ -189,8 +175,8 @@ func _draw() -> void:
 	if total_pages <= 1:
 		return
 
-	var track_top: float = _scroll_ceiling.position.y
-	var track_height: float = _scroll_floor.position.y - track_top
+	var track_top: float = _scroll_track_top.position.y
+	var track_height: float = _scroll_track_bottom.position.y - track_top
 	var thumb_height: float = track_height / total_pages
 
 	@warning_ignore("integer_division")

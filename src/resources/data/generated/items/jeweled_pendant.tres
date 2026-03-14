@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://b3cjv48dw26yl"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_axvle"]
+
+[resource]
+script = ExtResource("1_axvle")
+id = &"jeweled_pendant"
+type = 6
+display_name = "Jeweled Pndt"
+description = "Pendant fitted with a brilliant ruby."
+sell_price = 9000

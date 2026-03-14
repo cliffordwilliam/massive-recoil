@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://cw562n5m3537h"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_48nvk"]
+
+[resource]
+script = ExtResource("1_48nvk")
+id = &"handgun"
+type = 4
+display_name = "Handgun"
+description = "Reliable semi-auto handgun."
+inventory_size = Vector2i(2, 2)
+buy_price = 8000
+sell_price = 4000
+ammo_type = 1

@@ -39,6 +39,7 @@ position = Vector2(0, 54)
 position = Vector2(0, 72)
 
 [node name="ScrollbarBackground" type="NinePatchRect" parent="." unique_id=148142013]
+show_behind_parent = true
 offset_left = 179.0
 offset_top = -3.0
 offset_right = 190.0
@@ -54,10 +55,10 @@ material = SubResource("CanvasItemMaterial_wi24h")
 scale = Vector2(178, 17)
 texture = ExtResource("4_2qt6m")
 
-[node name="ScrollCeilling" type="Marker2D" parent="." unique_id=1068924365]
+[node name="ScrollTrackTop" type="Marker2D" parent="." unique_id=1068924365]
 position = Vector2(182, 0)
 
-[node name="ScrollFloor" type="Marker2D" parent="." unique_id=390138122]
+[node name="ScrollTrackBottom" type="Marker2D" parent="." unique_id=390138122]
 position = Vector2(182, 89)
 
 [node name="ScrollBarOrigin" type="Marker2D" parent="." unique_id=1079929907]

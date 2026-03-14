@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://drtnyggrorxuj"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_uv43b"]
+
+[resource]
+script = ExtResource("1_uv43b")
+id = &"damage_upgrade"
+type = 5
+display_name = "DMG Upgrade"
+description = "Upgrade that increases weapon damage."
+buy_price = 5000

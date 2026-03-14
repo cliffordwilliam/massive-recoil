@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://er1lvgce8pog"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_64r4w"]
+
+[resource]
+script = ExtResource("1_64r4w")
+id = &"maintenance_key"
+type = 7
+display_name = "Maint. Key"
+description = "Maintenance key for service doors."

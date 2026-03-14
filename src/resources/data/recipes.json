@@ -2,22 +2,22 @@
   "recipes": [
 	{
 	  "ingredients": [
-		"sterile_bandage",
-        "antiseptic_vial"
+		"sterile_band",
+		"antiseptic"
 	  ],
-	  "result": "treated_bandage"
+	  "result": "treat_band"
 	},
 	{
 	  "ingredients": [
 		"sun_emblem_fragment",
-        "moon_emblem_fragment"
+		"moon_emblem_fragment"
 	  ],
 	  "result": "sun_moon_emblem"
 	},
 	{
 	  "ingredients": [
 		"ornate_pendant",
-        "ruby_gem"
+		"ruby_gem"
 	  ],
 	  "result": "jeweled_pendant"
 	}

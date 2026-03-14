@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://071qro7tnaep"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_03c0o"]
+
+[resource]
+script = ExtResource("1_03c0o")
+id = &"sun_key_fragment"
+type = 7
+display_name = "Sun Fragment"
+description = "A fragment of a broken key."

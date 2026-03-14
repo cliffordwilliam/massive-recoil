@@ -1,116 +1,220 @@
 {
   "items": [
 	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 100,
+	  "description": "A soft waffle.",
 	  "id": "waffle",
 	  "name": "Waffle",
-	  "in_inventory": true,
-	  "size": {
-		"width": 1,
-		"height": 1
-	  },
 	  "sell_price": 100,
-	  "buy_price": 100,
+	  "size": { "width": 1, "height": 1 },
 	  "stack_size": 1,
-	  "availability": 1,
-	  "description": "A soft waffle."
+	  "type": "med"
 	},
 	{
-	  "id": "field_medkit",
-	  "name": "Field Medkit",
-	  "in_inventory": true,
-	  "size": {
-		"width": 2,
-		"height": 1
-	  },
-	  "sell_price": 2500,
+	  "ammo_type": "",
+	  "availability": 1,
 	  "buy_price": 5000,
+	  "description": "Restores full health. Rare emergency medkit.",
+	  "id": "field_medkit",
+	  "name": "Field Kit",
+	  "sell_price": 2500,
+	  "size": { "width": 2, "height": 1 },
 	  "stack_size": 1,
-	  "availability": 1,
-	  "description": "Restores full health. There are a limited number of these in the game. You get one at the start of the game and others are available from the Merchant as you progress."
+	  "type": "med"
 	},
 	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Clean bandage. Restores a small amount of health.",
 	  "id": "sterile_band",
 	  "name": "Sterile Band",
-	  "in_inventory": true,
-	  "size": {
-		"width": 2,
-		"height": 1
-	  },
 	  "sell_price": 300,
-	  "buy_price": 600,
+	  "size": { "width": 2, "height": 1 },
 	  "stack_size": 5,
-	  "availability": 1,
-	  "description": "A clean bandage used to treat minor wounds. Restores a small amount of health."
+	  "type": "combinable_med"
 	},
 	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Antiseptic vial used to disinfect wounds.",
 	  "id": "antiseptic",
 	  "name": "Antiseptic",
-	  "in_inventory": true,
-	  "size": {
-		"width": 1,
-		"height": 1
-	  },
 	  "sell_price": 400,
-	  "buy_price": 800,
+	  "size": { "width": 1, "height": 1 },
 	  "stack_size": 5,
-	  "availability": 1,
-	  "description": "A small vial of antiseptic used to disinfect wounds. Can be combined with other medical supplies."
+	  "type": "combinable_med"
 	},
 	{
+	  "ammo_type": "",
+	  "availability": 2,
+	  "buy_price": 1800,
+	  "description": "Bandage treated with antiseptic. Restores health.",
 	  "id": "treat_band",
 	  "name": "Treat Band",
-	  "in_inventory": true,
-	  "size": {
-		"width": 2,
-		"height": 1
-	  },
 	  "sell_price": 900,
-	  "buy_price": 1800,
-	  "stack_size": 3,
-	  "availability": 2,
-	  "description": "A sterile bandage treated with antiseptic. Restores a moderate amount of health."
+	  "size": { "width": 2, "height": 1 },
+	  "stack_size": 1,
+	  "type": "med"
 	},
 	{
-	  "id": "handgun_ammo",
-	  "name": "Handgun Ammo",
-	  "in_inventory": true,
-	  "size": {
-		"width": 2,
-		"height": 1
-	  },
-	  "sell_price": 50,
-	  "buy_price": 0,
-	  "stack_size": 50,
+	  "ammo_type": "",
 	  "availability": 1,
-	  "description": "Standard handgun cartridges used by most sidearms."
+	  "buy_price": 0,
+	  "description": "Standard handgun cartridges.",
+	  "id": "handgun_ammo",
+	  "name": "HG Ammo",
+	  "sell_price": 50,
+	  "size": { "width": 2, "height": 1 },
+	  "stack_size": 50,
+	  "type": "ammo"
 	},
 	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Ammo for high-rate SMG weapons.",
 	  "id": "smg_ammo",
 	  "name": "SMG Ammo",
-	  "in_inventory": true,
-	  "size": {
-		"width": 2,
-		"height": 1
-	  },
 	  "sell_price": 20,
-	  "buy_price": 0,
+	  "size": { "width": 2, "height": 1 },
 	  "stack_size": 100,
-	  "availability": 1,
-	  "description": "Lightweight cartridges designed for high-rate-of-fire submachine guns."
+	  "type": "ammo"
 	},
 	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 30000,
+	  "description": "Permanently increases inventory capacity.",
 	  "id": "pack_upgrade",
 	  "name": "Pack Upgrade",
-	  "in_inventory": false,
-	  "size": {
-		"width": 0,
-		"height": 0
-	  },
 	  "sell_price": 0,
-	  "buy_price": 30000,
+	  "size": { "width": 2, "height": 1 },
 	  "stack_size": 1,
+	  "type": "inventory_upgrade"
+	},
+	{
+	  "ammo_type": "",
 	  "availability": 1,
-	  "description": "A reinforced expansion for your field pack that permanently increases inventory capacity."
+	  "buy_price": 5000,
+	  "description": "Upgrade that increases weapon damage.",
+	  "id": "damage_upgrade",
+	  "name": "DMG Upgrade",
+	  "sell_price": 0,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "weapon_upgrade"
+	},
+	{
+	  "ammo_type": "handgun_ammo",
+	  "availability": 1,
+	  "buy_price": 8000,
+	  "description": "Reliable semi-auto handgun.",
+	  "id": "handgun",
+	  "name": "Handgun",
+	  "sell_price": 4000,
+	  "size": { "width": 2, "height": 2 },
+	  "stack_size": 1,
+	  "type": "weapon"
+	},
+	{
+	  "ammo_type": "smg_ammo",
+	  "availability": 2,
+	  "buy_price": 16000,
+	  "description": "Compact SMG with very high fire rate.",
+	  "id": "smg",
+	  "name": "SMG",
+	  "sell_price": 8000,
+	  "size": { "width": 3, "height": 2 },
+	  "stack_size": 1,
+	  "type": "weapon"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Pendant with an empty gem socket.",
+	  "id": "ornate_pendant",
+	  "name": "Ornate Pndnt",
+	  "sell_price": 4000,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "treasure"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "A polished red gemstone.",
+	  "id": "ruby_gem",
+	  "name": "Ruby Gem",
+	  "sell_price": 2500,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "treasure"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Pendant fitted with a brilliant ruby.",
+	  "id": "jeweled_pendant",
+	  "name": "Jeweled Pndt",
+	  "sell_price": 9000,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "treasure"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Maintenance key for service doors.",
+	  "id": "maintenance_key",
+	  "name": "Maint. Key",
+	  "sell_price": 0,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "key"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "A fragment of a broken key.",
+	  "id": "sun_key_fragment",
+	  "name": "Sun Fragment",
+	  "sell_price": 0,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "key"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "A curved fragment of an key.",
+	  "id": "moon_key_fragment",
+	  "name": "Moon Shard",
+	  "sell_price": 0,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "key"
+	},
+	{
+	  "ammo_type": "",
+	  "availability": 1,
+	  "buy_price": 0,
+	  "description": "Two fragments forming a complete key.",
+	  "id": "sun_moon_key",
+	  "name": "Sun/Moon Key",
+	  "sell_price": 0,
+	  "size": { "width": 1, "height": 1 },
+	  "stack_size": 1,
+	  "type": "key"
 	}
   ]
 }
