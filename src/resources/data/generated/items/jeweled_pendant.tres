@@ -6,6 +6,6 @@
 script = ExtResource("1_axvle")
 id = &"jeweled_pendant"
 type = 6
-display_name = "Jeweled Pndt"
+ui_name = "Jeweled Pndt"
 description = "Pendant fitted with a brilliant ruby."
 sell_price = 9000

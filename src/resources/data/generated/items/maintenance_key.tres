@@ -6,5 +6,5 @@
 script = ExtResource("1_64r4w")
 id = &"maintenance_key"
 type = 7
-display_name = "Maint. Key"
+ui_name = "Maint. Key"
 description = "Maintenance key for service doors."

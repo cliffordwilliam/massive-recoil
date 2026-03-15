@@ -6,7 +6,7 @@
 script = ExtResource("1_xe326")
 id = &"smg_ammo"
 type = 2
-display_name = "SMG Ammo"
+ui_name = "SMG Ammo"
 description = "Ammo for high-rate SMG weapons."
 inventory_size = Vector2i(2, 1)
 sell_price = 20

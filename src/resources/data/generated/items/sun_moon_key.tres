@@ -6,5 +6,5 @@
 script = ExtResource("1_l1dlb")
 id = &"sun_moon_key"
 type = 7
-display_name = "Sun/Moon Key"
+ui_name = "Sun/Moon Key"
 description = "Two fragments forming a complete key."

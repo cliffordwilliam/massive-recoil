@@ -6,6 +6,6 @@
 script = ExtResource("1_smt3y")
 id = &"ruby_gem"
 type = 6
-display_name = "Ruby Gem"
+ui_name = "Ruby Gem"
 description = "A polished red gemstone."
 sell_price = 2500

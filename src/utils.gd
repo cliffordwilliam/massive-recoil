@@ -4,11 +4,34 @@ extends RefCounted
 ## that can be called statically without creating an instance.
 
 
-## Ensures a condition is true, logging an error if it fails.
 ## Use this to catch impossible or invalid states during runtime.
-static func require(condition: bool, message: String) -> bool:
-	assert(condition, message)
-	if not condition:
-		push_error(message)
-		return false
-	return true
+##
+## By default crashes in both debug and release via [method OS.crash] — use this
+## for programmer errors and broken-build conditions that should never occur in
+## correct code.
+##
+## Pass [param crash] as [code]false[/code] only at external boundaries (e.g.
+## save-file parsing) where a corrupt input should be logged and skipped rather
+## than crashing the game.
+static func require(valid_condition: bool, message: String, crash: bool = true) -> bool:
+	if not valid_condition:
+		if crash:
+			OS.crash(message)
+		else:
+			push_error(message)
+	return valid_condition
+
+
+## Parses a JSON scalar as an integer.
+##
+## JSON parsers may return whole-number values as [float] rather than [int].
+## Returns the value as an [int] if [param v] is an [int] or a [float] with no
+## fractional part; otherwise returns [code]null[/code].
+static func parse_json_int(v: Variant) -> Variant:
+	if v is int:
+		return v as int
+	if v is float:
+		var f: float = v as float
+		if is_finite(f) and f == floor(f):
+			return int(f)
+	return null

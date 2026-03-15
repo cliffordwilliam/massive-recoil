@@ -2,41 +2,33 @@
 
 Massive Recoil is a 2D pixel art offline single-player game built with Godot.
 
-Engine-related notes are documented in `./docs/godot/`.
-This directory acts as an iterative, ever-growing knowledge base covering topics such as tiles,
-resources, workflows, and other Godot development patterns.
+Godot notes are documented in `./docs/godot/`.
+This directory is a knowledge base covering Godot development patterns.
 
-Design and architecture decisions are documented in `./docs/decisions/`.
-This folder contains formal decisions made during development, such as UI policies,
-rendering approaches, and other project-wide conventions. It helps maintain consistency
-and provides context for why certain patterns are followed.
+Architecture decisions are documented in `./docs/decisions/`.
+It contains decisions made during development.
 
 Reusable prompts used during development are stored in `./prompts/`.
 
-The documentation evolves alongside the project. If something breaks or a better approach is
-discovered, the knowledge base is updated accordingly.
-
 ## Project Structure
 
-The project follows a simple separation between **assets**, **data definitions**,
-**runtime state**, and **scene entities**.
-This helps keep gameplay logic, data, and rendering concerns isolated.
+The project follows a simple separation of concern.
 
 ```
 assets/     → art assets such as images and fonts
-docs/       → development notes and architectural decisions
-prompts/    → reusable prompts used during development
+docs/       → development notes
+prompts/    → reusable development prompts
 src/        → game source code
 ```
 
-Inside `src/` the codebase is organized into three main layers:
+Inside `src/` the codebase is organized into three main layers.
 
 ```
 src/
   autoload/    → global singletons registered in Project Settings
   editor/      → editor utility scripts (run once, never shipped)
-  entities/    → scene objects (Node / Node2D) and gameplay UI (Node Objects)
-  overlays/    → UI overlays shown above the current scene (shop, save, etc.)
+  entities/    → scene objects (Node) and gameplay UI
+  overlays/    → UI overlays shown above the current scene (shop, save, main menu, etc.)
   resources/   → static data definitions (Resource scripts and generated .tres files)
   state/       → runtime gameplay state (RefCounted objects)
   utils.gd     → shared helper functions

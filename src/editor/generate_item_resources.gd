@@ -27,12 +27,12 @@ extends EditorScript
 ## | treasure          | [constant ItemData.Type.TREASURE]          |
 ## | key               | [constant ItemData.Type.KEY]               |
 ##
-## Ammo type selection is determined by the `ammo_type` field (weapons only; null or omitted =
-## [constant ItemData.AmmoType.NONE]):
+## Ammo type selection is determined by the `ammo_type` field (weapons only; use [code]""[/code]
+## for non-weapons, which maps to [constant ItemData.AmmoType.NONE]):
 ##
 ## | JSON ammo_type | ItemData.AmmoType                         |
 ## |----------------|-------------------------------------------|
-## | null / omitted | [constant ItemData.AmmoType.NONE]         |
+## | ""             | [constant ItemData.AmmoType.NONE]         |
 ## | handgun_ammo   | [constant ItemData.AmmoType.HANDGUN_AMMO] |
 ## | smg_ammo       | [constant ItemData.AmmoType.SMG_AMMO]     |
 ##
@@ -40,9 +40,8 @@ extends EditorScript
 ##
 ## Each JSON item is validated: required keys present; [code]type[/code] and
 ## [code]ammo_type[/code] in allowed sets; numeric fields required, integers, positive,
-## within bounds (availability 1–4, prices and stack 0–999999 / 1–999, size width/height 1–6);
-## [code]id[/code], [code]name[/code], [code]description[/code] non-empty; [code]name[/code]
-## max 12 chars, [code]description[/code] max 50 chars; [code]id[/code] unique.
+## within bounds defined by [ItemData] schema constants; [code]id[/code], [code]name[/code],
+## [code]description[/code] non-empty; [code]id[/code] unique.
 
 ## Path to the JSON source file containing item definitions.
 const _SOURCE_PATH: String = "res://src/resources/data/items.json"
@@ -61,7 +60,7 @@ const _TYPE_MAP: Dictionary = {
 	"key": ItemData.Type.KEY,
 }
 
-## Maps JSON ammo_type string (or null) to [enum ItemData.AmmoType].
+## Maps JSON ammo_type string to [enum ItemData.AmmoType].
 const _AMMO_TYPE_MAP: Dictionary = {
 	"": ItemData.AmmoType.NONE,
 	"handgun_ammo": ItemData.AmmoType.HANDGUN_AMMO,
@@ -69,6 +68,8 @@ const _AMMO_TYPE_MAP: Dictionary = {
 }
 
 ## Required keys for each item entry in the JSON. Used for shape validation.
+## [code]ammo_type[/code] is required for all items — use [code]""[/code]
+## for non-weapons (maps to [constant ItemData.AmmoType.NONE]).
 const _REQUIRED_KEYS: Array[String] = [
 	"ammo_type",
 	"availability",
@@ -82,83 +83,203 @@ const _REQUIRED_KEYS: Array[String] = [
 	"type"
 ]
 
-## Max length for [code]name[/code] (display name) in characters.
-const _MAX_NAME_LENGTH: int = 12
-## Max length for [code]description[/code] in characters.
-const _MAX_DESCRIPTION_LENGTH: int = 50
-## Numeric bounds: all numeric fields are required and must be positive.
-const _MIN_PRICE: int = 0
-const _MAX_PRICE: int = 999999
-const _MIN_STACK: int = 1
-const _MAX_STACK: int = 999
-const _MIN_AVAILABILITY: int = 1
-const _MAX_AVAILABILITY: int = 4
-const _MIN_SIZE_DIM: int = 1
-const _MAX_SIZE_DIM: int = 6
-
 
 ## Entry point executed when the script is run from the editor.
 ##
 ## This function performs the following steps:
 ## 1. Ensures the output directory exists.
-## 2. Clears all existing [code].tres[/code] files from the output directory.
-## 3. Reads and parses the JSON item database.
-## 4. For each item: validates shape and values (required keys, valid type/ammo_type,
-##    integer numbers, [code]size.width[/code]/[code]size.height[/code], name/description
-##    length limits, unique id); skips invalid entries and reports errors.
-## 5. Builds an [ItemData] resource for each valid entry.
-## 6. Saves the generated [code].tres[/code] file to disk.
+## 2. Reads and parses the JSON item database.
+## 3. Validates every item entry. If any entry is invalid, all errors are reported
+##    and the script exits without touching any existing resources.
+## 4. Clears all existing [code].tres[/code] files from the output directory.
+## 5. Builds and saves an [ItemData] resource for each entry.
 ##
-## Invalid or malformed entries are skipped and reported in the editor output.
+## Nothing is written to disk unless every item passes validation.
 func _run() -> void:
-	_ensure_output_dir()
-	_clear_output_dir()
-
-	var json_text: String = FileAccess.get_file_as_string(_SOURCE_PATH)
-	if json_text.is_empty():
-		var err: Error = FileAccess.get_open_error()
-		push_error(
-			"GenerateItemResources: could not read %s — %s" % [_SOURCE_PATH, error_string(err)]
-		)
+	if not _ensure_output_dir():
 		return
-
-	var parsed: Variant = JSON.parse_string(json_text)
-	if not parsed is Dictionary:
-		push_error("GenerateItemResources: unexpected JSON structure in %s" % _SOURCE_PATH)
+	var items: Variant = _load_and_parse_items()
+	if items == null:
 		return
+	items = items as Array
+	# An empty items array is fine — this is a dev tool script and an empty
+	# output directory is a perfectly valid result when items.json has no entries.
 
-	var items: Array = (parsed as Dictionary).get("items", [])
-	var saved: int = 0
+	# Pre-pass: check for id-level structural errors and duplicate IDs before
+	# running full per-field validation. All errors are accumulated so that
+	# every problem is reported in a single run — consistent with how
+	# _validate_item works. Previously this used early return on the first
+	# bad entry, which meant multiple problems required multiple runs to
+	# discover. continue is now used instead so the loop always completes.
 	var seen_ids: Dictionary = {}
+	var pre_pass_valid: bool = true
+	# Index loop instead of for-in so the item index is available for the
+	# non-Dictionary error message below. All other errors in this pass include
+	# an index or an id; without i the non-Dictionary case was the only one that
+	# gave no location hint, making it harder to find the bad entry in items.json.
+	for i: int in items.size():
+		var item: Variant = items[i]
+		if not item is Dictionary:
+			push_error(
+				"GenerateItemResources: items[%d] is not an object — found non-object entry." % i
+			)
+			pre_pass_valid = false
+			continue
+		var raw_id_val: Variant = (item as Dictionary).get("id", "")
+		if not raw_id_val is String:
+			push_error(
+				(
+					"GenerateItemResources: an item has a non-string id '%s' — no resources written."
+					% raw_id_val
+				)
+			)
+			pre_pass_valid = false
+			continue
+		var raw_id: String = raw_id_val as String
+		if raw_id.is_empty():
+			push_error(
+				"GenerateItemResources: an item has an empty or missing id — no resources written."
+			)
+			pre_pass_valid = false
+			continue
+		if raw_id.contains("/") or raw_id.contains("\\") or raw_id.contains(".."):
+			push_error(
+				(
+					"GenerateItemResources: id '%s' contains unsafe path characters — no resources written."
+					% raw_id
+				)
+			)
+			pre_pass_valid = false
+			continue
+		if seen_ids.has(raw_id):
+			push_error("GenerateItemResources: duplicate id '%s' — no resources written." % raw_id)
+			pre_pass_valid = false
+			continue
+		seen_ids[raw_id] = true
+	if not pre_pass_valid:
+		return
+
+	var all_valid: bool = true
+	for i: int in items.size():
+		if not _validate_item(items[i], i):
+			all_valid = false
+	if not all_valid:
+		push_error("GenerateItemResources: validation failed — no resources written.")
+		return
+	if not _clear_output_dir():
+		return
+
+	# Track successfully saved file names so we can roll back on failure.
+	# This makes the write atomic: the output directory is either fully populated
+	# or empty — never partially written. _clear_output_dir already ran above, so
+	# any failure here leaves the directory empty rather than incomplete.
+	var saved_names: Array[String] = []
+	var save_failed: bool = false
 
 	for i: int in items.size():
-		var raw: Variant = items[i]
-		if not _validate_item(raw, i, seen_ids):
-			continue
-		var item: Dictionary = raw as Dictionary
+		var item: Dictionary = items[i] as Dictionary
 		var res: ItemData = _build_resource(item)
-		if res == null:
-			continue
-
-		var out_path: String = _OUTPUT_DIR + str(item["id"]) + ".tres"
+		var file_name: String = str(item["id"]) + ".tres"
+		var out_path: String = _OUTPUT_DIR + file_name
 		var err: Error = ResourceSaver.save(res, out_path)
 		if err != OK:
-			push_error("GenerateItemResources: failed to save %s (error %d)" % [out_path, err])
-		else:
-			saved += 1
-			print("GenerateItemResources: saved %s" % out_path)
+			push_error(
+				(
+					"GenerateItemResources: failed to save %s (error %d) — rolling back."
+					% [out_path, err]
+				)
+			)
+			save_failed = true
+			break
+		saved_names.append(file_name)
+		print("GenerateItemResources: saved %s" % out_path)
 
-	print("GenerateItemResources: done — %d/%d resources saved." % [saved, items.size()])
+	if save_failed:
+		# Roll back by deleting every file written so far. Also attempt to remove
+		# any .uid sidecar Godot may have created alongside the .tres file.
+		#
+		# False positive note: the rollback was flagged as potentially leaving the
+		# output directory in a broken partial state if dir.remove() fails mid-loop.
+		# This is already handled: the .tres removal result is checked explicitly
+		# below, and on failure a clear error is pushed with an actionable recovery
+		# instruction ("delete it manually before re-running"). The .uid sidecar
+		# removal error is intentionally ignored because sidecars may legitimately
+		# not exist. No silent failure path exists here.
+		var dir: DirAccess = DirAccess.open(_OUTPUT_DIR)
+		if dir:
+			for name: String in saved_names:
+				# Check the .tres removal explicitly: a failure here means the
+				# output directory is left in a partial state and re-running the
+				# script will not start from a clean slate. The .uid sidecar may
+				# legitimately not exist, so its removal error is intentionally ignored.
+				var rem_err: Error = dir.remove(name)
+				if rem_err != OK:
+					# "may be" → "is": if remove failed the file is definitely still
+					# there, so the partial state is certain, not speculative. The
+					# actionable instruction is added so the developer knows how to
+					# recover without having to guess what to do next.
+					var msg: String = (
+						"GenerateItemResources: rollback could not remove '%s' — %s. "
+						+ (
+							"Output directory is in a partial state; delete it manually before re-running."
+							% [name, error_string(rem_err)]
+						)
+					)
+					push_error(msg)
+				dir.remove(name + ".uid")
+			push_error(
+				"GenerateItemResources: rolled back — output directory is now empty. Re-run to regenerate."
+			)
+		else:
+			var open_err_msg: String = (
+				"GenerateItemResources: rollback failed — could not open output dir '%s' — %s. "
+				+ (
+					"Output directory may be in a partial state; delete it manually before re-running."
+					% [_OUTPUT_DIR, error_string(DirAccess.get_open_error())]
+				)
+			)
+			push_error(open_err_msg)
+	else:
+		print(
+			(
+				"GenerateItemResources: done — %d/%d resources saved."
+				% [saved_names.size(), items.size()]
+			)
+		)
+
+	# Scan runs unconditionally — after success to register the new files, and after
+	# rollback to deregister any files the editor cached before they were removed.
+	# Without it, stale .tres entries can linger in the FileSystem dock.
 	EditorInterface.get_resource_filesystem().scan()
 
 
-## Creates and populates an [ItemData] resource from a single JSON item entry.
-##
-## The [member ItemData.type] is determined by the `type` field in the JSON entry.
-##
-## Uses [method Object.set] for all property assignments to avoid stale script
-## cache issues in the editor when scripts have changed but not yet reloaded.
-##
+## Opens source JSON, parses it, returns [code]items[/code] array or [code]null[/code] on failure.
+func _load_and_parse_items() -> Variant:
+	var file: FileAccess = FileAccess.open(_SOURCE_PATH, FileAccess.READ)
+	if file == null:
+		push_error(
+			(
+				"GenerateItemResources: could not open %s — %s"
+				% [_SOURCE_PATH, error_string(FileAccess.get_open_error())]
+			)
+		)
+		return null
+	var json_text: String = file.get_as_text()
+	file.close()
+	if json_text.is_empty():
+		push_error("GenerateItemResources: %s is empty — nothing to generate." % _SOURCE_PATH)
+		return null
+	var parsed: Variant = JSON.parse_string(json_text)
+	if not parsed is Dictionary:
+		push_error("GenerateItemResources: unexpected JSON structure in %s" % _SOURCE_PATH)
+		return null
+	var raw_items: Variant = (parsed as Dictionary).get("items", [])
+	if not raw_items is Array:
+		push_error("GenerateItemResources: 'items' must be an array in %s" % _SOURCE_PATH)
+		return null
+	return raw_items
+
+
 ## Validates that [param item] has the expected shape and valid values.
 ##
 ## Checks: required keys present; [code]type[/code] and [code]ammo_type[/code]
@@ -166,29 +287,38 @@ func _run() -> void:
 ## (availability 1–4, prices 0–999999, stack 1–999, size width/height 1–6);
 ## [code]id[/code], [code]name[/code], [code]description[/code] non-empty;
 ## [code]name[/code] max 12 chars, [code]description[/code] max 50 chars;
-## [code]id[/code] unique (pass [param seen_ids] to track; updated when valid).
+## [code]id[/code] unique.
 ## Pushes an error for each failure and returns [code]false[/code] if any check fails.
 ##
 ## **Required keys and types:**
 ##
-## | Key            | Type   | Constraints                                                       |
+## | Key            | Type   | Constraints                                             |
 ## |----------------|--------|---------------------------------------------------------|
 ## | `id`           | string | Non-empty, unique across all items                      |
 ## | `name`         | string | Non-empty, max 12 characters                            |
 ## | `description`  | string | Non-empty, max 50 characters                            |
 ## | `type`         | string | One of: _TYPE_MAP                                       |
-## | `ammo_type`    | string | One of: _AMMO_TYPE_MAP                                  |
+## | `ammo_type`    | string | One of: _AMMO_TYPE_MAP. Use `""` for non-weapons           |
 ## | `buy_price`    | int    | 0–999999                                                |
 ## | `sell_price`   | int    | 0–999999                                                |
 ## | `stack_size`   | int    | 1–999                                                   |
 ## | `availability` | int    | 1–4 (earliest chapter)                                  |
 ## | `size`         | object | Required; must have `width` and `height` (each int 1–6) |
-func _validate_item(item: Variant, item_index: int, seen_ids: Dictionary) -> bool:
+func _validate_item(item: Variant, item_index: int) -> bool:
 	if not item is Dictionary:
 		push_error("GenerateItemResources: items[%d] is not a Dictionary — skipped." % item_index)
 		return false
 
 	var d: Dictionary = item as Dictionary
+	# Declared here so every error message below uses item_id instead of
+	# d.get("id", "?"). By the time _validate_item is called, _run() has already
+	# verified that every entry has a non-empty string id, so this read is safe
+	# and the "?" fallback is never needed.
+	# as String cast is used here instead of str(): _run()'s pre-pass already
+	# verified every entry has a non-empty String id, so the value is already a
+	# String. str() would work but implies the value might not be a String, which
+	# is misleading. The as-cast makes the known type explicit.
+	var item_id: String = d.get("id", "") as String
 	var valid: bool = true
 
 	for key: String in _REQUIRED_KEYS:
@@ -209,87 +339,112 @@ func _validate_item(item: Variant, item_index: int, seen_ids: Dictionary) -> boo
 		push_error(
 			(
 				"GenerateItemResources: item '%s' has invalid type '%s' (index %d) — skipped."
-				% [d.get("id", "?"), type_str, item_index]
+				% [item_id, type_str, item_index]
 			)
 		)
 		valid = false
 
-	var raw_ammo: Variant = d.get("ammo_type", "")
-	var ammo_key: String = "" if raw_ammo == null else str(raw_ammo)
-	if not _AMMO_TYPE_MAP.has(ammo_key):
+	var raw_ammo_type: Variant = d.get("ammo_type")
+	if not raw_ammo_type is String:
 		push_error(
 			(
-				"GenerateItemResources: item '%s' has invalid ammo_type '%s' (index %d) — skipped."
-				% [d.get("id", "?"), ammo_key, item_index]
+				"GenerateItemResources: item '%s' ammo_type must be a string (index %d) — skipped."
+				% [item_id, item_index]
 			)
 		)
 		valid = false
+	else:
+		var ammo_key: String = raw_ammo_type as String
+		if not _AMMO_TYPE_MAP.has(ammo_key):
+			push_error(
+				(
+					"GenerateItemResources: item '%s' has invalid ammo_type '%s' (index %d) — skipped."
+					% [item_id, ammo_key, item_index]
+				)
+			)
+			valid = false
+		# Guard on _TYPE_MAP.has(type_str) so this cross-check only fires when
+		# type_str is itself valid. Without it, an invalid type that also has a
+		# non-empty ammo_type would produce a second, misleading error claiming
+		# the type is "not weapon" when the real problem is that the type is unknown.
+		elif _TYPE_MAP.has(type_str) and type_str != "weapon" and ammo_key != "":
+			var ammo_err: String = (
+				"GenerateItemResources: item '%s' has ammo_type '%s' but type is '%s', "
+				+ "not weapon (index %d) — skipped." % [item_id, ammo_key, type_str, item_index]
+			)
+			push_error(ammo_err)
+			valid = false
+		# NOTE: a weapon with ammo_type "" (→ AmmoType.NONE) is intentionally valid.
+		# A weapon without an ammo type has infinite ammo by design — used for
+		# weapons that never consume a resource (e.g. end-game gifts). No error
+		# is raised for this case.
 
-	var buy_price_val: int = int(d.get("buy_price", -1))
-	var sell_price_val: int = int(d.get("sell_price", -1))
-	var stack_val: int = int(d.get("stack_size", -1))
-	var avail_val: int = int(d.get("availability", -1))
+	# Parse once here and reuse below. Using parse_json_int rather than int()
+	# avoids silent coercion: int("abc") returns 0, whereas parse_json_int returns
+	# null, which the checks below correctly treat as invalid.
+	var parsed_buy_price: Variant = Utils.parse_json_int(d.get("buy_price", null))
+	var parsed_sell_price: Variant = Utils.parse_json_int(d.get("sell_price", null))
+	var parsed_stack: Variant = Utils.parse_json_int(d.get("stack_size", null))
+	var parsed_avail: Variant = Utils.parse_json_int(d.get("availability", null))
 
 	if (
-		not _is_json_int(d.get("buy_price", null))
-		or buy_price_val < _MIN_PRICE
-		or buy_price_val > _MAX_PRICE
+		parsed_buy_price == null
+		or (parsed_buy_price as int) < ItemSchema.MIN_PRICE
+		or (parsed_buy_price as int) > ItemSchema.MAX_PRICE
 	):
 		push_error(
 			(
 				"GenerateItemResources: item '%s' buy_price must be integer in [%d, %d] (index %d) — skipped."
-				% [d.get("id", "?"), _MIN_PRICE, _MAX_PRICE, item_index]
+				% [item_id, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE, item_index]
 			)
 		)
 		valid = false
 	if (
-		not _is_json_int(d.get("sell_price", null))
-		or sell_price_val < _MIN_PRICE
-		or sell_price_val > _MAX_PRICE
+		parsed_sell_price == null
+		or (parsed_sell_price as int) < ItemSchema.MIN_PRICE
+		or (parsed_sell_price as int) > ItemSchema.MAX_PRICE
 	):
 		push_error(
 			(
 				"GenerateItemResources: item '%s' sell_price must be integer in [%d, %d] (index %d) — skipped."
-				% [d.get("id", "?"), _MIN_PRICE, _MAX_PRICE, item_index]
+				% [item_id, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE, item_index]
 			)
 		)
 		valid = false
 	if (
-		not _is_json_int(d.get("stack_size", null))
-		or stack_val < _MIN_STACK
-		or stack_val > _MAX_STACK
+		parsed_stack == null
+		or (parsed_stack as int) < ItemSchema.MIN_STACK
+		or (parsed_stack as int) > ItemSchema.MAX_STACK
 	):
 		push_error(
 			(
 				"GenerateItemResources: item '%s' stack_size must be integer in [%d, %d] (index %d) — skipped."
-				% [d.get("id", "?"), _MIN_STACK, _MAX_STACK, item_index]
+				% [item_id, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK, item_index]
 			)
 		)
 		valid = false
 	if (
-		not _is_json_int(d.get("availability", null))
-		or avail_val < _MIN_AVAILABILITY
-		or avail_val > _MAX_AVAILABILITY
+		parsed_avail == null
+		or (parsed_avail as int) < ItemSchema.MIN_AVAILABILITY
+		or (parsed_avail as int) > ItemSchema.MAX_AVAILABILITY
 	):
-		push_error(
-			(
-				"GenerateItemResources: item '%s' availability must be integer "
-				+ (
-					"in [%d, %d] (index %d) — skipped."
-					% [d.get("id", "?"), _MIN_AVAILABILITY, _MAX_AVAILABILITY, item_index]
-				)
+		var avail_err: String = (
+			"GenerateItemResources: item '%s' availability must be integer in [%d, %d] "
+			+ (
+				"(index %d) — skipped."
+				% [item_id, ItemSchema.MIN_AVAILABILITY, ItemSchema.MAX_AVAILABILITY, item_index]
 			)
 		)
+		push_error(avail_err)
 		valid = false
 
 	var size_val: Variant = d.get("size", {})
 	if not size_val is Dictionary:
-		push_error(
-			(
-				"GenerateItemResources: item '%s' key 'size' must be an object "
-				+ "with width/height (index %d) — skipped." % [d.get("id", "?"), item_index]
-			)
+		var size_err: String = (
+			"GenerateItemResources: item '%s' key 'size' must be an object with "
+			+ "width/height (index %d) — skipped." % [item_id, item_index]
 		)
+		push_error(size_err)
 		valid = false
 	else:
 		var size_dict: Dictionary = size_val as Dictionary
@@ -298,158 +453,211 @@ func _validate_item(item: Variant, item_index: int, seen_ids: Dictionary) -> boo
 				push_error(
 					(
 						"GenerateItemResources: item '%s' size missing '%s' (index %d) — skipped."
-						% [d.get("id", "?"), dim, item_index]
-					)
-				)
-				valid = false
-			elif not _is_json_int(size_dict.get(dim, null)):
-				push_error(
-					(
-						"GenerateItemResources: item '%s' size.%s must be an integer (index %d) — skipped."
-						% [d.get("id", "?"), dim, item_index]
+						% [item_id, dim, item_index]
 					)
 				)
 				valid = false
 			else:
-				var dim_val: int = int(size_dict.get(dim, 0))
-				if dim_val < _MIN_SIZE_DIM or dim_val > _MAX_SIZE_DIM:
+				# Parse once and reuse for both the type check and the range check.
+				# This avoids calling int() on the raw value after confirming it is a
+				# valid integer — int() silently coerces bad values (e.g. "4px" → 0)
+				# whereas parse_json_int returns null, making the problem visible.
+				var parsed_dim: Variant = Utils.parse_json_int(size_dict.get(dim, null))
+				if parsed_dim == null:
 					push_error(
 						(
-							"GenerateItemResources: item '%s' size.%s must be in [%d, %d], got %d (index %d) — skipped."
-							% [
-								d.get("id", "?"),
-								dim,
-								_MIN_SIZE_DIM,
-								_MAX_SIZE_DIM,
-								dim_val,
-								item_index
-							]
+							"GenerateItemResources: item '%s' size.%s must be an integer (index %d) — skipped."
+							% [item_id, dim, item_index]
 						)
 					)
 					valid = false
+				else:
+					var dim_val: int = parsed_dim as int
+					if dim_val < ItemSchema.MIN_SIZE_DIM or dim_val > ItemSchema.MAX_SIZE_DIM:
+						push_error(
+							(
+								"GenerateItemResources: item '%s' size.%s must be in [%d, %d], got %d (index %d) — skipped."
+								% [
+									item_id,
+									dim,
+									ItemSchema.MIN_SIZE_DIM,
+									ItemSchema.MAX_SIZE_DIM,
+									dim_val,
+									item_index
+								]
+							)
+						)
+						valid = false
 
-	var item_id: String = str(d.get("id", ""))
-	if item_id.is_empty():
-		push_error("GenerateItemResources: item at index %d has empty id — skipped." % item_index)
-		valid = false
-	elif seen_ids.has(item_id):
-		push_error(
-			"GenerateItemResources: duplicate id '%s' (index %d) — skipped." % [item_id, item_index]
-		)
-		valid = false
-
-	var name_str: String = str(d.get("name", ""))
-	if name_str.is_empty():
+	var raw_name: Variant = d.get("name", "")
+	if not raw_name is String:
 		push_error(
 			(
-				"GenerateItemResources: item '%s' name must not be empty (index %d) — skipped."
-				% [item_id if not item_id.is_empty() else "?", item_index]
+				"GenerateItemResources: item '%s' name must be a string (index %d) — skipped."
+				% [item_id, item_index]
 			)
 		)
 		valid = false
-	elif name_str.length() > _MAX_NAME_LENGTH:
-		push_error(
-			(
-				"GenerateItemResources: item '%s' name must be max %d chars, got %d (index %d) — skipped."
-				% [d.get("id", "?"), _MAX_NAME_LENGTH, name_str.length(), item_index]
+	else:
+		var name_str: String = raw_name as String
+		if name_str.is_empty():
+			push_error(
+				(
+					"GenerateItemResources: item '%s' name must not be empty (index %d) — skipped."
+					% [item_id, item_index]
+				)
 			)
-		)
-		valid = false
+			valid = false
+		elif name_str.length() > ItemSchema.MAX_NAME_LENGTH:
+			push_error(
+				(
+					"GenerateItemResources: item '%s' name must be max %d chars, got %d (index %d) — skipped."
+					% [item_id, ItemSchema.MAX_NAME_LENGTH, name_str.length(), item_index]
+				)
+			)
+			valid = false
 
-	var desc_str: String = str(d.get("description", ""))
-	if desc_str.is_empty():
+	var raw_desc: Variant = d.get("description", "")
+	if not raw_desc is String:
 		push_error(
 			(
-				"GenerateItemResources: item '%s' description must not be empty (index %d) — skipped."
-				% [d.get("id", "?"), item_index]
+				"GenerateItemResources: item '%s' description must be a string (index %d) — skipped."
+				% [item_id, item_index]
 			)
 		)
 		valid = false
-	elif desc_str.length() > _MAX_DESCRIPTION_LENGTH:
-		push_error(
-			(
+	else:
+		var desc_str: String = raw_desc as String
+		if desc_str.is_empty():
+			push_error(
+				(
+					"GenerateItemResources: item '%s' description must not be empty (index %d) — skipped."
+					% [item_id, item_index]
+				)
+			)
+			valid = false
+		elif desc_str.length() > ItemSchema.MAX_DESCRIPTION_LENGTH:
+			var desc_err: String = (
 				"GenerateItemResources: item '%s' description must be max %d chars, "
 				+ (
 					"got %d (index %d) — skipped."
-					% [d.get("id", "?"), _MAX_DESCRIPTION_LENGTH, desc_str.length(), item_index]
+					% [item_id, ItemSchema.MAX_DESCRIPTION_LENGTH, desc_str.length(), item_index]
 				)
 			)
-		)
-		valid = false
+			push_error(desc_err)
+			valid = false
 
-	if valid:
-		seen_ids[item_id] = true
 	return valid
 
 
-## Returns [code]true[/code] if [param v] is a JSON number that represents an integer.
-static func _is_json_int(v: Variant) -> bool:
-	if v is int:
-		return true
-	if v is float:
-		var f: float = v as float
-		return is_equal_approx(f, floor(f))
-	return false
-
-
-## Creates and populates an [ItemData] resource from a single JSON item entry.
+## Creates and populates an [ItemData] resource from a validated JSON item entry.
 ##
 ## The [member ItemData.type] is determined by the `type` field in the JSON entry.
 ##
 ## Uses [method Object.set] for all property assignments to avoid stale script
 ## cache issues in the editor when scripts have changed but not yet reloaded.
 ##
-## Returns the populated [ItemData] resource, or [code]null[/code] if the entry
-## is invalid or has an unrecognised type.
+## Assumes [param item] has already passed [method _validate_item].
 func _build_resource(item: Dictionary) -> ItemData:
 	var type_str: String = item.get("type", "")
-
-	if not _TYPE_MAP.has(type_str):
-		push_error(
-			(
-				"GenerateItemResources: item '%s' has unknown type '%s' — skipped."
-				% [item.get("id", "?"), type_str]
-			)
-		)
-		return null
-
 	var res: ItemData = ItemData.new()
 
 	res.set("type", _TYPE_MAP[type_str])
-	res.set("id", item.get("id", ""))
-	res.set("display_name", item.get("name", ""))
+	# Explicit StringName conversion: ItemData.id is declared as StringName.
+	# Assigning a plain String via res.set() relies on implicit coercion, which
+	# works for == comparisons but can silently fail in Dictionary lookups keyed
+	# by StringName — the primary use of this id at runtime in ItemRegistry.
+	res.set("id", StringName(item.get("id", "") as String))
+	# JSON uses "name" but the property is "ui_name" to avoid shadowing Godot's
+	# built-in Node.name. The rename happens here, at the boundary between the
+	# JSON schema and the ItemData resource schema.
+	res.set("ui_name", item.get("name", ""))
 	res.set("description", item.get("description", ""))
-	res.set("buy_price", int(item.get("buy_price", 0)))
-	res.set("sell_price", int(item.get("sell_price", 0)))
-	res.set("stack_size", int(item.get("stack_size", 1)))
-	res.set("availability", int(item.get("availability", 1)))
-	var raw_ammo: Variant = item.get("ammo_type", "")
-	var ammo_key: String = "" if raw_ammo == null else str(raw_ammo)
-	res.set("ammo_type", _AMMO_TYPE_MAP.get(ammo_key, ItemData.AmmoType.NONE))
+	# _validate_item already confirmed every numeric field is a valid integer.
+	# Using parse_json_int here (not bare int()) matches the validation pass —
+	# both parse with the same semantics. int() silently coerces non-integer
+	# values (e.g. "4px" → 0), which could mask a broken validation step;
+	# parse_json_int returns null for invalid inputs.
+	# Note: in GDScript 4, null as int evaluates to 0 (default primitive) —
+	# it does not crash. So if parse_json_int returned null here the resource
+	# field would silently be 0, not a hard failure. This path is unreachable
+	# in practice because _validate_item always runs first. The real benefit
+	# of using parse_json_int in both passes is consistency: the same parser
+	# accepts or rejects inputs in both places, preventing a subtle gap if
+	# their semantics ever diverged.
+	res.set("buy_price", Utils.parse_json_int(item.get("buy_price")) as int)
+	res.set("sell_price", Utils.parse_json_int(item.get("sell_price")) as int)
+	res.set("stack_size", Utils.parse_json_int(item.get("stack_size")) as int)
+	res.set("availability", Utils.parse_json_int(item.get("availability")) as int)
+	res.set("ammo_type", _AMMO_TYPE_MAP.get(item.get("ammo_type", ""), ItemData.AmmoType.NONE))
 
 	var size_dict: Dictionary = item.get("size", {})
-	res.set(
-		"inventory_size", Vector2i(int(size_dict.get("width", 1)), int(size_dict.get("height", 1)))
+	# Same reasoning as above: parse_json_int instead of int() so a broken
+	# validation step would crash here rather than silently produce a zero.
+	(
+		res
+		. set(
+			"inventory_size",
+			Vector2i(
+				Utils.parse_json_int(size_dict.get("width")) as int,
+				Utils.parse_json_int(size_dict.get("height")) as int,
+			)
+		)
 	)
 
 	return res
 
 
-func _ensure_output_dir() -> void:
-	if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(_OUTPUT_DIR)):
-		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_OUTPUT_DIR))
+## Ensures the output directory exists, creating it if necessary.
+## Returns [code]false[/code] and pushes an error if the directory cannot be created.
+func _ensure_output_dir() -> bool:
+	# Use DirAccess.open to check existence — consistent with _clear_output_dir.
+	# make_dir_recursive_absolute requires an absolute path, so globalize_path is
+	# only used there, not for the existence check.
+	if DirAccess.open(_OUTPUT_DIR) != null:
+		return true
+	var err: Error = DirAccess.make_dir_recursive_absolute(
+		ProjectSettings.globalize_path(_OUTPUT_DIR)
+	)
+	if err != OK:
+		push_error(
+			(
+				"GenerateItemResources: could not create output dir %s — %s"
+				% [_OUTPUT_DIR, error_string(err)]
+			)
+		)
+		return false
+	return true
 
 
 ## Deletes all [code].tres[/code] and [code].uid[/code] files in [constant _OUTPUT_DIR]
 ## before regenerating, so removed JSON entries do not leave stale resources behind.
-func _clear_output_dir() -> void:
+## Returns [code]false[/code] and pushes an error if the directory cannot be opened or
+## if any file cannot be removed (e.g. locked by Godot's resource cache).
+func _clear_output_dir() -> bool:
 	var dir: DirAccess = DirAccess.open(_OUTPUT_DIR)
 	if dir == null:
-		return
+		push_error(
+			(
+				"GenerateItemResources: could not open output dir %s — %s"
+				% [_OUTPUT_DIR, error_string(DirAccess.get_open_error())]
+			)
+		)
+		return false
 	dir.list_dir_begin()
 	var file_name: String = dir.get_next()
 	while file_name != "":
 		if file_name.ends_with(".tres") or file_name.ends_with(".uid"):
-			dir.remove(file_name)
+			var err: Error = dir.remove(file_name)
+			if err != OK:
+				push_error(
+					(
+						"GenerateItemResources._clear_output_dir: failed to remove '%s' — %s"
+						% [file_name, error_string(err)]
+					)
+				)
+				dir.list_dir_end()
+				return false
 		file_name = dir.get_next()
 	dir.list_dir_end()
+	return true

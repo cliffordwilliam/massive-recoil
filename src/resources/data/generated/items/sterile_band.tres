@@ -6,7 +6,7 @@
 script = ExtResource("1_oqyhj")
 id = &"sterile_band"
 type = 1
-display_name = "Sterile Band"
+ui_name = "Sterile Band"
 description = "Clean bandage. Restores a small amount of health."
 inventory_size = Vector2i(2, 1)
 sell_price = 300

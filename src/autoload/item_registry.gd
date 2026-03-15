@@ -1,100 +1,112 @@
 # Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
 # This is the ItemRegistry autoload
 extends Node
-## Global registry of all item definitions and their runtime state.
+## Static catalog of all ItemData resources.
 ##
-## The registry is the single source of truth for both static blueprints and
-## mutable gameplay state. All items share a single dictionary:
+## Loads every [code].tres[/code] resource from [constant _ITEMS_DIR] on startup
+## and exposes them for lookup.
 ##
-## - [member _item_states] — all items across every type
-##
-## Each entry maps a [StringName] id to an [ItemState] instance,
-## which itself holds a pointer back to the immutable [ItemData] blueprint.
-##
-## On save load, call [method load_save] to hydrate all state from disk
-## without rebuilding the registry.
+## This autoload holds no runtime state — use [code]PlayerInventory[/code] for
+## inventory instances and [code]GameState[/code] for progression state.
 ##
 ## Blueprints are generated [code].tres[/code] files produced by running
 ## [code]src/editor/generate_item_resources.gd[/code] whenever
 ## [code]src/resources/data/items.json[/code] changes.
 
-## This is not a node it is just a script, so we cannot export this
 const _ITEMS_DIR: String = "res://src/resources/data/generated/items/"
 
-## Dictionary mapping [StringName] id to [ItemState].
-var _item_states: Dictionary[StringName, ItemState] = {}
+## Dictionary mapping [StringName] id to [ItemData].
+var _items: Dictionary[StringName, ItemData] = {}
 
 
 func _ready() -> void:
-	var dir: DirAccess = DirAccess.open(_ITEMS_DIR)
-	if not Utils.require(
-		dir != null,
-		"ItemRegistry: items directory not found. Run generate_item_resources.gd first."
-	):
-		return
-
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			_load_item(_ITEMS_DIR + file_name)
-		file_name = dir.get_next()
-
-
-## Returns all states whose item has a buy price.
-##
-## Used to populate the buy page of the shop UI.
-## Results are sorted by [member ItemData.availability] ascending, then by
-## [member ItemData.id] for a stable, platform-independent order.
-func get_buyable_shop_states() -> Array[ItemState]:
-	var result: Array[ItemState] = []
-	for state: ItemState in _item_states.values():
-		if state.data.buy_price > 0:
-			result.append(state)
-	result.sort_custom(
-		func(a: ItemState, b: ItemState) -> bool:
-			if a.data.availability != b.data.availability:
-				return a.data.availability < b.data.availability
-			return a.data.id < b.data.id
+	Utils.require(
+		DirAccess.open(_ITEMS_DIR) != null,
+		(
+			"ItemRegistry: items directory not found at '%s'. Run generate_item_resources.gd first."
+			% _ITEMS_DIR
+		)
 	)
+
+	for file_name: String in DirAccess.get_files_at(_ITEMS_DIR):
+		# .uid sidecar files have extension "uid", so this correctly excludes them.
+		if file_name.get_extension() == "tres":
+			_load_item(_ITEMS_DIR + file_name)
+
+
+## Returns all items in the catalog.
+##
+## Order reflects dictionary insertion order, which matches the alphabetical
+## filename order produced by [method DirAccess.get_files_at]. No caller in
+## this project requires a specific display order, so no explicit sort is
+## applied. If a future caller needs ordering, sort at the call site.
+func get_all_items() -> Array[ItemData]:
+	# assign() converts the untyped Array returned by values() into a typed
+	# Array[ItemData], which is not guaranteed by a bare return in all Godot 4.x
+	# versions. Without it, the typed return annotation silently passes an
+	# untyped array to callers.
+	var result: Array[ItemData] = []
+	result.assign(_items.values())
 	return result
 
 
-## Returns the [ItemState] for the given [param id].
+## Returns the [ItemData] for the given [param id].
 ##
-## A missing id indicates a logic error — callers should only request ids
-## that are known to exist in the item database.
-##
-## Returns [code]null[/code] if the id is not found.
-func get_item_state(id: StringName) -> ItemState:
-	var state: ItemState = _item_states.get(id, null)
-	Utils.require(state != null, "ItemRegistry.get_item_state: unknown id '%s'" % id)
-	return state
+## A missing id is an unrecoverable programmer error — callers should only
+## request ids known to exist in the item database. [method Utils.require]
+## uses [code]crash = true[/code] by default, which calls [method OS.crash]
+## in both debug and release. This function never silently returns
+## [code]null[/code]; a missing id always terminates the process.
+func get_item(id: StringName) -> ItemData:
+	var item: ItemData = _items.get(id, null)
+	Utils.require(item != null, "ItemRegistry.get_item: unknown id '%s'" % id)
+	return item
 
 
-## Hydrates runtime state from a save file dictionary.
+## Asserts that [param id] exists in the catalog.
 ##
-## [param save_data] should map item id strings to a dictionary of state
-## fields, e.g. [code]{ "field_medkit": { "count": 3, "is_new": false } }[/code].
-##
-## Unknown ids in [param save_data] are silently ignored so that saves from
-## older builds remain compatible after items are removed.
-func load_save(save_data: Dictionary) -> void:
-	for id: String in save_data:
-		var state: ItemState = _item_states.get(id, null)
-		if state == null:
-			continue
-		var entry: Dictionary = save_data[id]
-		state.count = entry.get("count", 0)
-		state.is_new = entry.get("is_new", false)
+## Crashes via [method OS.crash] (both debug and release) if the id is unknown.
+## Use this when the caller only needs to confirm an id is valid and does not need
+## the [ItemData] return value — it makes the intent explicit instead of calling
+## [method get_item] and discarding the result.
+func validate_item_id(id: StringName) -> void:
+	Utils.require(_items.has(id), "ItemRegistry.validate_item_id: unknown id '%s'" % id)
 
 
-## Loads a single [ItemData] resource from [param path] and registers
-## an [ItemState] for it.
 func _load_item(path: String) -> void:
 	var data: ItemData = load(path) as ItemData
-	if not Utils.require(
-		data != null, "ItemRegistry: file at '%s' is not an ItemData resource." % path
-	):
-		return
-	_item_states[data.id] = ItemState.new(data)
+	# These .tres files are generated by generate_item_resources.gd, which validates
+	# every entry before writing any file. A bad resource here means either a
+	# hand-edited .tres or a generation bug — neither has a recovery path. Crash in
+	# both debug and release via OS.crash (crash=true default). Bare calls without
+	# if-not make the intent explicit and avoid dead return branches.
+	#
+	# False positive note: the bare Utils.require calls here (no if-not wrapper) are
+	# intentional. crash=true means OS.crash is called on failure — there is no
+	# return value to check. Do not add if-not wrappers with crash=false; a corrupt
+	# generated file is not a recoverable condition at startup.
+	Utils.require(data != null, "ItemRegistry: file at '%s' is not an ItemData resource." % path)
+	Utils.require(not data.id.is_empty(), "ItemRegistry: resource at '%s' has an empty id." % path)
+	Utils.require(
+		not _items.has(data.id), "ItemRegistry: duplicate id '%s' in '%s'." % [data.id, path]
+	)
+	# -------------------------------------------------------------------------
+	# INTENTIONAL: ammo_type is NOT validated here and never will be.
+	#
+	# This has been flagged as a gap in multiple reviews. It is not a gap.
+	#
+	# Weapons can have ammo_type = NONE — that is a valid state for infinite-ammo
+	# weapons (e.g. melee, unlimited firearms). Because NONE is a legal value for
+	# weapon items, the inverse rule ("non-weapons must have ammo_type == NONE")
+	# cannot be enforced by simply checking the field value alone at runtime.
+	#
+	# The static pipeline (generate_item_resources.gd) owns this validation: it
+	# checks every JSON entry before writing any .tres file and rejects the entire
+	# batch on any violation. Runtime re-validation here would duplicate that rule,
+	# create a second place to keep in sync, and provide no meaningful safety gain —
+	# a hand-edited .tres would break far more than just ammo_type.
+	#
+	# Do not add ammo_type validation to this function.
+	# See docs/decisions/item_architecture.md — "Static data pipeline" section.
+	# -------------------------------------------------------------------------
+	_items[data.id] = data

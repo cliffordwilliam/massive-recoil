@@ -54,12 +54,10 @@ patch_margin_bottom = 4
 material = SubResource("CanvasItemMaterial_wi24h")
 scale = Vector2(178, 17)
 texture = ExtResource("4_2qt6m")
+centered = false
 
 [node name="ScrollTrackTop" type="Marker2D" parent="." unique_id=1068924365]
 position = Vector2(182, 0)
 
 [node name="ScrollTrackBottom" type="Marker2D" parent="." unique_id=390138122]
 position = Vector2(182, 89)
-
-[node name="ScrollBarOrigin" type="Marker2D" parent="." unique_id=1079929907]
-position = Vector2(182, 0)

@@ -6,7 +6,7 @@
 script = ExtResource("1_kgsjf")
 id = &"antiseptic"
 type = 1
-display_name = "Antiseptic"
+ui_name = "Antiseptic"
 description = "Antiseptic vial used to disinfect wounds."
 sell_price = 400
 stack_size = 5

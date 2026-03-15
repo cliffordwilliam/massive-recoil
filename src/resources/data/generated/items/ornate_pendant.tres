@@ -6,6 +6,6 @@
 script = ExtResource("1_7lior")
 id = &"ornate_pendant"
 type = 6
-display_name = "Ornate Pndnt"
+ui_name = "Ornate Pndnt"
 description = "Pendant with an empty gem socket."
 sell_price = 4000

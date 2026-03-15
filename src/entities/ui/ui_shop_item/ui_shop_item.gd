@@ -1,12 +1,10 @@
 class_name UIShopItem
 extends Node2D
-## UI element representing a single item entry in shop-related lists.
-##
-## This component is used to display items in **buy** and **sell** menus.
+## UI element representing a single item entry in shop buy and sell lists.
 ##
 ## Depending on the context, the item may represent:
 ## - Simple meds available for purchase.
-## - Weapons available for selling.
+## - Any item available for selling (those with a non-zero [member ItemData.sell_price]).
 ##
 ## The node expects several child nodes to exist in the scene tree:
 ## - `Title` (`Label`) – Displays the item name.
@@ -16,24 +14,11 @@ extends Node2D
 ## - `NewTag` (`Sprite2D`) – Displays the **NEW** tag for recently added items.
 ##
 ## Each page type uses different combinations of these visual elements.
-
-## Tag states used to visually mark items.
-enum TagType {
-	NONE,
-	NEW,
-}
+## One of [method setup_buy] or [method setup_sell] must be called before this node is made visible.
+## Items are sellable when their [member ItemData.sell_price] is non-zero.
 
 ## Text content displayed in the prefix label for stacked items.
 const _PREFIX_TEXT: String = "X"
-
-## Maximum number of characters allowed for the item title.
-const _MAX_TITLE_LENGTH: int = 12
-
-## Maximum allowed value for stack counts.
-const _MAX_VALUE: int = 999
-
-## Maximum allowed value for item prices.
-const _MAX_PRICE: int = 999999
 
 @onready var _title: Label = $Title
 @onready var _prefix: Label = $Prefix
@@ -42,27 +27,53 @@ const _MAX_PRICE: int = 999999
 @onready var _new_tag: Sprite2D = $NewTag
 
 
-## Truncates [param text] to [constant _MAX_TITLE_LENGTH] characters.
-## This is a safety net — item names in [code]items.json[/code] should already
-## respect this limit. No ellipsis is added; truncation is silent by design.
+## Truncates [param text] to [constant ItemSchema.MAX_NAME_LENGTH] characters.
+## Item names in [code]items.json[/code] must respect this limit — if this triggers,
+## something upstream is broken.
+## [br][br]
+## The [method Utils.require] call is intentional: it catches violations loudly —
+## [method Utils.require] uses [code]crash = true[/code] by default, so it calls
+## [method OS.crash] in both debug and release. The truncation below is a no-op
+## on any string that passes the check (length already within bounds), and is
+## unreachable if the check fails. Its purpose is to keep all three sanitizers
+## consistent in shape, not to serve as a release fallback.
 func _sanitize_title(text: String) -> String:
-	return text.substr(0, _MAX_TITLE_LENGTH)
+	Utils.require(
+		text.length() <= ItemSchema.MAX_NAME_LENGTH,
+		(
+			"UIShopItem._sanitize_title: name '%s' exceeds max length %d"
+			% [text, ItemSchema.MAX_NAME_LENGTH]
+		)
+	)
+	# substr is called unconditionally, mirroring how clampi is used in
+	# _sanitize_value and _sanitize_price. GDScript's substr clamps the length
+	# to the remaining string length, so calling it on a valid string (len <=
+	# MAX_NAME_LENGTH) is a no-op — it returns the full string unchanged.
+	# The unconditional call keeps all three sanitizers consistent and avoids
+	# a redundant length branch.
+	return text.substr(0, ItemSchema.MAX_NAME_LENGTH)
 
 
 func _sanitize_value(number: int) -> int:
-	return clampi(number, 0, _MAX_VALUE)
+	Utils.require(
+		number >= ItemSchema.MIN_STACK and number <= ItemSchema.MAX_STACK,
+		(
+			"UIShopItem._sanitize_value: stack_count %d out of range [%d, %d]"
+			% [number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK]
+		)
+	)
+	return clampi(number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK)
 
 
 func _sanitize_price(number: int) -> int:
-	return clampi(number, 0, _MAX_PRICE)
-
-
-func set_new_tag(type: TagType) -> void:
-	match type:
-		TagType.NONE:
-			_new_tag.hide()
-		TagType.NEW:
-			_new_tag.show()
+	Utils.require(
+		number >= ItemSchema.MIN_PRICE and number <= ItemSchema.MAX_PRICE,
+		(
+			"UIShopItem._sanitize_price: price %d out of range [%d, %d]"
+			% [number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE]
+		)
+	)
+	return clampi(number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE)
 
 
 ## Configures the item to display information for the **buy page**.
@@ -81,22 +92,23 @@ func setup_buy(
 	_value.hide()
 
 	if is_new:
-		set_new_tag(TagType.NEW)
+		_new_tag.show()
 	else:
-		set_new_tag(TagType.NONE)
+		_new_tag.hide()
 
 
 ## Configures the item to display information for the **sell page**.
 ##
 ## Displays the item name, quantity, and sell price.
-## The stack prefix `"X"` is shown to indicate item count.
-func setup_sell(given_name: String, count: int, price_value: int) -> void:
+## The stack prefix `"X"` is shown to indicate item stack count.
+func setup_sell(given_name: String, stack_count: int, price_value: int) -> void:
 	_title.text = _sanitize_title(given_name)
 	_prefix.text = _PREFIX_TEXT
-	_value.text = str(_sanitize_value(count))
+	_value.text = str(_sanitize_value(stack_count))
 	_price.text = str(_sanitize_price(price_value))
 
 	_prefix.show()
 	_value.show()
 
-	set_new_tag(TagType.NONE)
+	# NEW badge is buy-side only — it clears when the player purchases the item.
+	_new_tag.hide()

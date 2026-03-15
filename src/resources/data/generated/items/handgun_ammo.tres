@@ -6,7 +6,7 @@
 script = ExtResource("1_k40uh")
 id = &"handgun_ammo"
 type = 2
-display_name = "HG Ammo"
+ui_name = "HG Ammo"
 description = "Standard handgun cartridges."
 inventory_size = Vector2i(2, 1)
 sell_price = 50

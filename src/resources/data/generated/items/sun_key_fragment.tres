@@ -6,5 +6,5 @@
 script = ExtResource("1_03c0o")
 id = &"sun_key_fragment"
 type = 7
-display_name = "Sun Fragment"
+ui_name = "Sun Fragment"
 description = "A fragment of a broken key."

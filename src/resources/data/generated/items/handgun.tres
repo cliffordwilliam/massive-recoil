@@ -6,7 +6,7 @@
 script = ExtResource("1_48nvk")
 id = &"handgun"
 type = 4
-display_name = "Handgun"
+ui_name = "Handgun"
 description = "Reliable semi-auto handgun."
 inventory_size = Vector2i(2, 2)
 buy_price = 8000
