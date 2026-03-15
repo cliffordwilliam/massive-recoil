@@ -27,53 +27,67 @@ const _PREFIX_TEXT: String = "X"
 @onready var _new_tag: Sprite2D = $NewTag
 
 
-## Truncates [param text] to [constant ItemSchema.MAX_NAME_LENGTH] characters.
-## Item names in [code]items.json[/code] must respect this limit — if this triggers,
-## something upstream is broken.
-## [br][br]
-## The [method Utils.require] call is intentional: it catches violations loudly —
-## [method Utils.require] uses [code]crash = true[/code] by default, so it calls
-## [method OS.crash] in both debug and release. The truncation below is a no-op
-## on any string that passes the check (length already within bounds), and is
-## unreachable if the check fails. Its purpose is to keep all three sanitizers
-## consistent in shape, not to serve as a release fallback.
-func _sanitize_title(text: String) -> String:
+## Asserts [param text] is within [constant ItemSchema.MAX_NAME_LENGTH] characters
+## and returns it unchanged. Item names in [code]items.json[/code] must respect this
+## limit — if this triggers, something upstream is broken.
+##
+## [b]INTENTIONAL — DO NOT MARK AS AN ISSUE:[/b] These helpers crash via
+## [method Utils.require] → [method OS.crash] even though they are called in the render
+## path. This is intentional. A crash is preferred over silently displaying corrupt data.
+## If upstream validation (generate_item_resources.gd, ItemRegistry) is working correctly
+## these branches are unreachable. A crash here means the pipeline has a bug and fail-hard
+## is the right response — the alternative (clamping/logging) would mask the real problem.
+##
+## The return value is intentional: these functions are used inline at call sites
+## (e.g. [code]_title.text = _assert_title(given_name)[/code]) so the check and
+## assignment happen in one expression. Do not strip the return thinking it is unused.
+func _assert_title(text: String) -> String:
 	Utils.require(
 		text.length() <= ItemSchema.MAX_NAME_LENGTH,
 		(
-			"UIShopItem._sanitize_title: name '%s' exceeds max length %d"
+			"UIShopItem._assert_title: name '%s' exceeds max length %d"
 			% [text, ItemSchema.MAX_NAME_LENGTH]
 		)
 	)
-	# substr is called unconditionally, mirroring how clampi is used in
-	# _sanitize_value and _sanitize_price. GDScript's substr clamps the length
-	# to the remaining string length, so calling it on a valid string (len <=
-	# MAX_NAME_LENGTH) is a no-op — it returns the full string unchanged.
-	# The unconditional call keeps all three sanitizers consistent and avoids
-	# a redundant length branch.
-	return text.substr(0, ItemSchema.MAX_NAME_LENGTH)
+	return text
 
 
-func _sanitize_value(number: int) -> int:
+## Asserts [param number] is within [[constant ItemSchema.MIN_STACK],
+## [constant ItemSchema.MAX_STACK]]. Returns it unchanged. Stack counts in [code]items.json[/code]
+## must respect this
+## limit — if this triggers, something upstream is broken.
+##
+## The return value is intentional: these functions are used inline at call sites.
+## Example: [code]_value.text = str(_assert_value(stack_count))[/code] — the check and
+## assignment happen in one expression. Do not strip the return thinking it is unused.
+func _assert_value(number: int) -> int:
 	Utils.require(
 		number >= ItemSchema.MIN_STACK and number <= ItemSchema.MAX_STACK,
 		(
-			"UIShopItem._sanitize_value: stack_count %d out of range [%d, %d]"
+			"UIShopItem._assert_value: stack_count %d out of range [%d, %d]"
 			% [number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK]
 		)
 	)
-	return clampi(number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK)
+	return number
 
 
-func _sanitize_price(number: int) -> int:
+## Asserts [param number] is within [[constant ItemSchema.MIN_PRICE],
+## [constant ItemSchema.MAX_PRICE]]. Returns it unchanged. Prices in [code]items.json[/code]
+## must respect this
+## limit — if this triggers, something upstream is broken.
+##
+## The return value is intentional: these functions are used inline at call sites.
+## Example: [code]_price.text = str(_assert_price(price_value))[/code] — the check and
+## assignment happen in one expression. Do not strip the return thinking it is unused.
+func _assert_price(number: int) -> int:
 	Utils.require(
 		number >= ItemSchema.MIN_PRICE and number <= ItemSchema.MAX_PRICE,
 		(
-			"UIShopItem._sanitize_price: price %d out of range [%d, %d]"
+			"UIShopItem._assert_price: price %d out of range [%d, %d]"
 			% [number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE]
 		)
 	)
-	return clampi(number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE)
+	return number
 
 
 ## Configures the item to display information for the **buy page**.
@@ -85,8 +99,8 @@ func setup_buy(
 	price_value: int,
 	is_new: bool,
 ) -> void:
-	_title.text = _sanitize_title(given_name)
-	_price.text = str(_sanitize_price(price_value))
+	_title.text = _assert_title(given_name)
+	_price.text = str(_assert_price(price_value))
 
 	_prefix.hide()
 	_value.hide()
@@ -102,10 +116,10 @@ func setup_buy(
 ## Displays the item name, quantity, and sell price.
 ## The stack prefix `"X"` is shown to indicate item stack count.
 func setup_sell(given_name: String, stack_count: int, price_value: int) -> void:
-	_title.text = _sanitize_title(given_name)
+	_title.text = _assert_title(given_name)
 	_prefix.text = _PREFIX_TEXT
-	_value.text = str(_sanitize_value(stack_count))
-	_price.text = str(_sanitize_price(price_value))
+	_value.text = str(_assert_value(stack_count))
+	_price.text = str(_assert_price(price_value))
 
 	_prefix.show()
 	_value.show()

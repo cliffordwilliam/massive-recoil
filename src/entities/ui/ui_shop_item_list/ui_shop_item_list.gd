@@ -54,18 +54,14 @@ var _sell_items: Array[ItemState] = []
 ## Starts at -1 (uninitialized) so the first [method set_current_index] call always
 ## triggers [method _update_page], even when the target index is 0.
 var _current_index: int = -1:
+	# Godot 4 GDScript detects self-assignment within a named setter and writes
+	# directly to the backing store — assigning _current_index inside
+	# set_current_index does NOT cause infinite recursion.
 	set = set_current_index
 
-## References to the fixed five `UIShopItem` entry nodes.
-## These are hardcoded to match [constant _PAGE_SIZE] and the scene tree. The scene
-## is not intended to be resized — [method _ready] asserts the counts match at startup.
-@onready var _entries: Array[UIShopItem] = [
-	$ItemContainer/UIShopItem1 as UIShopItem,
-	$ItemContainer/UIShopItem2 as UIShopItem,
-	$ItemContainer/UIShopItem3 as UIShopItem,
-	$ItemContainer/UIShopItem4 as UIShopItem,
-	$ItemContainer/UIShopItem5 as UIShopItem,
-]
+## [UIShopItem] entry nodes, populated from [code]$ItemContainer[/code] children in [method _ready].
+## Count is asserted against [constant _PAGE_SIZE] at startup.
+var _entries: Array[UIShopItem] = []
 
 ## The cursor node positioned over the currently selected entry.
 @onready var _cursor: Sprite2D = $Cursor
@@ -78,15 +74,21 @@ var _current_index: int = -1:
 
 
 func _ready() -> void:
-	# No size check here — _entries is a hardcoded array literal of exactly
-	# _PAGE_SIZE elements, so its size is always correct by construction.
-	# The null loop below already catches the only real failure: a node missing
-	# from the scene tree causing an @onready cast to produce null.
-	for i: int in _entries.size():
-		Utils.require(
-			_entries[i] != null,
-			"UIShopItemList: _entries[%d] is null — check scene tree node types" % i
+	var container: Node = $ItemContainer
+	Utils.require(
+		container.get_child_count() == _PAGE_SIZE,
+		(
+			"UIShopItemList: expected %d children in ItemContainer, found %d"
+			% [_PAGE_SIZE, container.get_child_count()]
 		)
+	)
+	for child: Node in container.get_children():
+		var entry: UIShopItem = child as UIShopItem
+		Utils.require(
+			entry != null,
+			"UIShopItemList: child '%s' in ItemContainer is not a UIShopItem" % child.name
+		)
+		_entries.append(entry)
 	_cursor.centered = false
 
 
@@ -102,7 +104,13 @@ func _ready() -> void:
 ## architectural concern beyond what the type system can express — GDScript
 ## cannot distinguish a live slot from a snapshot copy at the type level.
 func set_buy_items(items: Array[ItemData]) -> void:
-	_buy_items = items
+	# assign() replaces all content on its own — clear() beforehand is redundant
+	# and was inconsistent with set_sell_items, which genuinely needs clear()
+	# because it populates via an append loop rather than assign().
+	_buy_items.assign(items)
+	# Intentional lazy update: only refresh immediately when already in BUY mode.
+	# If in SELL mode, the render_mode setter will call set_current_index(0) when
+	# the mode switches, which triggers _update_page at that point. Not a missing refresh.
 	if render_mode == RenderMode.BUY:
 		set_current_index(0)
 
@@ -121,9 +129,10 @@ func set_sell_items(items: Array[ItemState]) -> void:
 	# selected_sell_item returns entries from this array to callers — if live slot
 	# references entered here, they would escape PlayerInventory's ownership, which
 	# is the sole source of truth for all ItemState instances per the architecture.
-	# crash = true (default): passing live references is always a programmer error
-	# with no valid recovery path. The is_snapshot flag is set by ItemState.snapshot
-	# and is never true on live slots owned by PlayerInventory._slots.
+	# Passing live references is always a programmer error with no valid recovery
+	# path. The is_snapshot flag is set by ItemState.create_snapshot and is never true
+	# on live slots owned by PlayerInventory._slots.
+	_sell_items.clear()
 	for item: ItemState in items:
 		Utils.require(
 			item.is_snapshot,
@@ -132,7 +141,10 @@ func set_sell_items(items: Array[ItemState]) -> void:
 				+ "only pass snapshots from PlayerInventory.get_slots()"
 			)
 		)
-	_sell_items = items
+		_sell_items.append(item)
+	# Intentional lazy update: mirrors set_buy_items — only refresh immediately
+	# when already in SELL mode. Mode switches trigger set_current_index(0) via
+	# the render_mode setter. Not a missing refresh.
 	if render_mode == RenderMode.SELL:
 		set_current_index(0)
 
@@ -186,46 +198,50 @@ func previous() -> void:
 
 
 ## Returns the currently selected [ItemData] in buy mode.
-## Returns [code]null[/code] if not in buy mode or the buy list is empty.
+## Returns [code]null[/code] if the buy list is empty.
 ##
 ## [b]Why two functions instead of one?[/b] GDScript has no union return type, so a single
 ## [code]selected_item()[/code] could only return [code]Variant[/code], losing all type safety
 ## at call sites. Two typed functions is the correct trade-off here.
 ##
-## [b]On the mode mismatch path:[/b] [method Utils.require] pushes an error and
-## logs-and-continues ([code]crash = false[/code]), returning [code]null[/code]. All callers
-## already handle [code]null[/code] from the empty-list path, so a mode mismatch degrades
-## gracefully.
+## Calling this while not in BUY mode is a programmer error and crashes via [method Utils.require].
 func selected_buy_item() -> ItemData:
-	if not Utils.require(
-		render_mode == RenderMode.BUY,
-		"UIShopItemList.selected_buy_item: called while not in BUY mode",
-		false
-	):
-		return null
+	if render_mode != RenderMode.BUY:
+		Utils.require(false, "UIShopItemList.selected_buy_item: called while not in BUY mode")
+		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
 	if _buy_items.is_empty():
-		return null
-	# Intentional defensive guard: _current_index is always clamped by
-	# set_current_index, so this can only trigger if items were somehow
-	# mutated without going through the proper setters. Belt-and-suspenders.
-	if _current_index >= _buy_items.size():
+		Utils.require(
+			_current_index < _buy_items.size(),
+			(
+				(
+					"UIShopItemList.selected_buy_item: _current_index %d out of range for "
+					+ "buy list of size %d — buy items mutated without going through setters"
+				)
+				% [_current_index, _buy_items.size()]
+			)
+		)
 		return null
 	return _buy_items[_current_index]
 
 
 ## Returns the currently selected [ItemState] in sell mode.
-## Returns [code]null[/code] if not in sell mode or the sell list is empty.
+## Returns [code]null[/code] if the sell list is empty.
+## Calling this while not in SELL mode is a programmer error and crashes via [method Utils.require].
 func selected_sell_item() -> ItemState:
-	if not Utils.require(
-		render_mode == RenderMode.SELL,
-		"UIShopItemList.selected_sell_item: called while not in SELL mode",
-		false
-	):
-		return null
+	if render_mode != RenderMode.SELL:
+		Utils.require(false, "UIShopItemList.selected_sell_item: called while not in SELL mode")
+		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
 	if _sell_items.is_empty():
-		return null
-	# Intentional defensive guard: same reasoning as selected_buy_item above.
-	if _current_index >= _sell_items.size():
+		Utils.require(
+			_current_index < _sell_items.size(),
+			(
+				(
+					"UIShopItemList.selected_sell_item: _current_index %d out of range for "
+					+ "sell list of size %d — sell items mutated without going through setters"
+				)
+				% [_current_index, _sell_items.size()]
+			)
+		)
 		return null
 	return _sell_items[_current_index]
 
@@ -244,9 +260,9 @@ func _active_size() -> int:
 			# this function. Without it, an unhandled mode would silently return
 			# 0 and produce a blank list with no indication of why.
 			# Use Utils.require instead of push_error to match the convention in
-			# _update_page and to fail hard in debug. push_error alone only logs;
-			# Utils.require crashes in debug mode, catching the bug immediately
-			# rather than silently returning 0 and masking the real problem.
+			# _update_page and to fail hard. push_error alone only logs;
+			# Utils.require crashes in both debug and release via OS.crash,
+			# catching the bug immediately rather than silently returning 0 and masking the real problem.
 			Utils.require(
 				false, "UIShopItemList._active_size: unhandled RenderMode %d" % render_mode
 			)
@@ -256,6 +272,10 @@ func _active_size() -> int:
 ## Returns the starting index of the current page.
 ## Pages are calculated using `_PAGE_SIZE`.
 func _get_page_start() -> int:
+	# This guard is redundant — when the list is empty, _current_index is 0, so
+	# (0 / _PAGE_SIZE) * _PAGE_SIZE == 0 anyway. Kept for readability: it makes
+	# the empty-list case explicit and avoids the @warning_ignore on an empty list.
+	# Do not remove it thinking it is dead code.
 	if _active_size() == 0:
 		return 0
 
@@ -277,50 +297,34 @@ func _update_page() -> void:
 		return
 
 	var page_start: int = _get_page_start()
+	var active_count: int = _active_size()
 
 	for local_slot: int in _PAGE_SIZE:
 		var entry: UIShopItem = _entries[local_slot]
 		var item_index: int = page_start + local_slot
 
-		if item_index < _active_size():
+		if item_index < active_count:
 			match render_mode:
 				RenderMode.BUY:
-					# GDScript typed variables accept null — this assignment is safe even
-					# if the element is null. The guard immediately below is the actual
-					# protection; placing both lines together makes the relationship clear.
 					var data: ItemData = _buy_items[item_index]
-					if not Utils.require(
+					Utils.require(
 						data != null,
 						"UIShopItemList._update_page: null ItemData at buy index %d" % item_index
-					):
-						# hide() before continue so this slot doesn't show stale
-						# content from a previous render if data is somehow null.
-						entry.hide()
-						continue
+					)
 					entry.setup_buy(
 						data.ui_name, data.buy_price, GameState.is_shop_item_new(data.id)
 					)
 
 				RenderMode.SELL:
 					var state: ItemState = _sell_items[item_index]
-					if not Utils.require(
+					Utils.require(
 						state != null,
 						"UIShopItemList._update_page: null ItemState at sell index %d" % item_index
-					):
-						# Same reasoning as the BUY guard above.
-						entry.hide()
-						continue
-					# Guard state.data separately from state itself. The null guard above
-					# only confirms the slot is non-null — it says nothing about whether
-					# state.data was set. ItemState is a plain data holder with no
-					# constructor validation, so data could be unset if an instance were
-					# created incorrectly outside PlayerInventory.
-					# False positive note: this extra guard was flagged as asymmetric
-					# with BUY mode (which has only one null check). It is not. BUY
-					# items are direct ItemData elements — one nullable layer. SELL
-					# items are ItemState wrappers containing an ItemData — two nullable
-					# layers. Both modes check exactly the layers that exist.
-					if not (
+					)
+					# Guard state.data separately from state itself — BUY items are a
+					# single nullable layer, SELL items are ItemState wrappers with an
+					# inner ItemData, so two layers need checking.
+					(
 						Utils
 						. require(
 							state.data != null,
@@ -329,18 +333,16 @@ func _update_page() -> void:
 								% item_index
 							)
 						)
-					):
-						entry.hide()
-						continue
+					)
 					entry.setup_sell(state.data.ui_name, state.stack_count, state.data.sell_price)
 
 				_:
 					Utils.require(
 						false, "UIShopItemList._update_page: unhandled RenderMode %d" % render_mode
 					)
-					# continue prevents fallthrough to entry.show() below, which would
-					# display stale content on this slot in release builds where
-					# Utils.require does not halt.
+					# continue prevents fallthrough to entry.show() below. Utils.require
+					# already crashes before this point, but the guard is kept in case
+					# this handler is ever replaced with a softer fallback.
 					continue
 
 			entry.show()
@@ -359,6 +361,12 @@ func _update_page() -> void:
 
 
 ## Draws the scroll thumb.
+##
+## No [method Node.is_node_ready] guard is needed here. [code]_draw[/code] is only
+## ever triggered by the Godot renderer (which runs after [method _ready]) or by
+## [method queue_redraw], which is only called from [method _update_page] — and
+## [method _update_page] already guards on [method Node.is_node_ready] before
+## calling [method queue_redraw]. So [code]_draw[/code] can never fire before ready.
 func _draw() -> void:
 	# float() cast is required: without it, integer division truncates before ceili
 	# can apply ceiling rounding (e.g. 7 / 5 == 1 as int, but ceil(7.0 / 5) == 2).

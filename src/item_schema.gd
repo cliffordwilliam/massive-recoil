@@ -14,11 +14,14 @@ const MIN_PRICE: int = 0
 const MAX_PRICE: int = 999999
 const MIN_STACK: int = 1
 const MAX_STACK: int = 999
-const MIN_AVAILABILITY: int = 1
-const MAX_AVAILABILITY: int = 4
 const MIN_SIZE_DIM: int = 1
 const MAX_SIZE_DIM: int = 6
-## Valid chapter range. Mirrors [constant MIN_AVAILABILITY] / [constant MAX_AVAILABILITY]
-## because chapters and item availability are the same scale.
-const MIN_CHAPTER: int = MIN_AVAILABILITY
-const MAX_CHAPTER: int = MAX_AVAILABILITY
+## Valid chapter range. Mirrors availability
+## because chapters and item availability are the same scale and share the same value.
+const MIN_CHAPTER: int = 1
+const MAX_CHAPTER: int = 4
+## Sentinel stored on non-shop items ([member ItemData.buy_price] == [code]0[/code]).
+## Exceeds [constant MAX_CHAPTER] so [code]availability <= chapter[/code] is always
+## [code]false[/code] for these items, making the filter self-enforcing without requiring
+## a separate [member ItemData.buy_price] guard.
+const AVAILABILITY_NOT_FOR_SALE: int = MAX_CHAPTER + 1

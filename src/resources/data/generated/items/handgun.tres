@@ -11,4 +11,5 @@ description = "Reliable semi-auto handgun."
 inventory_size = Vector2i(2, 2)
 buy_price = 8000
 sell_price = 4000
+availability = 1
 ammo_type = 1

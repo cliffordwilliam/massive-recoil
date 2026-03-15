@@ -46,6 +46,11 @@ An item is sellable when its `sell_price` is non-zero. Items with `sell_price ==
 cannot be sold to the merchant. The same logic applies to buying: `buy_price == 0`
 means the item is not available for purchase.
 
+Non-shop items (`buy_price == 0`) are assigned `ItemSchema.AVAILABILITY_NOT_FOR_SALE`
+by `generate_item_resources.gd` at generation time, regardless of the JSON value.
+This sentinel exceeds `MAX_CHAPTER`, so `availability <= chapter` is always false for
+them — shop filters do not need a separate `buy_price > 0` guard to exclude them.
+
 ## Shop "new item" tag
 
 When a new item becomes available in the shop (based on chapter and `availability`),
@@ -76,11 +81,11 @@ into it has already been validated at every stage of the pipeline:
    business rules: `can_place` before placement, `data.stack_size` cap in `add_to_stack`.
 
 Putting validation inside `ItemState` would duplicate those rules and create a second
-place to keep in sync. It would also have a subtle failure mode: `Utils.require` is
-"fail hard in debug, log-and-continue in release" — if the check triggered in release,
-it would push an error but not halt, leaving the object in a broken state with
-uninitialized fields until a null-dereference crashed elsewhere. A plain field fails
-loudly and immediately at the point of access, which is easier to trace.
+place to keep in sync. It would also have a subtle failure mode: `Utils.require` calls
+`OS.crash` unconditionally in both debug and release. Using it inside a constructor
+would be overly aggressive — crashing on every corrupt save file, for example, rather
+than skipping it. A plain field fails loudly and immediately at the point of access,
+which is easier to trace.
 
 ## Static data pipeline
 

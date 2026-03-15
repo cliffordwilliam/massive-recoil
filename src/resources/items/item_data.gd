@@ -12,11 +12,21 @@ extends Resource
 ## | `buy_price`      | int    | 0–999999. `0` = not buyable                  |
 ## | `sell_price`     | int    | 0–999999. `0` = not sellable                 |
 ## | `stack_size`     | int    | 1–999. `1` = not stackable                   |
-## | `availability`   | int    | 1–4. Earliest chapter in merchant shop       |
+## | `availability`   | int    | 1–4. Earliest chapter in merchant shop.      |
+## |                  |        | Ignored when `buy_price == 0`; generator     |
+## |                  |        | writes `AVAILABILITY_NOT_FOR_SALE` instead.  |
 ## | `ammo_type`      | string | AmmoType; only when `type == WEAPON`         |
 ##
 ## Bounds for all numeric fields are in [ItemSchema].
 ## See: "res://docs/decisions/item_architecture.md"
+##
+## [b]No validation is performed on this class's fields.[/b] [code]ItemData[/code] is a
+## plain data holder — validation is the responsibility of the pipeline that produces it:
+## [br]- [code]generate_item_resources.gd[/code] validates every JSON entry before writing
+##   any [code].tres[/code] file.
+## [br]- [code]ItemRegistry[/code] guards against missing or malformed resources at load time.
+## [br]- [code]PlayerInventory[/code] enforces business rules at placement time
+##   (stack bounds via [constant ItemSchema.MIN_STACK] and [member stack_size]).
 
 ## Type determines item behaviour and gameplay role.
 enum Type {
@@ -81,16 +91,11 @@ enum AmmoType {
 ## Earliest chapter in which this item becomes available in the merchant shop.
 ## Only meaningful when [member buy_price] is non-zero.
 ## [br][br]
-## Non-shop items ([member buy_price] == [code]0[/code]) keep the default value of
-## [code]1[/code] because [code]availability[/code] is meaningless for them — no system
-## should reach this field without first confirming [member buy_price] is non-zero.
-## The contract is: always filter on [member buy_price] before filtering on this field.
-## [br][br]
-## [b]Developer note:[/b] this is an intentional convention, not a hard enforcement.
-## There is no mechanism to prevent a future filter from checking [code]availability[/code]
-## without the [member buy_price] guard — if that ever happens and non-shop items leak
-## into the shop, it is a misuse of this field and the author's responsibility to fix.
-@export var availability: int = 1
+## Non-shop items ([member buy_price] == [code]0[/code]) are assigned
+## [constant ItemSchema.AVAILABILITY_NOT_FOR_SALE] by [code]generate_item_resources.gd[/code].
+## This sentinel exceeds [constant ItemSchema.MAX_CHAPTER], so [code]availability <= chapter[/code]
+## is always [code]false[/code] for them — a [member buy_price] guard is not needed.
+@export var availability: int = ItemSchema.AVAILABILITY_NOT_FOR_SALE
 
 ## Ammo type this weapon consumes. Only meaningful when [member type] is [constant Type.WEAPON].
 @export var ammo_type: AmmoType = AmmoType.NONE

@@ -9,3 +9,4 @@ type = 5
 ui_name = "DMG Upgrade"
 description = "Upgrade that increases weapon damage."
 buy_price = 5000
+availability = 1

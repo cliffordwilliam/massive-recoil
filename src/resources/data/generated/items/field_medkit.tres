@@ -10,3 +10,4 @@ description = "Restores full health. Rare emergency medkit."
 inventory_size = Vector2i(2, 1)
 buy_price = 5000
 sell_price = 2500
+availability = 1

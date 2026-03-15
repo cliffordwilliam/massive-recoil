@@ -423,16 +423,24 @@ func _validate_item(item: Variant, item_index: int) -> bool:
 			)
 		)
 		valid = false
+	# availability is only validated for shop items (buy_price > 0). Non-shop items
+	# have their availability overridden to ItemSchema.AVAILABILITY_NOT_FOR_SALE in
+	# _build_resource regardless of the JSON value, so the range check is meaningless
+	# for them and skipped here to avoid spurious errors.
+	var is_shop_item: bool = parsed_buy_price != null and (parsed_buy_price as int) > 0
 	if (
-		parsed_avail == null
-		or (parsed_avail as int) < ItemSchema.MIN_AVAILABILITY
-		or (parsed_avail as int) > ItemSchema.MAX_AVAILABILITY
+		is_shop_item
+		and (
+			parsed_avail == null
+			or (parsed_avail as int) < ItemSchema.MIN_CHAPTER
+			or (parsed_avail as int) > ItemSchema.MAX_CHAPTER
+		)
 	):
 		var avail_err: String = (
 			"GenerateItemResources: item '%s' availability must be integer in [%d, %d] "
 			+ (
 				"(index %d) — skipped."
-				% [item_id, ItemSchema.MIN_AVAILABILITY, ItemSchema.MAX_AVAILABILITY, item_index]
+				% [item_id, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER, item_index]
 			)
 		)
 		push_error(avail_err)
@@ -588,7 +596,13 @@ func _build_resource(item: Dictionary) -> ItemData:
 	res.set("buy_price", Utils.parse_json_int(item.get("buy_price")) as int)
 	res.set("sell_price", Utils.parse_json_int(item.get("sell_price")) as int)
 	res.set("stack_size", Utils.parse_json_int(item.get("stack_size")) as int)
-	res.set("availability", Utils.parse_json_int(item.get("availability")) as int)
+	# Non-shop items get the sentinel regardless of the JSON value.
+	# This makes availability <= chapter always false for them without needing a buy_price guard.
+	var buy_price_val: int = Utils.parse_json_int(item.get("buy_price")) as int
+	if buy_price_val == 0:
+		res.set("availability", ItemSchema.AVAILABILITY_NOT_FOR_SALE)
+	else:
+		res.set("availability", Utils.parse_json_int(item.get("availability")) as int)
 	res.set("ammo_type", _AMMO_TYPE_MAP.get(item.get("ammo_type", ""), ItemData.AmmoType.NONE))
 
 	var size_dict: Dictionary = item.get("size", {})

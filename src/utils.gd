@@ -4,22 +4,13 @@ extends RefCounted
 ## that can be called statically without creating an instance.
 
 
-## Use this to catch impossible or invalid states during runtime.
+## Crashes via [method OS.crash] if [param valid_condition] is false.
 ##
-## By default crashes in both debug and release via [method OS.crash] — use this
-## for programmer errors and broken-build conditions that should never occur in
-## correct code.
-##
-## Pass [param crash] as [code]false[/code] only at external boundaries (e.g.
-## save-file parsing) where a corrupt input should be logged and skipped rather
-## than crashing the game.
-static func require(valid_condition: bool, message: String, crash: bool = true) -> bool:
+## Use this to catch impossible or invalid states during runtime — programmer
+## errors and broken-build conditions that should never occur in correct code.
+static func require(valid_condition: bool, message: String) -> void:
 	if not valid_condition:
-		if crash:
-			OS.crash(message)
-		else:
-			push_error(message)
-	return valid_condition
+		OS.crash(message)
 
 
 ## Parses a JSON scalar as an integer.

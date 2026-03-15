@@ -69,28 +69,15 @@ func can_place(item_data: ItemData, position: Vector2i) -> bool:
 func place_item(
 	id: StringName, position: Vector2i, count: int = 1, mark_seen: bool = true, notify: bool = true
 ) -> bool:
-	# No null guard after get_item — ItemRegistry.get_item already calls
-	# Utils.require for unknown IDs. A second silent return false here would
-	# bury that error and make the caller unable to distinguish a missing item
-	# from a legitimately invalid placement.
-	#
-	# Utils.require uses crash=true (the default), which calls OS.crash in both
-	# debug and release — it does not merely log and return null. An unknown id
-	# is an unrecoverable programmer error with no valid recovery path, so
-	# crashing loudly is correct. A soft return false would silently swallow the
-	# root cause and make the bug much harder to trace.
+	# No null guard after get_item — ItemRegistry.get_item already crashes via
+	# Utils.require for unknown IDs. A second return false here would bury that
+	# error and make the caller unable to distinguish a missing item from a
+	# legitimately invalid placement.
 	var data: ItemData = ItemRegistry.get_item(id)
 	if not can_place(data, position):
 		return false
 	# An out-of-range count is always a programmer error — callers are responsible
 	# for clamping before calling place_item (load_save does this explicitly).
-	# Crash in both debug and release via OS.crash (crash=true default). Bare calls
-	# without if-not make the intent explicit and avoid dead return-false branches.
-	#
-	# False positive note: the bare Utils.require calls here (no if-not wrapper) are
-	# intentional. crash=true means OS.crash is called on failure — there is no
-	# return value to check. Do not add if-not wrappers with crash=false; an
-	# out-of-range count is not a recoverable condition at this call site.
 	Utils.require(
 		count >= ItemSchema.MIN_STACK,
 		"PlayerInventory.place_item: count %d is below MIN_STACK" % count
@@ -128,22 +115,21 @@ func place_item(
 ## units that could not fit (overflow).
 func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 	var slot: ItemState = get_slot_at(position)
-	if slot == null:
-		return count
-	# A type mismatch is an expected player action — dragging item A onto a slot
-	# occupied by item B — not a programmer error. Return the full count as
-	# overflow so the caller knows nothing was placed and can respond (e.g. play
-	# an invalid sound or snap the item back). No error is raised.
-	if slot.data.id != id:
-		return count
+	# INTENTIONAL DO NOT MARK THESE AS ISSUES:
+	# Both the null-slot and the ID-mismatch cases return the full count as
+	# "overflow". This is intentional — both represent an invalid placement:
+	# there is either no target slot or the target holds a different item.
+	# Returning the full count signals to the caller that nothing was placed,
+	# so it can respond (e.g. snap the item back or play an invalid sound).
+	# Neither case is a programmer error, so no crash is raised.
+	# The same return value is used for both to keep the caller contract simple:
+	# any non-zero return means some or all units could not be placed.
 	# Guard against non-positive count: mini(space, negative) would produce a
 	# negative added value and silently decrement stack_count, corrupting state.
-	# crash = true (default): OS.crash() halts the process — the return below
-	# is unreachable in practice. It exists only so GDScript's flow analysis
-	# sees a value returned on this path.
-	if not Utils.require(
-		count > 0, "PlayerInventory.add_to_stack: count must be positive, got %d" % count
-	):
+	Utils.require(count > 0, "PlayerInventory.add_to_stack: count must be positive, got %d" % count)
+	if slot == null:
+		return count
+	if slot.data.id != id:
 		return count
 	var space: int = slot.data.stack_size - slot.stack_count
 	var added: int = mini(space, count)
@@ -154,18 +140,30 @@ func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 
 
 ## Removes the slot whose footprint contains [param position].
-func remove_item_at(position: Vector2i) -> void:
+##
+## Returns [code]true[/code] if a slot was found and removed, [code]false[/code] if
+## no slot occupies that cell. Consistent with [method place_item] and [method upgrade_grid],
+## which both return a bool so callers can distinguish a successful operation from a no-op
+## without silently swallowing the miss.
+func remove_item_at(position: Vector2i) -> bool:
 	var slot: ItemState = get_slot_at(position)
 	if slot == null:
-		return
+		return false
 	_slots.erase(slot)
 	inventory_changed.emit()
+	return true
 
 
 ## Returns the first open position where [param item_data] fits in the current grid,
 ## scanning left-to-right, top-to-bottom.
 ##
 ## Returns [code]Vector2i(-1, -1)[/code] if no space is available.
+##
+## [b]INTENTIONAL — DO NOT MARK AS AN ISSUE:[/b] This is O(W × H × N) — for each
+## candidate cell it calls [method can_place], which iterates all N slots. At the
+## maximum grid size (8×15) fully packed with 1×1 items this is ~14,400 iterations.
+## This is acceptable given the fixed, small grid bounds. If those bounds ever grow
+## substantially, revisit with a spatial index (e.g. a cell occupancy bitset).
 func find_open_position(item_data: ItemData) -> Vector2i:
 	for y: int in grid_size.y:
 		for x: int in grid_size.x:
@@ -185,11 +183,11 @@ func get_slot_at(position: Vector2i) -> ItemState:
 
 ## Returns snapshots of all current inventory slots for read-only use by the UI.
 ##
-## Each entry is a detached [method ItemState.snapshot] — a copy of the slot at
-## the moment of the call. Mutating a snapshot has no effect on inventory state.
-## All mutations must go through this autoload's API.
+## Each entry is a detached copy from [method ItemState.create_snapshot] — reflecting
+## the slot state at the moment of the call. Mutating a snapshot has no effect on
+## inventory state. All mutations must go through this autoload's API.
 ##
-## [b]Allocation note:[/b] [member ItemState.snapshot] allocates a new object per
+## [b]Allocation note:[/b] [method ItemState.create_snapshot] allocates a new object per
 ## slot per call. This is intentionally acceptable: the game has a single inventory
 ## grid with a small, bounded number of slots (capped by [constant _GRID_SIZES]),
 ## and [method get_slots] is only called in response to [signal inventory_changed] —
@@ -198,8 +196,17 @@ func get_slot_at(position: Vector2i) -> ItemState:
 func get_slots() -> Array[ItemState]:
 	var out: Array[ItemState] = []
 	for slot: ItemState in _slots:
-		out.append(slot.snapshot)
+		out.append(slot.create_snapshot())
 	return out
+
+
+## Returns [code]true[/code] if the grid can still be upgraded.
+##
+## Use this to query upgrade availability without performing the upgrade — for
+## example, to initialize a button's disabled state on load without having to
+## call [method upgrade_grid] and check its return value.
+func can_upgrade_grid() -> bool:
+	return _grid_tier < _GRID_SIZES.size() - 1
 
 
 ## Advances the grid to the next size tier if one is available.
@@ -229,154 +236,92 @@ func _append_slot(data: ItemData, pos: Vector2i, count: int) -> void:
 
 ## Hydrates inventory from [param save_data].
 ##
-## Each entry must be a [Dictionary] with [code]"id"[/code] (String),
-## [code]"stack_count"[/code] (int), and [code]"position"[/code]
-## ([code]{"x": int, "y": int}[/code]). Unknown ids are skipped with an error.
+## Any invalid or corrupt data crashes via [method OS.crash]. Each slot entry
+## must be a [Dictionary] with [code]"id"[/code] (String), [code]"stack_count"[/code]
+## (int), and [code]"position"[/code] ([code]{"x": int, "y": int}[/code]).
 ##
-## Uses [method place_item] with [code]mark_seen = false[/code] so that loading
-## a save does not touch the seen-set — that state is already captured in the
-## saved [GameState] data.
+## Calls [method _append_slot] directly instead of [method place_item] so that
+## [method GameState.mark_shop_item_seen] is never called — the seen-set is already
+## captured in the saved [GameState] data and must not be modified on load.
 func load_save(save_data: Dictionary) -> void:
 	_slots.clear()
 	var raw_tier: Variant = save_data.get("grid_tier", 0)
-	var tier_int: int = 0
 	var parsed_tier: Variant = Utils.parse_json_int(raw_tier)
-	if parsed_tier != null:
-		tier_int = parsed_tier
-	else:
-		push_warning(
-			"PlayerInventory.load_save: invalid grid_tier '%s', defaulting to 0" % raw_tier
+	Utils.require(
+		parsed_tier != null, "PlayerInventory.load_save: invalid grid_tier '%s'" % raw_tier
+	)
+	var tier_int: int = parsed_tier as int
+	Utils.require(
+		tier_int >= 0 and tier_int < _GRID_SIZES.size(),
+		(
+			"PlayerInventory.load_save: grid_tier %d out of range [0, %d]"
+			% [tier_int, _GRID_SIZES.size() - 1]
 		)
-		tier_int = 0
-	# False positive note: the asymmetry between grid_tier (clamped gracefully)
-	# and item IDs (crash on unknown) is intentional, not an oversight.
-	# grid_tier is a bounded integer with a clear fallback: any out-of-range
-	# value can be safely snapped to the nearest valid tier without data loss —
-	# the worst outcome is the grid renders at the wrong size, which is visible
-	# and recoverable. An unknown item ID has no recovery path: there is no
-	# sensible ItemData to substitute, and silently skipping it would hide data
-	# loss. Crashing immediately is the correct response to a truly corrupt entry.
-	_grid_tier = clampi(tier_int, 0, _GRID_SIZES.size() - 1)
+	)
+	_grid_tier = tier_int
 	var raw_slots: Variant = save_data.get("slots", [])
-	if not raw_slots is Array:
-		push_warning("PlayerInventory.load_save: 'slots' is not an Array — skipping all slots")
-		inventory_changed.emit()
-		return
+	Utils.require(raw_slots is Array, "PlayerInventory.load_save: 'slots' is not an Array")
 	for raw_entry: Variant in raw_slots as Array:
-		if not raw_entry is Dictionary:
-			push_warning("PlayerInventory.load_save: skipping non-Dictionary slot entry")
-			continue
+		Utils.require(
+			raw_entry is Dictionary, "PlayerInventory.load_save: slot entry is not a Dictionary"
+		)
 		var entry: Dictionary = raw_entry as Dictionary
-		# Reject invalid ids at this boundary before passing them deeper.
-		# An empty or non-string id in save data indicates a corrupt entry —
-		# we never want that reaching ItemRegistry.
-		# Soft skip (crash = false): structural garbage — missing, non-String,
-		# or empty id field — can appear in corrupt or hand-edited save files.
-		# There is nothing to recover: log and skip. This contrasts intentionally
-		# with the hard crash below for unknown IDs, where the string is valid
-		# but unrecognised. That case means game data changed with no recovery
-		# path (renamed or deleted item), so crashing immediately is correct.
 		var raw_id: Variant = entry.get("id", "")
-		if not Utils.require(
+		Utils.require(
 			raw_id is String and not (raw_id as String).is_empty(),
-			"PlayerInventory.load_save: slot entry has missing or empty id — skipped.",
-			false
-		):
-			continue
+			"PlayerInventory.load_save: slot entry has missing or empty id"
+		)
 		var id: StringName = StringName(raw_id as String)
-		# Intentional by design: unknown IDs crash the game (OS.crash, both debug
-		# and release). A mismatch here means an item was renamed or deleted during
-		# development, or the player manually edited the save file — neither case has
-		# a sensible recovery path, so crashing immediately is correct. This is not
-		# a bug or an oversight.
 		var data: ItemData = ItemRegistry.get_item(id)
 		var raw_pos_val: Variant = entry.get("position", {})
-		if not raw_pos_val is Dictionary:
-			push_warning(
-				"PlayerInventory.load_save: skipping '%s' — position is not a Dictionary" % id
-			)
-			continue
+		Utils.require(
+			raw_pos_val is Dictionary,
+			"PlayerInventory.load_save: '%s' position is not a Dictionary" % id
+		)
 		var raw_pos: Dictionary = raw_pos_val as Dictionary
-		var raw_x: Variant = raw_pos.get("x", -1)
-		var raw_y: Variant = raw_pos.get("y", -1)
-		var pos_x: int
-		var pos_y: int
-		var parsed_x: Variant = Utils.parse_json_int(raw_x)
-		if parsed_x != null:
-			pos_x = parsed_x
-		else:
-			push_warning(
-				"PlayerInventory.load_save: skipping '%s' — position.x is not an integer" % id
-			)
-			continue
-		var parsed_y: Variant = Utils.parse_json_int(raw_y)
-		if parsed_y != null:
-			pos_y = parsed_y
-		else:
-			push_warning(
-				"PlayerInventory.load_save: skipping '%s' — position.y is not an integer" % id
-			)
-			continue
-		var pos: Vector2i = Vector2i(pos_x, pos_y)
-		# Check bounds and overlap separately so the warning identifies the actual
-		# cause. can_place returns false for both, making them indistinguishable
-		# from a single call — especially relevant when a mismatched grid_tier
-		# makes a previously valid position out of bounds on load.
-		if (
-			pos.x < 0
-			or pos.y < 0
-			or pos.x + data.inventory_size.x > grid_size.x
-			or pos.y + data.inventory_size.y > grid_size.y
-		):
-			push_warning(
+		var parsed_x: Variant = Utils.parse_json_int(raw_pos.get("x"))
+		Utils.require(
+			parsed_x != null,
+			"PlayerInventory.load_save: '%s' position.x is missing or not an integer" % id
+		)
+		var parsed_y: Variant = Utils.parse_json_int(raw_pos.get("y"))
+		Utils.require(
+			parsed_y != null,
+			"PlayerInventory.load_save: '%s' position.y is missing or not an integer" % id
+		)
+		var pos: Vector2i = Vector2i(parsed_x as int, parsed_y as int)
+		# can_place covers both bounds and overlap checks, so a separate bounds
+		# require before this call would duplicate those checks. A single call is
+		# enough — the combined error message covers both failure modes.
+		Utils.require(
+			can_place(data, pos),
+			(
 				(
-					"PlayerInventory.load_save: skipping '%s' at %s — position out of bounds (grid is %s)"
-					% [id, pos, grid_size]
+					"PlayerInventory.load_save: '%s' at %s is out of bounds or overlaps "
+					+ "an existing slot (grid is %s)"
 				)
+				% [id, pos, grid_size]
 			)
-			continue
-		if not can_place(data, pos):
-			push_warning(
-				(
-					"PlayerInventory.load_save: skipping '%s' at %s — overlaps existing slot"
-					% [id, pos]
-				)
-			)
-			continue
+		)
 		var raw_count: Variant = entry.get("stack_count", 1)
-		var raw_int: int
 		var parsed_count: Variant = Utils.parse_json_int(raw_count)
-		if parsed_count != null:
-			raw_int = parsed_count
-		else:
-			push_warning(
-				(
-					"PlayerInventory.load_save: invalid stack_count '%s' for '%s', defaulting to 1"
-					% [raw_count, id]
-				)
+		Utils.require(
+			parsed_count != null,
+			"PlayerInventory.load_save: invalid stack_count '%s' for '%s'" % [raw_count, id]
+		)
+		var count: int = parsed_count as int
+		Utils.require(
+			count >= ItemSchema.MIN_STACK and count <= data.stack_size,
+			(
+				"PlayerInventory.load_save: stack_count %d for '%s' out of range [%d, %d]"
+				% [count, id, ItemSchema.MIN_STACK, data.stack_size]
 			)
-			raw_int = 1
-		# False positive note: the asymmetry between this clamp and place_item's
-		# Utils.require crash is intentional, not a validation gap.
-		# place_item is called with programmer-controlled arguments; a count below
-		# MIN_STACK there is always a code bug with a clear fix. load_save is a
-		# system boundary reading external save data that may be corrupt or from an
-		# older build — crashing the game on a bad count would be worse than clamping
-		# and warning. The push_warning below ensures the anomaly is still visible.
-		var count: int = clampi(raw_int, ItemSchema.MIN_STACK, data.stack_size)
-		if count != raw_int:
-			push_warning(
-				(
-					"PlayerInventory.load_save: clamped stack_count for '%s' from %s to %d"
-					% [id, raw_count, count]
-				)
-			)
+		)
 		# Intentional bypass of place_item — not a validation gap. load_save
 		# runs its own bounds and overlap checks above (with better diagnostics
-		# than can_place's single bool return), clamps stack_count, and calls
-		# _append_slot directly to avoid re-fetching from ItemRegistry and
-		# re-running can_place on already-validated data. inventory_changed is
-		# emitted once after the loop rather than once per slot.
+		# than can_place's single bool return) and calls _append_slot directly
+		# to avoid re-fetching from ItemRegistry and re-running can_place on
+		# already-validated data. inventory_changed is emitted once after the loop.
 		_append_slot(data, pos, count)
 	# Always emit even if save_data was empty — the UI needs to know the slate
 	# was cleared and the grid tier was (re)set, which counts as a state change

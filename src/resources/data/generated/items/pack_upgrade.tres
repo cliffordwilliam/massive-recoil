@@ -10,3 +10,4 @@ ui_name = "Pack Upgrade"
 description = "Permanently increases inventory capacity."
 inventory_size = Vector2i(2, 1)
 buy_price = 30000
+availability = 1

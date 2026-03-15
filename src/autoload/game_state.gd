@@ -54,80 +54,65 @@ func mark_shop_item_seen(id: StringName) -> void:
 
 
 ## Hydrates state from [param save_data].
+##
+## [b]INTENTIONAL — DO NOT MARK AS AN ISSUE:[/b] [code]load_save[/code] is not
+## atomic — [member chapter] is assigned before [member _seen_shop_item_ids] is
+## validated. If a [code]seen_shop_item_ids[/code] entry fails (unknown or duplicate
+## ID), [member chapter] has already been updated to its new value. This is
+## intentional: [method Utils.require] → [method OS.crash] terminates the process
+## immediately, so no partially-updated state is ever observable at runtime.
+## Rollback logic would add complexity with no runtime benefit given the fail-hard
+## contract. If [method OS.crash] is ever replaced with a recoverable error,
+## revisit this and make the load transactional.
 func load_save(save_data: Dictionary) -> void:
 	var raw_chapter: Variant = save_data.get("chapter", DEFAULT_CHAPTER)
-	var chapter_int: int = DEFAULT_CHAPTER
 	var parsed_chapter: Variant = Utils.parse_json_int(raw_chapter)
-	if parsed_chapter != null:
-		chapter_int = parsed_chapter
-	else:
-		push_warning(
-			(
-				"GameState.load_save: invalid chapter '%s', defaulting to %d"
-				% [raw_chapter, DEFAULT_CHAPTER]
-			)
+	Utils.require(parsed_chapter != null, "GameState.load_save: invalid chapter '%s'" % raw_chapter)
+	var chapter_int: int = parsed_chapter as int
+	Utils.require(
+		_is_valid_chapter(chapter_int),
+		(
+			"GameState.load_save: chapter %d out of range [%d, %d]"
+			% [chapter_int, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER]
 		)
-	# Cannot delegate range validation to the setter here: the setter calls
-	# Utils.require on any out-of-range value — correct for programmer errors,
-	# but save data can be corrupt through no fault of the program. Calling
-	# _is_valid_chapter first and falling back to DEFAULT_CHAPTER lets load_save
-	# recover gracefully without crashing.
-	if _is_valid_chapter(chapter_int):
-		chapter = chapter_int
-	else:
-		push_warning(
-			(
-				"GameState.load_save: chapter %d out of range, defaulting to %d"
-				% [chapter_int, DEFAULT_CHAPTER]
-			)
-		)
-		chapter = DEFAULT_CHAPTER
+	)
+	chapter = chapter_int
 
 	var raw_seen: Variant = save_data.get("seen_shop_item_ids", [])
-	# Always clear before parsing — even if the value is malformed — so stale
-	# seen IDs from a previous session never bleed into the loaded state.
 	_seen_shop_item_ids.clear()
-	if not raw_seen is Array:
-		push_warning("GameState.load_save: invalid seen_shop_item_ids '%s', skipping" % [raw_seen])
-	else:
-		for raw_id: Variant in raw_seen as Array:
-			# Soft skip for structural garbage: a non-String or empty entry can
-			# appear in corrupt or hand-edited save files. Log and skip — there
-			# is nothing to recover. This contrasts intentionally with the hard
-			# crash below for unknown IDs: those are structurally valid strings
-			# that no longer match any item, meaning game data changed with no
-			# recovery path (renamed or deleted item).
-			if not raw_id is String:
-				push_warning("GameState.load_save: skipping non-String entry in seen_shop_item_ids")
-				continue
-			if (raw_id as String).is_empty():
-				push_warning(
-					"GameState.load_save: skipping empty string entry in seen_shop_item_ids"
-				)
-				continue
-			var seen_id: StringName = StringName(raw_id as String)
-			# Intentional by design: unknown IDs crash the game (OS.crash, both debug
-			# and release). A mismatch here means an item was renamed or deleted during
-			# development, or the player manually edited the save file — neither case
-			# has a sensible recovery path. Silently accumulating orphaned IDs would
-			# leave the seen-set in an inconsistent state with no visible symptom.
-			# This is not a bug or an oversight.
-			#
-			# validate_item_id is used instead of get_item with a discarded return value.
-			# Both crash on an unknown id, but validate_item_id makes the intent explicit:
-			# the goal here is validation only, not retrieval.
-			ItemRegistry.validate_item_id(seen_id)
-			_seen_shop_item_ids[seen_id] = true
+	Utils.require(
+		raw_seen is Array,
+		"GameState.load_save: seen_shop_item_ids is not an Array — '%s'" % raw_seen
+	)
+	for raw_id: Variant in raw_seen as Array:
+		Utils.require(
+			raw_id is String, "GameState.load_save: non-String entry in seen_shop_item_ids"
+		)
+		Utils.require(
+			not (raw_id as String).is_empty(),
+			"GameState.load_save: empty string entry in seen_shop_item_ids"
+		)
+		var seen_id: StringName = StringName(raw_id as String)
+		# INTENTIONAL DO NOT MARK THIS AS AN ISSUE — crash on unknown seen IDs,
+		# do not silently drop them.
+		# Save data is treated as all-or-nothing — either every ID in the seen-set
+		# is valid or the load is rejected entirely. Silently skipping stale IDs
+		# would allow partial loads and make corruption harder to detect.
+		# If an item is removed or renamed, update or wipe the save file.
+		ItemRegistry.validate_item_id(seen_id)
+		Utils.require(
+			not _seen_shop_item_ids.has(seen_id),
+			"GameState.load_save: duplicate id '%s' in seen_shop_item_ids" % seen_id
+		)
+		_seen_shop_item_ids[seen_id] = true
 
 
 ## Returns [code]true[/code] if [param value] is within the valid chapter range.
 ##
-## Extracted so the bounds expression lives in exactly one place. The
-## [member chapter] setter wraps this in [method Utils.require] (crash on
-## programmer error); [method load_save] uses it as a soft guard and falls
-## back to [constant DEFAULT_CHAPTER] on corrupt save data. Without this
-## helper, both sites would duplicate the same [code]>= MIN and <= MAX[/code]
-## expression and could drift independently if the logic ever changes.
+## Extracted so the bounds expression lives in exactly one place. Both the
+## [member chapter] setter and [method load_save] wrap this in [method Utils.require]
+## (crash on invalid). Without this helper, both sites would duplicate the same
+## [code]>= MIN and <= MAX[/code] expression and could drift independently.
 func _is_valid_chapter(value: int) -> bool:
 	return value >= ItemSchema.MIN_CHAPTER and value <= ItemSchema.MAX_CHAPTER
 

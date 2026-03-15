@@ -11,4 +11,5 @@ description = "Compact SMG with very high fire rate."
 inventory_size = Vector2i(3, 2)
 buy_price = 16000
 sell_price = 8000
+availability = 1
 ammo_type = 2
