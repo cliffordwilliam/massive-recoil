@@ -6,7 +6,7 @@ extends RefCounted
 
 ## Crashes via [method OS.crash] if [param valid_condition] is false.
 ##
-## Use this to catch impossible or invalid states during runtime — programmer
+## Use this to catch impossible or invalid states during runtime, programmer
 ## errors and broken-build conditions that should never occur in correct code.
 static func require(valid_condition: bool, message: String) -> void:
 	if not valid_condition:

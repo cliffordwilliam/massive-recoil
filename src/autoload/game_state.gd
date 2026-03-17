@@ -18,15 +18,7 @@ const DEFAULT_CHAPTER: int = 1
 ## Current chapter. Controls which items are available in the shop.
 var chapter: int = DEFAULT_CHAPTER:
 	set(value):
-		# An out-of-range chapter is always a programmer error: load_save performs
-		# its own range check before touching this setter, so any invalid value
-		# here means a code path supplied a chapter that was never valid.
-		# Crashing in both debug and release is intentional — a wrong chapter
-		# silently corrupts all shop availability filtering with no other symptom,
-		# making a crash far preferable to continuing in a broken state.
-		# Delegate to _is_valid_chapter so the bounds expression lives in one place.
-		# Both this setter and load_save share the same check; keeping it in a helper
-		# prevents the two sites from drifting if the logic ever changes.
+		# Wrong chapter silently corrupts all shop availability filtering — crash is intentional.
 		Utils.require(
 			_is_valid_chapter(value),
 			(
@@ -55,16 +47,17 @@ func mark_shop_item_seen(id: StringName) -> void:
 
 ## Hydrates state from [param save_data].
 ##
-## [b]INTENTIONAL — DO NOT MARK AS AN ISSUE:[/b] [code]load_save[/code] is not
-## atomic — [member chapter] is assigned before [member _seen_shop_item_ids] is
-## validated. If a [code]seen_shop_item_ids[/code] entry fails (unknown or duplicate
-## ID), [member chapter] has already been updated to its new value. This is
-## intentional: [method Utils.require] → [method OS.crash] terminates the process
-## immediately, so no partially-updated state is ever observable at runtime.
-## Rollback logic would add complexity with no runtime benefit given the fail-hard
-## contract. If [method OS.crash] is ever replaced with a recoverable error,
-## revisit this and make the load transactional.
+## The load is not atomic — [member chapter] is assigned before [member _seen_shop_item_ids]
+## is validated. This is intentional: [method Utils.require] crashes immediately, so
+## partially-updated state is never observable. Rollback would add complexity with no benefit.
 func load_save(save_data: Dictionary) -> void:
+	chapter = _parse_chapter(save_data)
+	_parse_seen_ids(save_data)
+
+
+## Validates and returns the chapter value from [param save_data].
+## Crashes on missing or out-of-range value.
+func _parse_chapter(save_data: Dictionary) -> int:
 	var raw_chapter: Variant = save_data.get("chapter", DEFAULT_CHAPTER)
 	var parsed_chapter: Variant = Utils.parse_json_int(raw_chapter)
 	Utils.require(parsed_chapter != null, "GameState.load_save: invalid chapter '%s'" % raw_chapter)
@@ -76,8 +69,12 @@ func load_save(save_data: Dictionary) -> void:
 			% [chapter_int, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER]
 		)
 	)
-	chapter = chapter_int
+	return chapter_int
 
+
+## Validates and populates [member _seen_shop_item_ids] from [param save_data].
+## Crashes on any invalid, unknown, or duplicate entry.
+func _parse_seen_ids(save_data: Dictionary) -> void:
 	var raw_seen: Variant = save_data.get("seen_shop_item_ids", [])
 	_seen_shop_item_ids.clear()
 	Utils.require(
@@ -93,12 +90,8 @@ func load_save(save_data: Dictionary) -> void:
 			"GameState.load_save: empty string entry in seen_shop_item_ids"
 		)
 		var seen_id: StringName = StringName(raw_id as String)
-		# INTENTIONAL DO NOT MARK THIS AS AN ISSUE — crash on unknown seen IDs,
-		# do not silently drop them.
-		# Save data is treated as all-or-nothing — either every ID in the seen-set
-		# is valid or the load is rejected entirely. Silently skipping stale IDs
-		# would allow partial loads and make corruption harder to detect.
-		# If an item is removed or renamed, update or wipe the save file.
+		# Crash on unknown IDs — save data is all-or-nothing. Silently skipping stale
+		# IDs would mask corruption. If an item is removed, update or wipe the save.
 		ItemRegistry.validate_item_id(seen_id)
 		Utils.require(
 			not _seen_shop_item_ids.has(seen_id),
@@ -108,11 +101,7 @@ func load_save(save_data: Dictionary) -> void:
 
 
 ## Returns [code]true[/code] if [param value] is within the valid chapter range.
-##
-## Extracted so the bounds expression lives in exactly one place. Both the
-## [member chapter] setter and [method load_save] wrap this in [method Utils.require]
-## (crash on invalid). Without this helper, both sites would duplicate the same
-## [code]>= MIN and <= MAX[/code] expression and could drift independently.
+## Shared by the [member chapter] setter and [method load_save] to keep the bounds in one place.
 func _is_valid_chapter(value: int) -> bool:
 	return value >= ItemSchema.MIN_CHAPTER and value <= ItemSchema.MAX_CHAPTER
 

@@ -8,33 +8,31 @@ extends Node2D
 ## The currently selected item is tracked by `_current_index`. Changing this
 ## index automatically refreshes the visible page.
 ##
-## Rendering behavior is controlled by `RenderMode`, which determines which
-## `UIShopItem` setup function is used when displaying items.
-## This is because this is reused both in Buy and Sell shop page.
+## Rendering behavior is controlled by [member render_mode], which determines which
+## [UIShopItem] setup function is used when displaying items. Each instance's mode
+## is set once via the Inspector at scene configuration time and never changes at
+## runtime — a buy page is always BUY, a sell page is always SELL.
 ##
-## Navigation through the list can be performed using `next()` and `previous()`.
+## Navigation through the list can be performed using [method next] and [method previous].
 
 ## Emitted when the selected index changes. Carries the new index.
 signal selection_changed(index: int)
 
-## Determines how entries should render the provided item data.
+## Determines how entries render item data. Intentionally fixed at two values —
+## the game has exactly one buy page and one sell page, and this will not grow.
 enum RenderMode {
-	## Items are rendered using `UIShopItem.setup_buy()`.
 	BUY,
-	## Items are rendered using `UIShopItem.setup_sell()`.
 	SELL,
 }
 
 ## Maximum number of entries displayed on a single page.
 const _PAGE_SIZE: int = 5
 
-## Scroll thumb width in pixels.
 const _SCROLL_BAR_WIDTH: int = 5
-
-## Scroll thumb color.
 const _SCROLL_BAR_COLOR: Color = Color("767b84")
 
-## Current rendering mode used when displaying items. Buy or sell mode.
+## Rendering mode for this instance. Set once in the Inspector; never changed at runtime.
+## See class docstring for the fixed-mode convention.
 @export var render_mode: RenderMode = RenderMode.BUY:
 	set(value):
 		if render_mode == value:
@@ -44,10 +42,7 @@ const _SCROLL_BAR_COLOR: Color = Color("767b84")
 		render_mode = value
 		set_current_index(0)
 
-## Items shown in buy mode. Populated via [method set_buy_items].
 var _buy_items: Array[ItemData] = []
-
-## Items shown in sell mode. Populated via [method set_sell_items].
 var _sell_items: Array[ItemState] = []
 
 ## Current selected item index within the active items array.
@@ -69,7 +64,6 @@ var _entries: Array[UIShopItem] = []
 ## Top of the scroll track. The full track height represents all pages stacked height.
 @onready var _scroll_track_top: Marker2D = $ScrollTrackTop
 
-## Bottom of the scroll track.
 @onready var _scroll_track_bottom: Marker2D = $ScrollTrackBottom
 
 
@@ -108,9 +102,6 @@ func set_buy_items(items: Array[ItemData]) -> void:
 	# and was inconsistent with set_sell_items, which genuinely needs clear()
 	# because it populates via an append loop rather than assign().
 	_buy_items.assign(items)
-	# Intentional lazy update: only refresh immediately when already in BUY mode.
-	# If in SELL mode, the render_mode setter will call set_current_index(0) when
-	# the mode switches, which triggers _update_page at that point. Not a missing refresh.
 	if render_mode == RenderMode.BUY:
 		set_current_index(0)
 
@@ -125,13 +116,7 @@ func set_buy_items(items: Array[ItemData]) -> void:
 ## violating the architecture contract. This is enforced at runtime via
 ## [member ItemState.is_snapshot].
 func set_sell_items(items: Array[ItemState]) -> void:
-	# Enforce the live-vs-snapshot contract at the boundary.
-	# selected_sell_item returns entries from this array to callers — if live slot
-	# references entered here, they would escape PlayerInventory's ownership, which
-	# is the sole source of truth for all ItemState instances per the architecture.
-	# Passing live references is always a programmer error with no valid recovery
-	# path. The is_snapshot flag is set by ItemState.create_snapshot and is never true
-	# on live slots owned by PlayerInventory._slots.
+	# Enforce the snapshot contract described in the docstring above.
 	_sell_items.clear()
 	for item: ItemState in items:
 		Utils.require(
@@ -142,9 +127,6 @@ func set_sell_items(items: Array[ItemState]) -> void:
 			)
 		)
 		_sell_items.append(item)
-	# Intentional lazy update: mirrors set_buy_items — only refresh immediately
-	# when already in SELL mode. Mode switches trigger set_current_index(0) via
-	# the render_mode setter. Not a missing refresh.
 	if render_mode == RenderMode.SELL:
 		set_current_index(0)
 
@@ -168,15 +150,9 @@ func set_sell_items(items: Array[ItemState]) -> void:
 ## never more than one scroll list visible at a time, the redundancy cost is zero.
 ##
 ## Both [method _update_page] and the signal emission are guarded by
-## [method Node.is_node_ready] so that Godot's @export deserialization of
-## [member render_mode] before [method _ready] fires does not emit a signal
-## before the page has been drawn.
-## [b]False positive note:[/b] "emitted unconditionally" was flagged as
-## contradicting the [method Node.is_node_ready] gate. The gate is a Godot
-## lifecycle guard, not a conditional on index value or list state.
-## "Unconditionally" means the signal fires on every call post-ready —
-## including on empty lists and no-op index changes — not that it ignores
-## the node lifecycle.
+## [method Node.is_node_ready] — a Godot lifecycle gate so @export deserialization
+## before [method _ready] fires does not trigger a render or signal emission.
+## "Unconditionally" above refers to index value and list state, not the lifecycle.
 func set_current_index(value: int) -> void:
 	var size: int = _active_size()
 	_current_index = 0 if size == 0 else clampi(value, 0, size - 1)
@@ -253,32 +229,11 @@ func _active_size() -> int:
 			return _buy_items.size()
 		RenderMode.SELL:
 			return _sell_items.size()
-		_:
-			# Intentional fallback — not dead code. GDScript does not enforce
-			# exhaustive enum matching at compile time, so this branch is
-			# necessary to catch any new RenderMode value added without updating
-			# this function. Without it, an unhandled mode would silently return
-			# 0 and produce a blank list with no indication of why.
-			# Use Utils.require instead of push_error to match the convention in
-			# _update_page and to fail hard. push_error alone only logs;
-			# Utils.require crashes in both debug and release via OS.crash,
-			# catching the bug immediately rather than silently returning 0 and masking the real problem.
-			Utils.require(
-				false, "UIShopItemList._active_size: unhandled RenderMode %d" % render_mode
-			)
-			return 0
+	return 0
 
 
 ## Returns the starting index of the current page.
-## Pages are calculated using `_PAGE_SIZE`.
 func _get_page_start() -> int:
-	# This guard is redundant — when the list is empty, _current_index is 0, so
-	# (0 / _PAGE_SIZE) * _PAGE_SIZE == 0 anyway. Kept for readability: it makes
-	# the empty-list case explicit and avoids the @warning_ignore on an empty list.
-	# Do not remove it thinking it is dead code.
-	if _active_size() == 0:
-		return 0
-
 	@warning_ignore("integer_division")
 	return (_current_index / _PAGE_SIZE) * _PAGE_SIZE
 
@@ -335,15 +290,6 @@ func _update_page() -> void:
 						)
 					)
 					entry.setup_sell(state.data.ui_name, state.stack_count, state.data.sell_price)
-
-				_:
-					Utils.require(
-						false, "UIShopItemList._update_page: unhandled RenderMode %d" % render_mode
-					)
-					# continue prevents fallthrough to entry.show() below. Utils.require
-					# already crashes before this point, but the guard is kept in case
-					# this handler is ever replaced with a softer fallback.
-					continue
 
 			entry.show()
 		else:

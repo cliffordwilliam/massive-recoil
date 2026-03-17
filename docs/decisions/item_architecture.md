@@ -15,9 +15,9 @@ Each item is represented by two separate objects:
 | Static  | `ItemData`  | `Resource`   | Immutable definition shared across all instances of the same item |
 | Dynamic | `ItemState` | `RefCounted` | Per-slot runtime state owned by the inventory                     |
 
-`ItemData` resources are generated from `items.json` by the editor script and loaded
-at runtime. They are never mutated during gameplay. `ItemState` holds mutable per-slot
-state (stack count) and holds a reference to its `ItemData`.
+`ItemData` instances are constructed at startup by `ItemDefinitions` and are never
+mutated during gameplay. `ItemState` holds mutable per-slot state (stack count) and
+holds a reference to its `ItemData`.
 
 If the player has two health potions, there are two `ItemState` instances, both
 pointing to the same `ItemData` resource.
@@ -39,15 +39,16 @@ No other autoload or system creates or stores `ItemState` instances.
 
 ## Shop catalog
 
-The shop autoload holds a list of `ItemData` references — the items available for
-purchase at the current point in the game. It does not own `ItemState` instances.
+There is no shop autoload. The buy overlay (`buy_overlay.gd`) computes the catalog
+on demand in `_ready()` by filtering `ItemRegistry.get_all_items()` for items where
+`buy_price > 0` and `availability <= chapter`. It does not store or own any state.
 
 An item is sellable when its `sell_price` is non-zero. Items with `sell_price == 0`
 cannot be sold to the merchant. The same logic applies to buying: `buy_price == 0`
 means the item is not available for purchase.
 
 Non-shop items (`buy_price == 0`) are assigned `ItemSchema.AVAILABILITY_NOT_FOR_SALE`
-by `generate_item_resources.gd` at generation time, regardless of the JSON value.
+by `ItemDefinitions._make()` at construction time, regardless of any passed value.
 This sentinel exceeds `MAX_CHAPTER`, so `availability <= chapter` is always false for
 them — shop filters do not need a separate `buy_price > 0` guard to exclude them.
 
@@ -60,9 +61,9 @@ the NEW badge if its ID is not yet in that seen-set.
 `PlayerInventory.place_item` calls `GameState.mark_shop_item_seen` on every
 successful placement — not only shop purchases. Once an item enters the player's
 possession by any means (shop buy, drop, loot), the badge has served its purpose
-and should not reappear. `load_save` passes `mark_seen = false` to `place_item`
-so that reloading a save does not affect the seen-set: the badge state is already
-reflected in the saved `GameState` data.
+and should not reappear. `PlayerInventory.load_save` calls `_append_slot` directly
+instead of `place_item` so that `mark_shop_item_seen` is never called on load —
+the seen-set is already captured in the saved `GameState` data.
 
 This is **not** stored on `ItemData` (static, never changes) or `ItemState`
 (inventory-only concept). It is `GameState` state, alongside other global runtime
@@ -75,8 +76,8 @@ data such as chapter progression.
 This is intentional. By the time any `ItemState` is constructed, the data flowing
 into it has already been validated at every stage of the pipeline:
 
-1. `generate_item_resources.gd` validates every JSON entry before writing any `.tres` file.
-2. `ItemRegistry` guards against missing or malformed resources at load time.
+1. `ItemDefinitions._make()` constructs each `ItemData` and calls `ItemValidator.validate()`.
+2. `ItemValidator` crashes on the first constraint violation — no partial data survives startup.
 3. `PlayerInventory` is the sole creator of `ItemState` instances and enforces all
    business rules: `can_place` before placement, `data.stack_size` cap in `add_to_stack`.
 
@@ -90,9 +91,9 @@ which is easier to trace.
 ## Static data pipeline
 
 ```
-items.json  →  generate_item_resources.gd  →  .tres files  →  loaded at runtime
+ItemDefinitions  →  ItemValidator  →  ItemRegistry  →  runtime
 ```
 
-The editor script validates every entry before writing any file. If any item fails
-validation, no files are written and all errors are reported. This prevents partial
-output from leaving the project in a broken state.
+`ItemDefinitions._make()` constructs each `ItemData` and immediately validates it via
+`ItemValidator`. Any constraint violation crashes on the first error. `ItemRegistry`
+then stores the validated instances and checks for duplicate IDs.
