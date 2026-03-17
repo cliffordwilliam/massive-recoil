@@ -10,8 +10,8 @@ const RECIPES: Array = [
 		"result": "treat_band",
 	},
 	{
-		"ingredients": ["sun_emblem_fragment", "moon_emblem_fragment"],
-		"result": "sun_moon_emblem",
+		"ingredients": ["sun_key_fragment", "moon_key_fragment"],
+		"result": "sun_moon_key",
 	},
 	{
 		"ingredients": ["ornate_pendant", "ruby_gem"],

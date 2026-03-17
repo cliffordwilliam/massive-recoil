@@ -69,6 +69,7 @@ var _entries: Array[UIShopItem] = []
 
 func _ready() -> void:
 	var container: Node = $ItemContainer
+
 	Utils.require(
 		container.get_child_count() == _PAGE_SIZE,
 		(
@@ -76,6 +77,7 @@ func _ready() -> void:
 			% [_PAGE_SIZE, container.get_child_count()]
 		)
 	)
+
 	for child: Node in container.get_children():
 		var entry: UIShopItem = child as UIShopItem
 		Utils.require(
@@ -83,6 +85,7 @@ func _ready() -> void:
 			"UIShopItemList: child '%s' in ItemContainer is not a UIShopItem" % child.name
 		)
 		_entries.append(entry)
+
 	_cursor.centered = false
 
 
@@ -102,6 +105,7 @@ func set_buy_items(items: Array[ItemData]) -> void:
 	# and was inconsistent with set_sell_items, which genuinely needs clear()
 	# because it populates via an append loop rather than assign().
 	_buy_items.assign(items)
+
 	if render_mode == RenderMode.BUY:
 		set_current_index(0)
 
@@ -118,6 +122,7 @@ func set_buy_items(items: Array[ItemData]) -> void:
 func set_sell_items(items: Array[ItemState]) -> void:
 	# Enforce the snapshot contract described in the docstring above.
 	_sell_items.clear()
+
 	for item: ItemState in items:
 		Utils.require(
 			item.is_snapshot,
@@ -127,6 +132,7 @@ func set_sell_items(items: Array[ItemState]) -> void:
 			)
 		)
 		_sell_items.append(item)
+
 	if render_mode == RenderMode.SELL:
 		set_current_index(0)
 
@@ -157,6 +163,7 @@ func set_current_index(value: int) -> void:
 	var size: int = _active_size()
 	_current_index = 0 if size == 0 else clampi(value, 0, size - 1)
 	_update_page()
+
 	if is_node_ready():
 		selection_changed.emit(_current_index)
 
@@ -185,18 +192,21 @@ func selected_buy_item() -> ItemData:
 	if render_mode != RenderMode.BUY:
 		Utils.require(false, "UIShopItemList.selected_buy_item: called while not in BUY mode")
 		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+
 	if _buy_items.is_empty():
-		Utils.require(
-			_current_index < _buy_items.size(),
-			(
-				(
-					"UIShopItemList.selected_buy_item: _current_index %d out of range for "
-					+ "buy list of size %d — buy items mutated without going through setters"
-				)
-				% [_current_index, _buy_items.size()]
-			)
-		)
 		return null
+
+	Utils.require(
+		_current_index < _buy_items.size(),
+		(
+			(
+				"UIShopItemList.selected_buy_item: _current_index %d out of range for "
+				+ "buy list of size %d — buy items mutated without going through setters"
+			)
+			% [_current_index, _buy_items.size()]
+		)
+	)
+
 	return _buy_items[_current_index]
 
 
@@ -207,18 +217,21 @@ func selected_sell_item() -> ItemState:
 	if render_mode != RenderMode.SELL:
 		Utils.require(false, "UIShopItemList.selected_sell_item: called while not in SELL mode")
 		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+
 	if _sell_items.is_empty():
-		Utils.require(
-			_current_index < _sell_items.size(),
-			(
-				(
-					"UIShopItemList.selected_sell_item: _current_index %d out of range for "
-					+ "sell list of size %d — sell items mutated without going through setters"
-				)
-				% [_current_index, _sell_items.size()]
-			)
-		)
 		return null
+
+	Utils.require(
+		_current_index < _sell_items.size(),
+		(
+			(
+				"UIShopItemList.selected_sell_item: _current_index %d out of range for "
+				+ "sell list of size %d — sell items mutated without going through setters"
+			)
+			% [_current_index, _sell_items.size()]
+		)
+	)
+
 	return _sell_items[_current_index]
 
 

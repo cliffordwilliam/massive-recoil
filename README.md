@@ -29,7 +29,7 @@ src/
   editor/      → editor utility scripts (run once, never shipped)
   entities/    → scene objects (Node) and gameplay UI
   overlays/    → UI overlays shown above the current scene (shop, save, main menu, etc.)
-  resources/   → static data definitions (Resource scripts and generated .tres files)
+  resources/   → static data definitions and validation (item data classes and definitions)
   state/       → runtime gameplay state (RefCounted objects)
   utils.gd     → shared helper functions
 ```

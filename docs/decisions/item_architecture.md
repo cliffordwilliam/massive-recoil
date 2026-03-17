@@ -39,35 +39,35 @@ No other autoload or system creates or stores `ItemState` instances.
 
 ## Shop catalog
 
-There is no shop autoload. The buy overlay (`buy_overlay.gd`) computes the catalog
-on demand in `_ready()` by filtering `ItemRegistry.get_all_items()` for items where
-`buy_price > 0` and `availability <= chapter`. It does not store or own any state.
+The shop UI queries `ItemRegistry` directly at the time the shop is opened. No
+separate catalog is stored — the UI layer filters items by price and chapter
+availability on demand.
 
-An item is sellable when its `sell_price` is non-zero. Items with `sell_price == 0`
-cannot be sold to the merchant. The same logic applies to buying: `buy_price == 0`
-means the item is not available for purchase.
+## Buyable and sellable items
+
+An item is buyable when its `buy_price` is non-zero and its `availability` is within
+the current chapter. An item is sellable when its `sell_price` is non-zero.
 
 Non-shop items (`buy_price == 0`) are assigned `ItemSchema.AVAILABILITY_NOT_FOR_SALE`
-by `ItemDefinitions._make()` at construction time, regardless of any passed value.
-This sentinel exceeds `MAX_CHAPTER`, so `availability <= chapter` is always false for
-them — shop filters do not need a separate `buy_price > 0` guard to exclude them.
+at construction time. This sentinel exceeds `MAX_CHAPTER`, so `availability <= chapter`
+is always false for them — the chapter filter is self-enforcing without a separate
+`buy_price > 0` guard.
 
 ## Shop "new item" tag
 
-When a new item becomes available in the shop (based on chapter and `availability`),
-`GameState` tracks which item IDs the player has already seen. An item shows
-the NEW badge if its ID is not yet in that seen-set.
+When a new item becomes available in the shop, `GameState` tracks which item IDs the
+player has already seen. An item shows the NEW badge if its ID is not yet in that
+seen-set.
 
-`PlayerInventory.place_item` calls `GameState.mark_shop_item_seen` on every
-successful placement — not only shop purchases. Once an item enters the player's
-possession by any means (shop buy, drop, loot), the badge has served its purpose
-and should not reappear. `PlayerInventory.load_save` calls `_append_slot` directly
-instead of `place_item` so that `mark_shop_item_seen` is never called on load —
-the seen-set is already captured in the saved `GameState` data.
+`PlayerInventory.place_item` calls `GameState.mark_shop_item_seen` on every successful
+placement — not only shop purchases. Once an item enters the player's possession by any
+means, the badge has served its purpose and should not reappear.
+
+Badge state is part of saved `GameState` data and is restored directly on load — it is
+not recalculated from inventory contents.
 
 This is **not** stored on `ItemData` (static, never changes) or `ItemState`
-(inventory-only concept). It is `GameState` state, alongside other global runtime
-data such as chapter progression.
+(inventory-only concept). It is `GameState` state, alongside chapter progression.
 
 ## Why ItemState has no validation
 
