@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://cqo2dwe4e43h5"]
+
+[ext_resource type="Script" uid="uid://cew1achimbx68" path="res://src/autoload/overlay_router/overlay_router.gd" id="1_lu31e"]
+[ext_resource type="PackedScene" uid="uid://b7q2r81odv35y" path="res://src/overlays/buy_overlay/buy_overlay.tscn" id="2_rdutw"]
+[ext_resource type="PackedScene" uid="uid://du7mnlci4rnk3" path="res://src/overlays/inventory_overlay/inventory_overlay.tscn" id="3_betx7"]
+
+[node name="OverlayRouter" type="CanvasLayer" unique_id=505140413]
+script = ExtResource("1_lu31e")
+
+[node name="BuyOverlay" parent="." unique_id=1607087003 instance=ExtResource("2_rdutw")]
+
+[node name="InventoryOverlay" parent="." unique_id=27624815 instance=ExtResource("3_betx7")]

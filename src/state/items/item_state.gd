@@ -36,8 +36,8 @@ var data: ItemData:
 ## this field before setting [member is_snapshot], so construction is unaffected.
 var position: Vector2i = Vector2i(-1, -1):
 	set(value):
-		# Snapshots are read-only: a write has no effect on the live slot in
-		# PlayerInventory._slots and would cause silent state divergence.
+		# Guard against mutating a snapshot: writing position here would not update
+		# the live slot in PlayerInventory._slots — it would silently diverge from it.
 		Utils.require(
 			not is_snapshot,
 			"ItemState.position: snapshot is read-only — do not mutate a detached copy"
@@ -72,6 +72,11 @@ var is_snapshot: bool = false:
 		is_snapshot = value
 
 
+func _init(template: ItemData) -> void:
+	# No null guard — validation is the pipeline's responsibility. See class docstring.
+	data = template
+
+
 ## Returns a detached copy of this slot for read-only use by the UI.
 ##
 ## The copy reflects state at the moment of the call and will not update if the
@@ -90,8 +95,3 @@ func create_snapshot() -> ItemState:
 	copy.is_snapshot = true
 
 	return copy
-
-
-func _init(template: ItemData) -> void:
-	# No null guard — validation is the pipeline's responsibility. See class docstring.
-	data = template

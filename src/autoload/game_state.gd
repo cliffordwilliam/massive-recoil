@@ -3,8 +3,8 @@
 extends Node
 ## Tracks game-wide progression state.
 ##
-## Holds the current chapter and the set of shop item IDs the player has already
-## seen. Both are persisted to the save file.
+## Holds the current chapter, the player's gold, and the set of shop item IDs the
+## player has already seen. All three are persisted to the save file.
 ##
 ## The current chapter is used by [code]buy_overlay.gd[/code] to
 ## filter which items appear in the shop.
@@ -12,8 +12,14 @@ extends Node
 ## The seen-item set drives the NEW badge in the shop buy page: any item whose id
 ## is absent from [member _seen_shop_item_ids] is considered unseen and shown as new.
 
-## Starting chapter used on a new game and as the fallback when save data is invalid.
+## Starting chapter used on a new game.
 const DEFAULT_CHAPTER: int = 1
+
+## Starting gold used on a new game.
+const DEFAULT_GOLD: int = 10000
+
+## Maximum gold the player can hold at once.
+const MAX_GOLD: int = 99999999
 
 ## Current chapter. Controls which items are available in the shop.
 var chapter: int = DEFAULT_CHAPTER:
@@ -28,7 +34,20 @@ var chapter: int = DEFAULT_CHAPTER:
 		)
 		# Godot 4 GDScript detects self-assignment within a setter and writes
 		# directly to the backing store — this does NOT cause infinite recursion.
+		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		chapter = value
+
+## Current gold amount. Range: [code]0[/code]–[constant MAX_GOLD].
+var gold: int = DEFAULT_GOLD:
+	set(value):
+		Utils.require(
+			value >= 0 and value <= MAX_GOLD,
+			"GameState.gold: value %d out of range [0, %d]" % [value, MAX_GOLD]
+		)
+		# Godot 4 GDScript detects self-assignment within a setter and writes
+		# directly to the backing store — this does NOT cause infinite recursion.
+		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
+		gold = value
 
 ## IDs of items the player has already seen in the shop buy page.
 ## Used as a set — values are always [code]true[/code] and carry no meaning.
@@ -49,6 +68,7 @@ func mark_shop_item_seen(id: StringName) -> void:
 func get_save_data() -> Dictionary:
 	return {
 		"chapter": chapter,
+		"gold": gold,
 		"seen_shop_item_ids":
 		_seen_shop_item_ids.keys().map(func(k: StringName) -> String: return str(k)),
 	}
@@ -56,14 +76,15 @@ func get_save_data() -> Dictionary:
 
 ## Hydrates state from [param save_data].
 ##
-## The load is not atomic — [member chapter] is assigned before [member _seen_shop_item_ids]
-## is validated. This is intentional: a hard crash on corrupt data is preferred over
-## continuing with partial or inconsistent state, which is harder to debug.
-## [method Utils.require] crashes immediately on the first violation, so
-## partially-updated state is never observable in practice.
+## The load is not atomic — fields are assigned in order ([member chapter],
+## [member gold], then [member _seen_shop_item_ids]). This is intentional: a hard
+## crash on corrupt data is preferred over continuing with partial or inconsistent
+## state, which is harder to debug. [method Utils.require] crashes immediately on
+## the first violation, so partially-updated state is never observable in practice.
 ## See: "res://docs/decisions/item_architecture.md" (Error handling philosophy).
 func load_save(save_data: Dictionary) -> void:
 	chapter = _parse_chapter(save_data)
+	gold = _parse_gold(save_data)
 	_parse_seen_ids(save_data)
 
 
@@ -82,6 +103,20 @@ func _parse_chapter(save_data: Dictionary) -> int:
 		)
 	)
 	return chapter_int
+
+
+## Validates and returns the gold value from [param save_data].
+## Crashes on missing or out-of-range value.
+func _parse_gold(save_data: Dictionary) -> int:
+	var raw_gold: Variant = save_data.get("gold", null)
+	var parsed_gold: Variant = Utils.parse_json_int(raw_gold)
+	Utils.require(parsed_gold != null, "GameState.load_save: invalid gold '%s'" % raw_gold)
+	var gold_int: int = parsed_gold as int
+	Utils.require(
+		gold_int >= 0 and gold_int <= MAX_GOLD,
+		"GameState.load_save: gold %d out of range [0, %d]" % [gold_int, MAX_GOLD]
+	)
+	return gold_int
 
 
 ## Validates and populates [member _seen_shop_item_ids] from [param save_data].

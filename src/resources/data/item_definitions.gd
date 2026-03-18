@@ -6,6 +6,7 @@ extends RefCounted
 ## Field constraints are documented in [ItemData] and [ItemSchema].
 
 
+## Constructs and returns all item definitions. Add, remove, or edit items here.
 static func get_all() -> Array[ItemData]:
 	return [
 		_make(
@@ -239,7 +240,7 @@ static func get_all() -> Array[ItemData]:
 			"Upgrade that increases weapon damage.",
 			#
 			# inventory size
-			Vector2i(1, 1),
+			Vector2i(2, 2),
 			#
 			# buy price
 			5000,
@@ -285,7 +286,7 @@ static func get_all() -> Array[ItemData]:
 			ItemSchema.MIN_CHAPTER,
 			#
 			# ammo type
-			ItemData.AmmoType.HANDGUN_AMMO
+			ItemData.AmmoType.HANDGUN_AMMO,
 		),
 		_make(
 			# id
@@ -316,7 +317,7 @@ static func get_all() -> Array[ItemData]:
 			ItemSchema.MIN_CHAPTER,
 			#
 			# ammo type
-			ItemData.AmmoType.SMG_AMMO
+			ItemData.AmmoType.SMG_AMMO,
 		),
 		_make(
 			# id

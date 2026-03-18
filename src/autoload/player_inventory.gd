@@ -18,9 +18,9 @@ signal inventory_changed
 
 ## Available grid sizes in upgrade order.
 const _GRID_SIZES: Array[Vector2i] = [
-	Vector2i(7, 11),
-	Vector2i(8, 12),
-	Vector2i(8, 15),
+	Vector2i(11, 7),
+	Vector2i(12, 8),
+	Vector2i(15, 8),
 ]
 
 ## Current grid dimensions. Read-only — advance it via [method upgrade_grid].

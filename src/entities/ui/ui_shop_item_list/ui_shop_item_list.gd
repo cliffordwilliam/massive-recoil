@@ -18,8 +18,8 @@ extends Node2D
 ## Emitted when the selected index changes. Carries the new index.
 signal selection_changed(index: int)
 
-## Determines how entries render item data. Intentionally fixed at two values —
-## the game has exactly one buy page and one sell page, and this will not grow.
+## Determines whether this list renders items for buying or selling.
+## Intentionally fixed at two values — the game has exactly one buy page and one sell page.
 enum RenderMode {
 	BUY,
 	SELL,
@@ -28,17 +28,20 @@ enum RenderMode {
 ## Maximum number of entries displayed on a single page.
 const _PAGE_SIZE: int = 5
 
+## Width in pixels of the scroll thumb drawn by [method _draw].
 const _SCROLL_BAR_WIDTH: int = 5
+
+## Color of the scroll thumb drawn by [method _draw].
 const _SCROLL_BAR_COLOR: Color = Color("767b84")
 
 ## Rendering mode for this instance. Set once in the Inspector; never changed at runtime.
-## See class docstring for the fixed-mode convention.
 @export var render_mode: RenderMode = RenderMode.BUY:
 	set(value):
 		if render_mode == value:
 			return
 		# Godot 4 GDScript detects self-assignment within a setter and writes
 		# directly to the backing store — this does NOT cause infinite recursion.
+		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		render_mode = value
 		# Dead code at runtime — mode is fixed at scene configuration time and
 		# never reassigned after that (see class docstring). This branch exists
@@ -56,7 +59,8 @@ var _sell_items: Array[ItemState] = []
 var _current_index: int = -1:
 	# Godot 4 GDScript detects self-assignment within a named setter and writes
 	# directly to the backing store — assigning _current_index inside
-	# set_current_index does NOT cause infinite recursion.
+	# _set_current_index does NOT cause infinite recursion.
+	# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 	set = _set_current_index
 
 ## [UIShopItem] entry nodes, populated from [code]$ItemContainer[/code] children in [method _ready].
@@ -95,8 +99,35 @@ func _ready() -> void:
 
 	_cursor.centered = false
 
-	# This has to be behind this node because this node calls the draw thumb function.
+	# This has to be behind this node because this node calls the draw function.
 	_scrollbar_background.show_behind_parent = true
+
+
+## Draws the scroll thumb.
+##
+## No [method Node.is_node_ready] guard is needed here. [code]_draw[/code] is only
+## ever triggered by the Godot renderer (which runs after [method _ready]) or by
+## [method queue_redraw], which is only called from [method _update_page] — and
+## [method _update_page] already guards on [method Node.is_node_ready] before
+## calling [method queue_redraw]. So [code]_draw[/code] can never fire before ready.
+func _draw() -> void:
+	# float() cast is required: without it, integer division truncates before ceili
+	# can apply ceiling rounding (e.g. 7 / 5 == 1 as int, but ceil(7.0 / 5) == 2).
+	var total_pages: int = ceili(float(_get_items_size()) / _PAGE_SIZE)
+	if total_pages <= 1:
+		return
+
+	var track_top: float = _scroll_track_top.position.y
+	var track_height: float = _scroll_track_bottom.position.y - track_top
+	var thumb_height: float = track_height / total_pages
+
+	@warning_ignore("integer_division")
+	var current_page: int = _current_index / _PAGE_SIZE
+
+	var thumb_x: float = _scroll_track_top.position.x
+	var thumb_y: float = track_top + current_page * thumb_height
+
+	draw_rect(Rect2(thumb_x, thumb_y, _SCROLL_BAR_WIDTH, thumb_height), _SCROLL_BAR_COLOR)
 
 
 ## Sets the items displayed in buy mode and resets selection.
@@ -221,25 +252,22 @@ func get_selected_sell_item() -> ItemState:
 ## No early-return on unchanged index by design: when the list transitions from
 ## non-empty to empty while already at index 0, both old and new index resolve
 ## to 0 — skipping the update would leave stale entries visible. Always calling
-## [method _update_page] keeps the guard-free and correct at the cost of one
+## [method _update_page] keeps the logic guard-free and correct at the cost of one
 ## redundant redraw per no-op call, which is acceptable for a single scroll list.
 ##
-## [signal selection_changed] is emitted unconditionally, including when the list
-## is empty (index 0, no valid item). This is intentional: a missed emission on a
-## real selection change would be a silent bug, whereas a spurious emission on an
-## empty list is harmless — the consumer already checks for null via
-## [method get_selected_buy_item] / [method get_selected_sell_item]. Because there is
-## never more than one scroll list visible at a time, the redundancy cost is zero.
+## [signal selection_changed] is only emitted when the index actually changes.
+## [method _update_page] is still called unconditionally (see above).
 ##
 ## Both [method _update_page] and the signal emission are guarded by
 ## [method Node.is_node_ready] — a Godot lifecycle gate so @export deserialization
 ## before [method _ready] fires does not trigger a render or signal emission.
-## "Unconditionally" above refers to index value and list state, not the lifecycle.
 func _set_current_index(value: int) -> void:
-	_current_index = clampi(value, 0, maxi(0, _get_items_size() - 1))
+	var clamped: int = clampi(value, 0, maxi(0, _get_items_size() - 1))
+	var changed: bool = clamped != _current_index
+	_current_index = clamped
 	_update_page()
 
-	if is_node_ready():
+	if is_node_ready() and changed:
 		selection_changed.emit(_current_index)
 
 
@@ -301,15 +329,9 @@ func _update_page() -> void:
 					# Guard state.data separately from state itself — BUY items are a
 					# single nullable layer, SELL items are ItemState wrappers with an
 					# inner ItemData, so two layers need checking.
-					(
-						Utils
-						. require(
-							state.data != null,
-							(
-								"UIShopItemList._update_page: null ItemData on ItemState at sell index %d"
-								% item_index
-							)
-						)
+					Utils.require(
+						state.data != null,
+						"UIShopItemList._update_page: null ItemData at sell index %d" % item_index
 					)
 
 					entry.setup_sell(state.data.ui_name, state.stack_count, state.data.sell_price)
@@ -327,30 +349,3 @@ func _update_page() -> void:
 	_cursor.position = to_local(_entries[selected_slot].global_position)
 
 	queue_redraw()
-
-
-## Draws the scroll thumb.
-##
-## No [method Node.is_node_ready] guard is needed here. [code]_draw[/code] is only
-## ever triggered by the Godot renderer (which runs after [method _ready]) or by
-## [method queue_redraw], which is only called from [method _update_page] — and
-## [method _update_page] already guards on [method Node.is_node_ready] before
-## calling [method queue_redraw]. So [code]_draw[/code] can never fire before ready.
-func _draw() -> void:
-	# float() cast is required: without it, integer division truncates before ceili
-	# can apply ceiling rounding (e.g. 7 / 5 == 1 as int, but ceil(7.0 / 5) == 2).
-	var total_pages: int = ceili(float(_get_items_size()) / _PAGE_SIZE)
-	if total_pages <= 1:
-		return
-
-	var track_top: float = _scroll_track_top.position.y
-	var track_height: float = _scroll_track_bottom.position.y - track_top
-	var thumb_height: float = track_height / total_pages
-
-	@warning_ignore("integer_division")
-	var current_page: int = _current_index / _PAGE_SIZE
-
-	var thumb_x: float = _scroll_track_top.position.x
-	var thumb_y: float = track_top + current_page * thumb_height
-
-	draw_rect(Rect2(thumb_x, thumb_y, _SCROLL_BAR_WIDTH, thumb_height), _SCROLL_BAR_COLOR)

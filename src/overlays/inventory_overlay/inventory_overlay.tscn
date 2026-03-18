@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://du7mnlci4rnk3"]
+
+[ext_resource type="Texture2D" uid="uid://cmu5dsgxhksh3" path="res://assets/images/static/ui/ui_inventory_slot.png" id="1_7dn1k"]
+[ext_resource type="Texture2D" uid="uid://biqsew4payo87" path="res://assets/images/static/ui/ui_container.png" id="1_8ccl4"]
+[ext_resource type="Script" uid="uid://cy463i2cgxyhl" path="res://src/overlays/inventory_overlay/inventory_overlay.gd" id="1_qa4x4"]
+
+[node name="InventoryOverlay" type="Node2D" unique_id=1145918844]
+script = ExtResource("1_qa4x4")
+
+[node name="Grid" type="PanelContainer" parent="." unique_id=1917426765]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 32.0
+offset_bottom = 32.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Grid" unique_id=1754814042]
+layout_mode = 2
+theme_override_constants/margin_left = -3
+theme_override_constants/margin_top = -3
+theme_override_constants/margin_right = -3
+theme_override_constants/margin_bottom = -3
+
+[node name="Background" type="NinePatchRect" parent="Grid/MarginContainer" unique_id=2004365474]
+layout_mode = 2
+texture = ExtResource("1_8ccl4")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Cells" type="TextureRect" parent="Grid" unique_id=54735679]
+layout_mode = 2
+texture = ExtResource("1_7dn1k")
+stretch_mode = 1
