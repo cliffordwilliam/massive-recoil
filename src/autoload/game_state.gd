@@ -13,16 +13,16 @@ extends Node
 ## is absent from [member _seen_shop_item_ids] is considered unseen and shown as new.
 
 ## Starting chapter used on a new game.
-const DEFAULT_CHAPTER: int = 1
+const _DEFAULT_CHAPTER: int = 1
 
 ## Starting gold used on a new game.
-const DEFAULT_GOLD: int = 10000
+const _DEFAULT_GOLD: int = 10000
 
 ## Maximum gold the player can hold at once.
-const MAX_GOLD: int = 99999999
+const _MAX_GOLD: int = 99999999
 
 ## Current chapter. Controls which items are available in the shop.
-var chapter: int = DEFAULT_CHAPTER:
+var chapter: int = _DEFAULT_CHAPTER:
 	set(value):
 		# Wrong chapter silently corrupts all shop availability filtering — crash is intentional.
 		Utils.require(
@@ -37,12 +37,12 @@ var chapter: int = DEFAULT_CHAPTER:
 		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		chapter = value
 
-## Current gold amount. Range: [code]0[/code]–[constant MAX_GOLD].
-var gold: int = DEFAULT_GOLD:
+## Current gold amount. Range: [code]0[/code]–[constant _MAX_GOLD].
+var gold: int = _DEFAULT_GOLD:
 	set(value):
 		Utils.require(
-			value >= 0 and value <= MAX_GOLD,
-			"GameState.gold: value %d out of range [0, %d]" % [value, MAX_GOLD]
+			value >= 0 and value <= _MAX_GOLD,
+			"GameState.gold: value %d out of range [0, %d]" % [value, _MAX_GOLD]
 		)
 		# Godot 4 GDScript detects self-assignment within a setter and writes
 		# directly to the backing store — this does NOT cause infinite recursion.
@@ -113,8 +113,8 @@ func _parse_gold(save_data: Dictionary) -> int:
 	Utils.require(parsed_gold != null, "GameState.load_save: invalid gold '%s'" % raw_gold)
 	var gold_int: int = parsed_gold as int
 	Utils.require(
-		gold_int >= 0 and gold_int <= MAX_GOLD,
-		"GameState.load_save: gold %d out of range [0, %d]" % [gold_int, MAX_GOLD]
+		gold_int >= 0 and gold_int <= _MAX_GOLD,
+		"GameState.load_save: gold %d out of range [0, %d]" % [gold_int, _MAX_GOLD]
 	)
 	return gold_int
 
