@@ -1,5 +1,5 @@
 extends Node
-## Shop overlay for browsing and purchasing items from the merchant.
+## Shop overlay for browsing and purchasing items from the shop.
 ##
 ## Populates the item list with all [ItemData] resources available at the current
 ## chapter and delegates navigation input to [UIShopItemList].

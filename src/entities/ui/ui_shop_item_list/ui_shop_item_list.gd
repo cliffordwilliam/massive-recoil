@@ -40,7 +40,12 @@ const _SCROLL_BAR_COLOR: Color = Color("767b84")
 		# Godot 4 GDScript detects self-assignment within a setter and writes
 		# directly to the backing store — this does NOT cause infinite recursion.
 		render_mode = value
-		set_current_index(0)
+		# Dead code at runtime — mode is fixed at scene configuration time and
+		# never reassigned after that (see class docstring). This branch exists
+		# because Godot invokes the setter during @export deserialization on
+		# scene load, where the initial assignment from default → Inspector value
+		# may pass through here once before _ready fires.
+		_set_current_index(0)
 
 var _buy_items: Array[ItemData] = []
 var _sell_items: Array[ItemState] = []
@@ -52,7 +57,7 @@ var _current_index: int = -1:
 	# Godot 4 GDScript detects self-assignment within a named setter and writes
 	# directly to the backing store — assigning _current_index inside
 	# set_current_index does NOT cause infinite recursion.
-	set = set_current_index
+	set = _set_current_index
 
 ## [UIShopItem] entry nodes, populated from [code]$ItemContainer[/code] children in [method _ready].
 ## Count is asserted against [constant _PAGE_SIZE] at startup.
@@ -65,6 +70,7 @@ var _entries: Array[UIShopItem] = []
 @onready var _scroll_track_top: Marker2D = $ScrollTrackTop
 
 @onready var _scroll_track_bottom: Marker2D = $ScrollTrackBottom
+@onready var _scrollbar_background: NinePatchRect = $ScrollbarBackground
 
 
 func _ready() -> void:
@@ -84,9 +90,13 @@ func _ready() -> void:
 			entry != null,
 			"UIShopItemList: child '%s' in ItemContainer is not a UIShopItem" % child.name
 		)
-		_entries.append(entry)
+
+	_entries.assign(container.get_children())
 
 	_cursor.centered = false
+
+	# This has to be behind this node because this node calls the draw thumb function.
+	_scrollbar_background.show_behind_parent = true
 
 
 ## Sets the items displayed in buy mode and resets selection.
@@ -107,22 +117,20 @@ func set_buy_items(items: Array[ItemData]) -> void:
 	_buy_items.assign(items)
 
 	if render_mode == RenderMode.BUY:
-		set_current_index(0)
+		_set_current_index(0)
 
 
 ## Sets the items displayed in sell mode and resets selection.
 ## Only re-renders immediately if [member render_mode] is [enum RenderMode.SELL].
 ##
 ## [param items] must be snapshots from [method PlayerInventory.get_slots] —
-## never live references from [member PlayerInventory._slots]. [method selected_sell_item]
+## never live references from [member PlayerInventory._slots]. [method get_selected_sell_item]
 ## returns entries from this array directly to callers, so passing live instances
 ## would leak owned [ItemState] objects outside [code]PlayerInventory[/code],
 ## violating the architecture contract. This is enforced at runtime via
 ## [member ItemState.is_snapshot].
 func set_sell_items(items: Array[ItemState]) -> void:
 	# Enforce the snapshot contract described in the docstring above.
-	_sell_items.clear()
-
 	for item: ItemState in items:
 		Utils.require(
 			item.is_snapshot,
@@ -131,10 +139,78 @@ func set_sell_items(items: Array[ItemState]) -> void:
 				+ "only pass snapshots from PlayerInventory.get_slots()"
 			)
 		)
-		_sell_items.append(item)
+
+	_sell_items.assign(items)
 
 	if render_mode == RenderMode.SELL:
-		set_current_index(0)
+		_set_current_index(0)
+
+
+## Moves the selection to the next item in the list.
+## Clamps at the last item; does not wrap around.
+func next() -> void:
+	_set_current_index(_current_index + 1)
+
+
+## Moves the selection to the previous item in the list.
+## Clamps at the first item; does not wrap around.
+func previous() -> void:
+	_set_current_index(_current_index - 1)
+
+
+## Returns the currently selected [ItemData] in buy mode.
+## Returns [code]null[/code] if the buy list is empty.
+##
+## [b]Why two functions instead of one?[/b] GDScript has no union return type, so a single
+## [code]selected_item()[/code] could only return [code]Variant[/code], losing all type safety
+## at call sites. Two typed functions is the correct trade-off here.
+##
+## Calling this while not in BUY mode is a programmer error and crashes via [method Utils.require].
+func get_selected_buy_item() -> ItemData:
+	if render_mode != RenderMode.BUY:
+		Utils.require(false, "UIShopItemList.get_selected_buy_item: called while not in BUY mode")
+		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+
+	if _buy_items.is_empty():
+		return null
+
+	Utils.require(
+		_current_index >= 0 and _current_index < _buy_items.size(),
+		(
+			(
+				"UIShopItemList.get_selected_buy_item: _current_index %d out of range [0, %d) "
+				+ "— buy items mutated without going through setters"
+			)
+			% [_current_index, _buy_items.size()]
+		)
+	)
+
+	return _buy_items[_current_index]
+
+
+## Returns the currently selected [ItemState] in sell mode.
+## Returns [code]null[/code] if the sell list is empty.
+## Calling this while not in SELL mode is a programmer error and crashes via [method Utils.require].
+func get_selected_sell_item() -> ItemState:
+	if render_mode != RenderMode.SELL:
+		Utils.require(false, "UIShopItemList.get_selected_sell_item: called while not in SELL mode")
+		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+
+	if _sell_items.is_empty():
+		return null
+
+	Utils.require(
+		_current_index >= 0 and _current_index < _sell_items.size(),
+		(
+			(
+				"UIShopItemList.get_selected_sell_item: _current_index %d out of range [0, %d) "
+				+ "— sell items mutated without going through setters"
+			)
+			% [_current_index, _sell_items.size()]
+		)
+	)
+
+	return _sell_items[_current_index]
 
 
 ## Sets the currently selected item index.
@@ -152,97 +228,29 @@ func set_sell_items(items: Array[ItemState]) -> void:
 ## is empty (index 0, no valid item). This is intentional: a missed emission on a
 ## real selection change would be a silent bug, whereas a spurious emission on an
 ## empty list is harmless — the consumer already checks for null via
-## [method selected_buy_item] / [method selected_sell_item]. Because there is
+## [method get_selected_buy_item] / [method get_selected_sell_item]. Because there is
 ## never more than one scroll list visible at a time, the redundancy cost is zero.
 ##
 ## Both [method _update_page] and the signal emission are guarded by
 ## [method Node.is_node_ready] — a Godot lifecycle gate so @export deserialization
 ## before [method _ready] fires does not trigger a render or signal emission.
 ## "Unconditionally" above refers to index value and list state, not the lifecycle.
-func set_current_index(value: int) -> void:
-	var size: int = _active_size()
-	_current_index = 0 if size == 0 else clampi(value, 0, size - 1)
+func _set_current_index(value: int) -> void:
+	_current_index = clampi(value, 0, maxi(0, _get_items_size() - 1))
 	_update_page()
 
 	if is_node_ready():
 		selection_changed.emit(_current_index)
 
 
-## Moves the selection to the next item in the list.
-## Clamps at the last item; does not wrap around.
-func next() -> void:
-	set_current_index(_current_index + 1)
-
-
-## Moves the selection to the previous item in the list.
-## Clamps at the first item; does not wrap around.
-func previous() -> void:
-	set_current_index(_current_index - 1)
-
-
-## Returns the currently selected [ItemData] in buy mode.
-## Returns [code]null[/code] if the buy list is empty.
-##
-## [b]Why two functions instead of one?[/b] GDScript has no union return type, so a single
-## [code]selected_item()[/code] could only return [code]Variant[/code], losing all type safety
-## at call sites. Two typed functions is the correct trade-off here.
-##
-## Calling this while not in BUY mode is a programmer error and crashes via [method Utils.require].
-func selected_buy_item() -> ItemData:
-	if render_mode != RenderMode.BUY:
-		Utils.require(false, "UIShopItemList.selected_buy_item: called while not in BUY mode")
-		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
-
-	if _buy_items.is_empty():
-		return null
-
-	Utils.require(
-		_current_index < _buy_items.size(),
-		(
-			(
-				"UIShopItemList.selected_buy_item: _current_index %d out of range for "
-				+ "buy list of size %d — buy items mutated without going through setters"
-			)
-			% [_current_index, _buy_items.size()]
-		)
-	)
-
-	return _buy_items[_current_index]
-
-
-## Returns the currently selected [ItemState] in sell mode.
-## Returns [code]null[/code] if the sell list is empty.
-## Calling this while not in SELL mode is a programmer error and crashes via [method Utils.require].
-func selected_sell_item() -> ItemState:
-	if render_mode != RenderMode.SELL:
-		Utils.require(false, "UIShopItemList.selected_sell_item: called while not in SELL mode")
-		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
-
-	if _sell_items.is_empty():
-		return null
-
-	Utils.require(
-		_current_index < _sell_items.size(),
-		(
-			(
-				"UIShopItemList.selected_sell_item: _current_index %d out of range for "
-				+ "sell list of size %d — sell items mutated without going through setters"
-			)
-			% [_current_index, _sell_items.size()]
-		)
-	)
-
-	return _sell_items[_current_index]
-
-
 ## Returns the number of items in the currently active array.
-func _active_size() -> int:
+func _get_items_size() -> int:
 	match render_mode:
 		RenderMode.BUY:
 			return _buy_items.size()
 		RenderMode.SELL:
 			return _sell_items.size()
-	return 0
+	return 0  # Unreachable — render_mode is a typed enum. Required by the type checker.
 
 
 ## Returns the starting index of the current page.
@@ -264,31 +272,32 @@ func _update_page() -> void:
 	if not is_node_ready():
 		return
 
-	var page_start: int = _get_page_start()
-	var active_count: int = _active_size()
+	for entry_index: int in _PAGE_SIZE:
+		var entry: UIShopItem = _entries[entry_index]
+		var item_index: int = _get_page_start() + entry_index
 
-	for local_slot: int in _PAGE_SIZE:
-		var entry: UIShopItem = _entries[local_slot]
-		var item_index: int = page_start + local_slot
-
-		if item_index < active_count:
+		if item_index < _get_items_size():
 			match render_mode:
 				RenderMode.BUY:
 					var data: ItemData = _buy_items[item_index]
+
 					Utils.require(
 						data != null,
 						"UIShopItemList._update_page: null ItemData at buy index %d" % item_index
 					)
+
 					entry.setup_buy(
 						data.ui_name, data.buy_price, GameState.is_shop_item_new(data.id)
 					)
 
 				RenderMode.SELL:
 					var state: ItemState = _sell_items[item_index]
+
 					Utils.require(
 						state != null,
 						"UIShopItemList._update_page: null ItemState at sell index %d" % item_index
 					)
+
 					# Guard state.data separately from state itself — BUY items are a
 					# single nullable layer, SELL items are ItemState wrappers with an
 					# inner ItemData, so two layers need checking.
@@ -302,6 +311,7 @@ func _update_page() -> void:
 							)
 						)
 					)
+
 					entry.setup_sell(state.data.ui_name, state.stack_count, state.data.sell_price)
 
 			entry.show()
@@ -313,7 +323,7 @@ func _update_page() -> void:
 	# (_current_index == 0, selected_slot == 0). The cursor is hidden below when
 	# the list is empty, so its position in that case does not matter.
 	var selected_slot: int = _current_index % _PAGE_SIZE
-	_cursor.visible = _active_size() > 0
+	_cursor.visible = _get_items_size() > 0
 	_cursor.position = to_local(_entries[selected_slot].global_position)
 
 	queue_redraw()
@@ -329,7 +339,7 @@ func _update_page() -> void:
 func _draw() -> void:
 	# float() cast is required: without it, integer division truncates before ceili
 	# can apply ceiling rounding (e.g. 7 / 5 == 1 as int, but ceil(7.0 / 5) == 2).
-	var total_pages: int = ceili(float(_active_size()) / _PAGE_SIZE)
+	var total_pages: int = ceili(float(_get_items_size()) / _PAGE_SIZE)
 	if total_pages <= 1:
 		return
 

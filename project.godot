@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 [autoload]
 
 ItemRegistry="*uid://dx74ctlojwiw7"
+RecipeRegistry="*uid://j4rk6llcw81a"
 GameState="*uid://bm4e1fv6hvkr3"
 PlayerInventory="*uid://pbkhdv7c00de"
-RecipeRegistry="*uid://j4rk6llcw81a"
 
 [debug]
 

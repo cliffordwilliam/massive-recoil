@@ -45,11 +45,23 @@ func mark_shop_item_seen(id: StringName) -> void:
 	_seen_shop_item_ids[id] = true
 
 
+## Returns state serialized for saving.
+func get_save_data() -> Dictionary:
+	return {
+		"chapter": chapter,
+		"seen_shop_item_ids":
+		_seen_shop_item_ids.keys().map(func(k: StringName) -> String: return str(k)),
+	}
+
+
 ## Hydrates state from [param save_data].
 ##
 ## The load is not atomic — [member chapter] is assigned before [member _seen_shop_item_ids]
-## is validated. This is intentional: [method Utils.require] crashes immediately, so
-## partially-updated state is never observable. Rollback would add complexity with no benefit.
+## is validated. This is intentional: a hard crash on corrupt data is preferred over
+## continuing with partial or inconsistent state, which is harder to debug.
+## [method Utils.require] crashes immediately on the first violation, so
+## partially-updated state is never observable in practice.
+## See: "res://docs/decisions/item_architecture.md" (Error handling philosophy).
 func load_save(save_data: Dictionary) -> void:
 	chapter = _parse_chapter(save_data)
 	_parse_seen_ids(save_data)
@@ -58,7 +70,7 @@ func load_save(save_data: Dictionary) -> void:
 ## Validates and returns the chapter value from [param save_data].
 ## Crashes on missing or out-of-range value.
 func _parse_chapter(save_data: Dictionary) -> int:
-	var raw_chapter: Variant = save_data.get("chapter", DEFAULT_CHAPTER)
+	var raw_chapter: Variant = save_data.get("chapter", null)
 	var parsed_chapter: Variant = Utils.parse_json_int(raw_chapter)
 	Utils.require(parsed_chapter != null, "GameState.load_save: invalid chapter '%s'" % raw_chapter)
 	var chapter_int: int = parsed_chapter as int
@@ -102,14 +114,5 @@ func _parse_seen_ids(save_data: Dictionary) -> void:
 
 ## Returns [code]true[/code] if [param value] is within the valid chapter range.
 ## Shared by the [member chapter] setter and [method load_save] to keep the bounds in one place.
-func _is_valid_chapter(value: int) -> bool:
+static func _is_valid_chapter(value: int) -> bool:
 	return value >= ItemSchema.MIN_CHAPTER and value <= ItemSchema.MAX_CHAPTER
-
-
-## Returns state serialized for saving.
-func get_save_data() -> Dictionary:
-	return {
-		"chapter": chapter,
-		"seen_shop_item_ids":
-		_seen_shop_item_ids.keys().map(func(k: StringName) -> String: return str(k)),
-	}

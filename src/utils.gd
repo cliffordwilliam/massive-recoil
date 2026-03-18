@@ -10,6 +10,9 @@ extends RefCounted
 ## errors and broken-build conditions that should never occur in correct code.
 static func require(valid_condition: bool, message: String) -> void:
 	if not valid_condition:
+		# Assert works in dev env only.
+		# It is here so that there are messages for me to see in errors tab.
+		assert(false, message)
 		OS.crash(message)
 
 

@@ -39,16 +39,15 @@ var _slots: Array[ItemState] = []
 ## Checks that the item's footprint fits within [member grid_size] and does not
 ## overlap any existing slot.
 func can_place(item_data: ItemData, position: Vector2i) -> bool:
-	if position.x < 0 or position.y < 0:
-		return false
-	if position.x + item_data.inventory_size.x > grid_size.x:
-		return false
-	if position.y + item_data.inventory_size.y > grid_size.y:
-		return false
 	var footprint: Rect2i = Rect2i(position, item_data.inventory_size)
+
+	if not Rect2i(Vector2i.ZERO, grid_size).encloses(footprint):
+		return false
+
 	for slot: ItemState in _slots:
 		if footprint.intersects(Rect2i(slot.position, slot.data.inventory_size)):
 			return false
+
 	return true
 
 
@@ -73,14 +72,17 @@ func place_item(
 	# error and make the caller unable to distinguish a missing item from a
 	# legitimately invalid placement.
 	var data: ItemData = ItemRegistry.get_item(id)
+
 	if not can_place(data, position):
 		return false
+
 	# An out-of-range count is always a programmer error — callers are responsible
 	# for clamping before calling place_item (load_save does this explicitly).
 	Utils.require(
 		count >= ItemSchema.MIN_STACK,
 		"PlayerInventory.place_item: count %d is below MIN_STACK" % count
 	)
+
 	Utils.require(
 		count <= data.stack_size,
 		(
@@ -88,13 +90,17 @@ func place_item(
 			% [count, data.stack_size, id]
 		)
 	)
+
 	_append_slot(data, position, count)
+
 	if mark_seen:
-		# Intentional reach into GameState — PlayerInventory is the single chokepoint
-		# where items enter the player's possession. See: "res://docs/decisions/item_architecture.md"
+		# Intentional reach into GameState — PlayerInventory is the single chokepoint where items
+		# enter the player's possession. See: "res://docs/decisions/item_architecture.md"
 		GameState.mark_shop_item_seen(data.id)
+
 	if notify:
 		inventory_changed.emit()
+
 	return true
 
 
@@ -111,18 +117,26 @@ func place_item(
 func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 	# Guard against non-positive count: mini(space, negative) would silently decrement stack_count.
 	Utils.require(count > 0, "PlayerInventory.add_to_stack: count must be positive, got %d" % count)
+
 	var slot: ItemState = get_slot_at(position)
+
 	# Both null-slot and ID-mismatch return the full count — both are invalid placements,
 	# not programmer errors. Non-zero return means nothing was placed.
 	if slot == null:
 		return count
+
 	if slot.data.id != id:
 		return count
+
 	var space: int = slot.data.stack_size - slot.stack_count
 	var added: int = mini(space, count)
 	slot.stack_count += added
+
+	# Only emit if state actually changed — the stack may be full, in which
+	# case added == 0 and nothing was mutated.
 	if added > 0:
 		inventory_changed.emit()
+
 	return count - added
 
 
@@ -130,10 +144,14 @@ func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 ## Returns [code]false[/code] if no slot occupies that cell.
 func remove_item_at(position: Vector2i) -> bool:
 	var slot: ItemState = get_slot_at(position)
+
 	if slot == null:
 		return false
+
 	_slots.erase(slot)
+
 	inventory_changed.emit()
+
 	return true
 
 
@@ -150,6 +168,7 @@ func find_open_position(item_data: ItemData) -> Vector2i:
 			var pos: Vector2i = Vector2i(x, y)
 			if can_place(item_data, pos):
 				return pos
+
 	return Vector2i(-1, -1)
 
 
@@ -158,6 +177,7 @@ func get_slot_at(position: Vector2i) -> ItemState:
 	for slot: ItemState in _slots:
 		if Rect2i(slot.position, slot.data.inventory_size).has_point(position):
 			return slot
+
 	return null
 
 
@@ -199,16 +219,24 @@ func upgrade_grid() -> bool:
 	return false
 
 
-## Creates a new [ItemState] and appends it directly to [member _slots].
-##
-## No validation is performed here — callers must ensure [param data] is non-null,
-## [param pos] is a valid placement (checked via [method can_place]), and [param count]
-## is already clamped to [[constant ItemSchema.MIN_STACK], [member ItemData.stack_size]].
-func _append_slot(data: ItemData, pos: Vector2i, count: int) -> void:
-	var slot: ItemState = ItemState.new(data)
-	slot.position = pos
-	slot.stack_count = count
-	_slots.append(slot)
+## Returns inventory state serialized for saving.
+func get_save_data() -> Dictionary:
+	var slots_data: Array[Dictionary] = []
+	# slot.data is guaranteed non-null: every entry in _slots is created by
+	# _append_slot, which only accepts data coming from ItemRegistry — a null
+	# would have already crashed at the call site. No null guard is needed here.
+	for slot: ItemState in _slots:
+		(
+			slots_data
+			. append(
+				{
+					"id": str(slot.data.id),
+					"stack_count": slot.stack_count,
+					"position": {"x": slot.position.x, "y": slot.position.y},
+				}
+			)
+		)
+	return {"grid_tier": _grid_tier, "slots": slots_data}
 
 
 ## Hydrates inventory from [param save_data].
@@ -222,22 +250,38 @@ func _append_slot(data: ItemData, pos: Vector2i, count: int) -> void:
 ## captured in the saved [GameState] data and must not be modified on load.
 func load_save(save_data: Dictionary) -> void:
 	_slots.clear()
+
 	_grid_tier = _parse_grid_tier(save_data)
+
 	var raw_slots: Variant = save_data.get("slots", [])
 	Utils.require(raw_slots is Array, "PlayerInventory.load_save: 'slots' is not an Array")
+
 	for raw_entry: Variant in raw_slots as Array:
 		Utils.require(
 			raw_entry is Dictionary, "PlayerInventory.load_save: slot entry is not a Dictionary"
 		)
 		_parse_slot_entry(raw_entry as Dictionary)
+
 	# Always emit even if slots is empty — the grid tier was (re)set, which is a state change.
 	inventory_changed.emit()
+
+
+## Creates a new [ItemState] and appends it directly to [member _slots].
+##
+## No validation is performed here — callers must ensure [param data] is non-null,
+## [param pos] is a valid placement (checked via [method can_place]), and [param count]
+## is already clamped to [[constant ItemSchema.MIN_STACK], [member ItemData.stack_size]].
+func _append_slot(data: ItemData, pos: Vector2i, count: int) -> void:
+	var slot: ItemState = ItemState.new(data)
+	slot.position = pos
+	slot.stack_count = count
+	_slots.append(slot)
 
 
 ## Validates and returns the grid tier from [param save_data].
 ## Crashes on missing or out-of-range value.
 func _parse_grid_tier(save_data: Dictionary) -> int:
-	var raw_tier: Variant = save_data.get("grid_tier", 0)
+	var raw_tier: Variant = save_data.get("grid_tier", null)
 	var parsed_tier: Variant = Utils.parse_json_int(raw_tier)
 	Utils.require(
 		parsed_tier != null, "PlayerInventory.load_save: invalid grid_tier '%s'" % raw_tier
@@ -284,8 +328,11 @@ func _parse_slot_entry(entry: Dictionary) -> void:
 	Utils.require(
 		can_place(data, pos),
 		(
-			"PlayerInventory.load_save: '%s' at %s is out of bounds or overlaps an existing "
-			+ "slot (grid is %s)" % [id, pos, grid_size]
+			(
+				"PlayerInventory.load_save: '%s' at %s is out of bounds or overlaps an existing "
+				+ "slot (grid is %s)"
+			)
+			% [id, pos, grid_size]
 		)
 	)
 
@@ -304,23 +351,3 @@ func _parse_slot_entry(entry: Dictionary) -> void:
 		)
 	)
 	_append_slot(data, pos, count)
-
-
-## Returns inventory state serialized for saving.
-func get_save_data() -> Dictionary:
-	var slots_data: Array[Dictionary] = []
-	# slot.data is guaranteed non-null: every entry in _slots is created by
-	# _append_slot, which only accepts data coming from ItemRegistry — a null
-	# would have already crashed at the call site. No null guard is needed here.
-	for slot: ItemState in _slots:
-		(
-			slots_data
-			. append(
-				{
-					"id": str(slot.data.id),
-					"stack_count": slot.stack_count,
-					"position": {"x": slot.position.x, "y": slot.position.y},
-				}
-			)
-		)
-	return {"grid_tier": _grid_tier, "slots": slots_data}

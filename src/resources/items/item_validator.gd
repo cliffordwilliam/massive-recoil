@@ -3,7 +3,7 @@ extends RefCounted
 ## Validates [ItemData] field constraints. Called by [ItemDefinitions] during construction.
 ##
 ## [method validate] runs all checks in order, crashing on the first violation.
-## Private methods are the individual checks — callable independently for unit tests.
+## Private methods are the individual checks.
 
 
 ## Runs all field constraint checks on [param data].
@@ -79,9 +79,19 @@ static func _validate_stack_size(data: ItemData) -> void:
 
 
 static func _validate_availability(data: ItemData) -> void:
-	# Non-shop items have availability set to AVAILABILITY_NOT_FOR_SALE — skip range check.
 	if data.buy_price == 0:
+		Utils.require(
+			data.availability == ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+			(
+				"ItemData '%s': buy_price is 0 — availability must be AVAILABILITY_NOT_FOR_SALE"
+				% data.id
+			)
+		)
 		return
+
+	# buy_price != 0 — item is shop-available. Both directions of the contract are
+	# enforced: AVAILABILITY_NOT_FOR_SALE equals MAX_CHAPTER + 1, which exceeds
+	# MAX_CHAPTER, so passing the sentinel with a non-zero buy_price fails this check.
 	Utils.require(
 		data.availability >= ItemSchema.MIN_CHAPTER and data.availability <= ItemSchema.MAX_CHAPTER,
 		(

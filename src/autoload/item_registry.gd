@@ -19,6 +19,7 @@ func _ready() -> void:
 			not _items.has(data.id), "ItemRegistry: duplicate id '%s' in ItemDefinitions" % data.id
 		)
 		_items[data.id] = data
+
 	Utils.require(
 		not _items.is_empty(), "ItemRegistry: ItemDefinitions.get_all() returned no items"
 	)

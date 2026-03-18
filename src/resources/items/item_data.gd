@@ -6,7 +6,7 @@ extends Resource
 ##
 ## [b]No validation is performed here.[/b] [ItemDefinitions] constructs instances;
 ## [ItemValidator] enforces field constraints; [code]PlayerInventory[/code] enforces
-## placement rules (stack bounds via [constant ItemSchema.MIN_STACK] and [member stack_size]).
+## business rules.
 
 ## Type determines item behaviour and gameplay role.
 enum Type {
@@ -28,7 +28,7 @@ enum Type {
 	KEY,
 }
 
-## Ammo type a weapon consumes. Only meaningful when [member type] is [constant Type.WEAPON].
+## Ammo type a weapon consumes.
 enum AmmoType {
 	## No ammo (not a weapon or weapon does not use ammo).
 	NONE,
@@ -44,18 +44,19 @@ var ui_name: String = ""
 var description: String = ""
 var inventory_size: Vector2i = Vector2i(1, 1)
 
-## Price to purchase this item from the merchant. [code]0[/code] means not buyable.
+## Price to purchase this item from the shop. [code]0[/code] means not buyable.
 var buy_price: int = 0
 
-## Price received when selling this item to the merchant. [code]0[/code] means not sellable.
+## Price received when selling this item to the shop. [code]0[/code] means not sellable.
 var sell_price: int = 0
 
 ## Maximum number of this item that can occupy a single inventory slot.
 var stack_size: int = 1
 
-## Earliest chapter in which this item becomes available in the merchant shop.
-## Only meaningful when [member buy_price] is non-zero.
+## Earliest chapter in which this item becomes available in the shop.
+## See field invariants in "res://docs/decisions/item_architecture.md".
 var availability: int = ItemSchema.AVAILABILITY_NOT_FOR_SALE
 
-## Ammo type this weapon consumes. Only meaningful when [member type] is [constant Type.WEAPON].
+## Ammo type this weapon consumes.
+## See field invariants in "res://docs/decisions/item_architecture.md".
 var ammo_type: AmmoType = AmmoType.NONE

@@ -13,7 +13,7 @@ const MAX_STACK: int = 999
 
 ## Per-axis bounds for [member ItemData.inventory_size] (width and height).
 const MIN_SIZE_DIM: int = 1
-const MAX_SIZE_DIM: int = 6
+const MAX_SIZE_DIM: int = 8
 
 ## Chapter range. Also used as the availability scale — both share the same values.
 const MIN_CHAPTER: int = 1

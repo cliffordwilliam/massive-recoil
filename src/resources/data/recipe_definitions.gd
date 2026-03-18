@@ -4,7 +4,7 @@ extends RefCounted
 ##
 ## All ids must exist in [ItemDefinitions].
 
-const RECIPES: Array = [
+const RECIPES: Array[Dictionary] = [
 	{
 		"ingredients": ["sterile_band", "antiseptic"],
 		"result": "treat_band",

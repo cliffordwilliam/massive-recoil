@@ -39,7 +39,6 @@ position = Vector2(0, 54)
 position = Vector2(0, 72)
 
 [node name="ScrollbarBackground" type="NinePatchRect" parent="." unique_id=148142013]
-show_behind_parent = true
 offset_left = 179.0
 offset_top = -3.0
 offset_right = 190.0

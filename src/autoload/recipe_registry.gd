@@ -15,39 +15,19 @@ var _recipes: Dictionary[String, StringName] = {}
 
 func _ready() -> void:
 	for recipe: Dictionary in RecipeDefinitions.RECIPES:
-		var ingredients: Variant = recipe.get("ingredients", null)
-		Utils.require(
-			ingredients is Array and (ingredients as Array).size() == 2,
-			"RecipeDefinitions: each recipe must have exactly 2 ingredients"
-		)
-		var arr: Array = ingredients as Array
-		Utils.require(
-			arr[0] is String and not (arr[0] as String).is_empty(),
-			"RecipeDefinitions: ingredient must be a non-empty String"
-		)
-		Utils.require(
-			arr[1] is String and not (arr[1] as String).is_empty(),
-			"RecipeDefinitions: ingredient must be a non-empty String"
-		)
+		_validate_recipe(recipe)
+
+		var arr: Array = recipe.get("ingredients") as Array
 		var id_a: StringName = StringName(arr[0] as String)
 		var id_b: StringName = StringName(arr[1] as String)
-
-		var result_raw: Variant = recipe.get("result", null)
-		Utils.require(
-			result_raw is String and not (result_raw as String).is_empty(),
-			"RecipeDefinitions: result must be a non-empty String"
-		)
-		var result_id: StringName = StringName(result_raw as String)
-
-		ItemRegistry.validate_item_id(id_a)
-		ItemRegistry.validate_item_id(id_b)
-		ItemRegistry.validate_item_id(result_id)
-
+		var result_id: StringName = StringName(recipe.get("result") as String)
 		var key: String = _make_key(id_a, id_b)
+
 		Utils.require(
 			not _recipes.has(key),
 			"RecipeDefinitions: duplicate recipe for ingredients '%s' + '%s'" % [id_a, id_b]
 		)
+
 		_recipes[key] = result_id
 
 
@@ -66,7 +46,43 @@ func has_recipe(id_a: StringName, id_b: StringName) -> bool:
 
 ## Returns a canonical, order-independent key for an ingredient pair.
 ## Sorting by string value ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
+##
+## [b]Assumption:[/b] item IDs never contain [code]|[/code]. The current naming
+## convention (lowercase letters and underscores only) makes a collision impossible.
+## If that convention ever changes, replace the separator or use a struct key.
 func _make_key(id_a: StringName, id_b: StringName) -> String:
-	if str(id_a) <= str(id_b):
-		return str(id_a) + "|" + str(id_b)
-	return str(id_b) + "|" + str(id_a)
+	var a: String = str(id_a)
+	var b: String = str(id_b)
+	if a <= b:
+		return a + "|" + b
+	return b + "|" + a
+
+
+## Validates the structure and item IDs of a single recipe [Dictionary].
+## Crashes via [method Utils.require] on the first violation.
+func _validate_recipe(recipe: Dictionary) -> void:
+	var ingredients: Variant = recipe.get("ingredients", null)
+	Utils.require(
+		ingredients is Array and (ingredients as Array).size() == 2,
+		"RecipeDefinitions: each recipe must have exactly 2 ingredients"
+	)
+
+	var arr: Array = ingredients as Array
+	Utils.require(
+		arr[0] is String and not (arr[0] as String).is_empty(),
+		"RecipeDefinitions: ingredient must be a non-empty String"
+	)
+	Utils.require(
+		arr[1] is String and not (arr[1] as String).is_empty(),
+		"RecipeDefinitions: ingredient must be a non-empty String"
+	)
+
+	var result_raw: Variant = recipe.get("result", null)
+	Utils.require(
+		result_raw is String and not (result_raw as String).is_empty(),
+		"RecipeDefinitions: result must be a non-empty String"
+	)
+
+	ItemRegistry.validate_item_id(StringName(arr[0] as String))
+	ItemRegistry.validate_item_id(StringName(arr[1] as String))
+	ItemRegistry.validate_item_id(StringName(result_raw as String))

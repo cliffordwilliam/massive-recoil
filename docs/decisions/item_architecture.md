@@ -48,10 +48,17 @@ availability on demand.
 An item is buyable when its `buy_price` is non-zero and its `availability` is within
 the current chapter. An item is sellable when its `sell_price` is non-zero.
 
-Non-shop items (`buy_price == 0`) are assigned `ItemSchema.AVAILABILITY_NOT_FOR_SALE`
-at construction time. This sentinel exceeds `MAX_CHAPTER`, so `availability <= chapter`
-is always false for them — the chapter filter is self-enforcing without a separate
-`buy_price > 0` guard.
+The `buy_price` and `availability` fields are bidirectionally coupled:
+
+- A non-shop item (`buy_price == 0`) **must** have `availability == AVAILABILITY_NOT_FOR_SALE`.
+- A shop item (`buy_price != 0`) **must** have `availability` in `[MIN_CHAPTER, MAX_CHAPTER]`.
+
+`ItemValidator` enforces both directions at startup — no silent correction is applied
+at construction time. Passing the wrong combination crashes immediately.
+
+`AVAILABILITY_NOT_FOR_SALE` exceeds `MAX_CHAPTER`, so `availability <= chapter`
+is always false for non-shop items — the chapter filter is self-enforcing without a
+separate `buy_price > 0` guard.
 
 ## Shop "new item" tag
 
@@ -68,6 +75,38 @@ not recalculated from inventory contents.
 
 This is **not** stored on `ItemData` (static, never changes) or `ItemState`
 (inventory-only concept). It is `GameState` state, alongside chapter progression.
+
+## Recipe system
+
+Recipes are defined as static data in `RecipeDefinitions` and loaded at startup by
+`RecipeRegistry`. Each recipe specifies exactly two ingredient item IDs and one result
+item ID. All IDs are validated against `ItemRegistry` at startup — an unknown ID crashes
+immediately.
+
+Ingredient order does not matter: `RecipeRegistry` builds an order-independent lookup
+key by sorting the two IDs alphabetically before joining them.
+
+Combining an item with itself (both ingredients are the same ID) is explicitly
+supported — for example, two key fragments combining into a complete key. There is no
+constraint requiring the two ingredients to be distinct items.
+
+`RecipeRegistry` detects duplicate recipes (same ingredient pair appearing more than
+once) at startup and crashes if found.
+
+## Error handling philosophy
+
+When loading save data or validating static definitions, a hard crash is always
+preferred over graceful degradation with partial or inconsistent state. Partial state
+is harder to debug — the failure point is disconnected from the corrupted data, and
+the program may continue to behave incorrectly in ways that are difficult to trace.
+
+`Utils.require` calls `OS.crash` unconditionally in both debug and release builds.
+Any constraint violation terminates immediately at the point of detection. No
+defensive fallbacks, silent skips, or partial loads are used.
+
+This also applies to save file loading: if saved data references an item ID that no
+longer exists, the game crashes rather than silently skipping it. If items are removed
+from the game after save files exist, the save data must be migrated or wiped.
 
 ## Why ItemState has no validation
 
@@ -87,6 +126,37 @@ place to keep in sync. It would also have a subtle failure mode: `Utils.require`
 would be overly aggressive — crashing on every corrupt save file, for example, rather
 than skipping it. A plain field fails loudly and immediately at the point of access,
 which is easier to trace.
+
+## ItemData field invariants
+
+All constraints are enforced by `ItemValidator` at startup — a violation crashes
+immediately, so no invalid `ItemData` can survive into runtime. Bounds are defined
+in `ItemSchema`.
+
+| Field            | Constraint                                                                                     |
+|------------------|------------------------------------------------------------------------------------------------|
+| `id`             | Non-empty string                                                                               |
+| `ui_name`        | Non-empty; max `MAX_NAME_LENGTH` (12) chars                                                    |
+| `description`    | Non-empty; max `MAX_DESCRIPTION_LENGTH` (50) chars                                             |
+| `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                      |
+| `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable                                     |
+| `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                |
+| `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE` |
+| `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                  |
+| `ammo_type`      | Must be `NONE` for non-`WEAPON` types; any `AmmoType` value valid for `WEAPON`                 |
+
+## ammo_type field ownership
+
+`ammo_type` is a weapon-side field — it describes which ammo type a `WEAPON` consumes,
+not what an `AMMO`-type item *is*. `ItemValidator` enforces that `ammo_type` must be
+`NONE` on all non-`WEAPON` items, so `AMMO`-type items always carry `AmmoType.NONE`.
+
+This means the ammo-to-weapon relationship is one-directional: the weapon declares what
+it consumes; the ammo item carries no reference back to its compatible weapons. Pairing
+is resolved at the point of use (e.g. a weapon fires, looks up its own `ammo_type`, and
+finds the matching `AMMO` item in inventory by convention).
+
+A `WEAPON` with `ammo_type == NONE` is valid and represents an infinite-ammo weapon.
 
 ## Static data pipeline
 
