@@ -15,7 +15,7 @@ func _ready() -> void:
 	ui_shop_item_list.set_buy_items(buyable)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_down"):
 		ui_shop_item_list.next()
 		get_viewport().set_input_as_handled()
