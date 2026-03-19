@@ -22,9 +22,9 @@ scene-tree change.
 
 Every overlay extends `BaseOverlay`, which enforces a single lifecycle interface:
 
-| Member | Purpose |
-|---|---|
-| `is_active` | Written by `OverlayRouter` only. Drives `visible` and `process_mode`. |
+| Member          | Purpose                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| `is_active`     | Written by `OverlayRouter` only. Drives `visible` and `process_mode`.                    |
 | `_hydrate_ui()` | Abstract. Called each time the overlay becomes active. Subclasses refresh their UI here. |
 
 `_hydrate_ui` is called on every open — not once at startup — so each overlay always
@@ -55,9 +55,9 @@ For example, `BuyOverlay` uses the `accept` action to buy the selected shop item
 
 ## Overlays
 
-| Overlay | Class | Status | Opens via |
-|---|---|---|---|
-| Shop buy | `BuyOverlay` | Active | `buy` key (handled by `OverlayRouter`) |
+| Overlay   | Class              | Status   | Opens via                                    |
+| --------- | ------------------ | -------- | -------------------------------------------- |
+| Shop buy  | `BuyOverlay`       | Active   | `buy` key (handled by `OverlayRouter`)       |
 | Inventory | `InventoryOverlay` | Scaffold | `inventory` key (handled by `OverlayRouter`) |
 
 ## Why OverlayRouter is an autoload

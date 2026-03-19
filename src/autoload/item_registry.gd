@@ -18,6 +18,7 @@ func _ready() -> void:
 		Utils.require(
 			not _items.has(data.id), "ItemRegistry: duplicate id '%s' in ItemDefinitions" % data.id
 		)
+
 		_items[data.id] = data
 
 	Utils.require(
@@ -29,13 +30,10 @@ func _ready() -> void:
 ##
 ## Order reflects dictionary insertion order, which matches the order of entries
 ## in [ItemDefinitions]. No caller in this project requires a specific display
-## order, so no explicit sort is applied. If a future caller needs ordering, sort
-## at the call site.
+## order, so no explicit sort is applied.
 func get_all_items() -> Array[ItemData]:
-	# assign() converts the untyped Array returned by values() into a typed
-	# Array[ItemData], which is not guaranteed by a bare return in all Godot 4.x
-	# versions. Without it, the typed return annotation silently passes an
-	# untyped array to callers.
+	# assign() converts the untyped Array into a typed Array[T].
+	# read "res://docs/godot/how_assign_works.md"
 	var result: Array[ItemData] = []
 	result.assign(_items.values())
 	return result
@@ -49,6 +47,7 @@ func get_all_items() -> Array[ItemData]:
 func get_item(id: StringName) -> ItemData:
 	var item: ItemData = _items.get(id, null)
 	Utils.require(item != null, "ItemRegistry.get_item: unknown id '%s'" % id)
+
 	return item
 
 

@@ -4,13 +4,13 @@
 
 Register autoloads in **Project Settings → Globals → Autoload** in this exact order:
 
-| # | Autoload           | Depends on at `_ready` time     |
-|---|--------------------|---------------------------------|
-| 1 | `ItemRegistry`     | —                               |
-| 2 | `RecipeRegistry`   | `ItemRegistry`                  |
-| 3 | `GameState`        | —                               |
-| 4 | `PlayerInventory`  | —                               |
-| 5 | `OverlayRouter`    | —                               |
+| #   | Autoload          | Depends on at `_ready` time |
+| --- | ----------------- | --------------------------- |
+| 1   | `ItemRegistry`    | —                           |
+| 2   | `RecipeRegistry`  | `ItemRegistry`              |
+| 3   | `GameState`       | —                           |
+| 4   | `PlayerInventory` | —                           |
+| 5   | `OverlayRouter`   | —                           |
 
 ## Why order matters
 

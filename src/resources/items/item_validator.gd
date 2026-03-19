@@ -21,7 +21,19 @@ static func validate(data: ItemData) -> void:
 
 
 static func _validate_id(data: ItemData) -> void:
-	Utils.require(not data.id.is_empty(), "ItemData: id must not be empty")
+	var id_str: String = str(data.id)
+	Utils.require(not id_str.is_empty(), "ItemData: id must not be empty")
+	Utils.require(
+		id_str.is_valid_ascii_identifier(),
+		(
+			"ItemData '%s': id must contain only letters, digits, and underscores, "
+			+ "and must not start with a digit" % data.id
+		)
+	)
+	Utils.require(
+		id_str == id_str.to_lower(),
+		"ItemData '%s': id must be all lowercase (snake_case convention)" % data.id
+	)
 
 
 static func _validate_ui_name(data: ItemData) -> void:

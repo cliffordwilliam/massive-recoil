@@ -31,6 +31,7 @@ func _ready() -> void:
 	for child: Node in get_children():
 		var entry: BaseOverlay = child as BaseOverlay
 		Utils.require(entry != null, "OverlayRouter: child '%s' is not a BaseOverlay" % child.name)
+
 		entry.is_active = false
 
 
@@ -41,7 +42,10 @@ func _ready() -> void:
 ## Open other overlays only when none is currently open.
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause") and _current_overlay:
-		_close_overlay()
+		_current_overlay.is_active = false
+		_current_overlay = null
+		get_tree().paused = false
+
 		get_viewport().set_input_as_handled()
 
 	elif event.is_action_pressed("inventory") and _current_overlay == null:
@@ -67,6 +71,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 func open_buy_overlay() -> void:
 	if _current_overlay:
 		return
+
 	_open_overlay(_buy_overlay)
 
 
@@ -77,21 +82,16 @@ func open_buy_overlay() -> void:
 func open_inventory_overlay() -> void:
 	if _current_overlay:
 		return
+
 	_open_overlay(_inventory_overlay)
-
-
-## Closes the currently open overlay and unpauses the game tree.
-## Only called when [member _current_overlay] is non-null — callers guard this invariant.
-func _close_overlay() -> void:
-	_current_overlay.is_active = false
-	_current_overlay = null
-	get_tree().paused = false
 
 
 ## Activates [param new_overlay] and pauses the tree.
 ## [param new_overlay] must not be null — crashes via [method Utils.require] if so.
 func _open_overlay(new_overlay: BaseOverlay) -> void:
 	Utils.require(new_overlay != null, "OverlayRouter._open_overlay: overlay must not be null")
+
 	_current_overlay = new_overlay
 	_current_overlay.is_active = true
+
 	get_tree().paused = true

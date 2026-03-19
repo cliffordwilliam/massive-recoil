@@ -26,7 +26,7 @@ var chapter: int = _DEFAULT_CHAPTER:
 	set(value):
 		# Wrong chapter silently corrupts all shop availability filtering — crash is intentional.
 		Utils.require(
-			_is_valid_chapter(value),
+			value >= ItemSchema.MIN_CHAPTER and value <= ItemSchema.MAX_CHAPTER,
 			(
 				"GameState.chapter: value %d out of range [%d, %d]"
 				% [value, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER]
@@ -66,11 +66,14 @@ func mark_shop_item_seen(id: StringName) -> void:
 
 ## Returns state serialized for saving.
 func get_save_data() -> Dictionary:
+	var ids: Array[String] = []
+	for k: StringName in _seen_shop_item_ids:
+		ids.append(str(k))
+
 	return {
 		"chapter": chapter,
 		"gold": gold,
-		"seen_shop_item_ids":
-		_seen_shop_item_ids.keys().map(func(k: StringName) -> String: return str(k)),
+		"seen_shop_item_ids": ids,
 	}
 
 
@@ -94,14 +97,16 @@ func _parse_chapter(save_data: Dictionary) -> int:
 	var raw_chapter: Variant = save_data.get("chapter", null)
 	var parsed_chapter: Variant = Utils.parse_json_int(raw_chapter)
 	Utils.require(parsed_chapter != null, "GameState.load_save: invalid chapter '%s'" % raw_chapter)
+
 	var chapter_int: int = parsed_chapter as int
 	Utils.require(
-		_is_valid_chapter(chapter_int),
+		chapter_int >= ItemSchema.MIN_CHAPTER and chapter_int <= ItemSchema.MAX_CHAPTER,
 		(
 			"GameState.load_save: chapter %d out of range [%d, %d]"
 			% [chapter_int, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER]
 		)
 	)
+
 	return chapter_int
 
 
@@ -111,43 +116,45 @@ func _parse_gold(save_data: Dictionary) -> int:
 	var raw_gold: Variant = save_data.get("gold", null)
 	var parsed_gold: Variant = Utils.parse_json_int(raw_gold)
 	Utils.require(parsed_gold != null, "GameState.load_save: invalid gold '%s'" % raw_gold)
+
 	var gold_int: int = parsed_gold as int
 	Utils.require(
 		gold_int >= 0 and gold_int <= _MAX_GOLD,
 		"GameState.load_save: gold %d out of range [0, %d]" % [gold_int, _MAX_GOLD]
 	)
+
 	return gold_int
 
 
 ## Validates and populates [member _seen_shop_item_ids] from [param save_data].
 ## Crashes on any invalid, unknown, or duplicate entry.
 func _parse_seen_ids(save_data: Dictionary) -> void:
-	var raw_seen: Variant = save_data.get("seen_shop_item_ids", [])
 	_seen_shop_item_ids.clear()
+
+	var raw_seen: Variant = save_data.get("seen_shop_item_ids", [])
 	Utils.require(
 		raw_seen is Array,
 		"GameState.load_save: seen_shop_item_ids is not an Array — '%s'" % raw_seen
 	)
+
 	for raw_id: Variant in raw_seen as Array:
 		Utils.require(
 			raw_id is String, "GameState.load_save: non-String entry in seen_shop_item_ids"
 		)
+
 		Utils.require(
 			not (raw_id as String).is_empty(),
 			"GameState.load_save: empty string entry in seen_shop_item_ids"
 		)
+
 		var seen_id: StringName = StringName(raw_id as String)
 		# Crash on unknown IDs — save data is all-or-nothing. Silently skipping stale
 		# IDs would mask corruption. If an item is removed, update or wipe the save.
 		ItemRegistry.validate_item_id(seen_id)
+
 		Utils.require(
 			not _seen_shop_item_ids.has(seen_id),
 			"GameState.load_save: duplicate id '%s' in seen_shop_item_ids" % seen_id
 		)
+
 		_seen_shop_item_ids[seen_id] = true
-
-
-## Returns [code]true[/code] if [param value] is within the valid chapter range.
-## Shared by the [member chapter] setter and [method load_save] to keep the bounds in one place.
-static func _is_valid_chapter(value: int) -> bool:
-	return value >= ItemSchema.MIN_CHAPTER and value <= ItemSchema.MAX_CHAPTER

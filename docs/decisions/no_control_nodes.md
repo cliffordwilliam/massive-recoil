@@ -9,9 +9,9 @@ However, **non-interactive `Control` nodes that act purely as rendering utilitie
 
 Examples of acceptable `Control` nodes include:
 
-* `Label`
-* `NinePatchRect`
-* Other **non-interactive display nodes**
+- `Label`
+- `NinePatchRect`
+- Other **non-interactive display nodes**
 
 Interactive UI widgets such as buttons, scroll containers, and similar controls **must not be used**.
 
@@ -19,21 +19,21 @@ Interactive UI widgets such as buttons, scroll containers, and similar controls 
 
 Most `Control` nodes are designed for traditional application-style UI. They include built-in systems such as:
 
-* Automatic anchoring and layout behavior
-* Container-based layout systems
-* Theme-driven styling
-* Built-in mouse, focus, and navigation behavior
+- Automatic anchoring and layout behavior
+- Container-based layout systems
+- Theme-driven styling
+- Built-in mouse, focus, and navigation behavior
 
 While these features are useful for general UI development, they can conflict with **pixel-perfect rendering** and **custom-styled game interfaces**.
 
 Interactive controls such as:
 
-* `Button`
-* `CheckBox`
-* `OptionButton`
-* `ScrollContainer`
-* `ItemList`
-* Other complex widgets
+- `Button`
+- `CheckBox`
+- `OptionButton`
+- `ScrollContainer`
+- `ItemList`
+- Other complex widgets
 
 introduce visual assumptions and interaction behaviors that are undesirable for this project.
 
@@ -43,10 +43,10 @@ Allowing these limited cases provides practical engine conveniences without adop
 
 ## Consequences
 
-* Most UI elements will use **`Sprite2D` nodes with custom logic**.
-* Interactive UI behavior must be implemented manually rather than using built-in widgets.
-* Some **passive rendering `Control` nodes** may be used when they simplify implementation.
-* Pixel-perfect rendering and stylistic consistency remain under project control.
+- Most UI elements will use **`Sprite2D` nodes with custom logic**.
+- Interactive UI behavior must be implemented manually rather than using built-in widgets.
+- Some **passive rendering `Control` nodes** may be used when they simplify implementation.
+- Pixel-perfect rendering and stylistic consistency remain under project control.
 
 ## Alternatives Considered
 

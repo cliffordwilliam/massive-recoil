@@ -72,6 +72,7 @@ func _validate_recipe(recipe: Dictionary) -> void:
 		arr[0] is String and not (arr[0] as String).is_empty(),
 		"RecipeDefinitions: ingredient must be a non-empty String"
 	)
+
 	Utils.require(
 		arr[1] is String and not (arr[1] as String).is_empty(),
 		"RecipeDefinitions: ingredient must be a non-empty String"

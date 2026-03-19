@@ -166,6 +166,7 @@ func find_open_position(item_data: ItemData) -> Vector2i:
 	for y: int in grid_size.y:
 		for x: int in grid_size.x:
 			var pos: Vector2i = Vector2i(x, y)
+
 			if can_place(item_data, pos):
 				return pos
 

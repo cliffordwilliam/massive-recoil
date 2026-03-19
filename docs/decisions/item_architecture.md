@@ -11,7 +11,7 @@ simply operations that add, remove, or mutate inventory instances.
 Each item is represented by two separate objects:
 
 | Layer   | Class       | Type         | Purpose                                                           |
-|---------|-------------|--------------|-------------------------------------------------------------------|
+| ------- | ----------- | ------------ | ----------------------------------------------------------------- |
 | Static  | `ItemData`  | `Resource`   | Immutable definition shared across all instances of the same item |
 | Dynamic | `ItemState` | `RefCounted` | Per-slot runtime state owned by the inventory                     |
 
@@ -28,7 +28,7 @@ The inventory autoload owns all `ItemState` instances. Every other system intera
 with items exclusively through inventory operations:
 
 | System                 | Operation                                |
-|------------------------|------------------------------------------|
+| ---------------------- | ---------------------------------------- |
 | Drop / loot            | Add instance to inventory                |
 | Shop buy               | Add instance to inventory                |
 | Shop sell              | Remove instance from inventory           |
@@ -133,22 +133,37 @@ All constraints are enforced by `ItemValidator` at startup — a violation crash
 immediately, so no invalid `ItemData` can survive into runtime. Bounds are defined
 in `ItemSchema`.
 
-| Field            | Constraint                                                                                     |
-|------------------|------------------------------------------------------------------------------------------------|
-| `id`             | Non-empty string                                                                               |
-| `ui_name`        | Non-empty; max `MAX_NAME_LENGTH` (12) chars                                                    |
-| `description`    | Non-empty; max `MAX_DESCRIPTION_LENGTH` (50) chars                                             |
-| `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                      |
-| `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable                                     |
-| `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                |
-| `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE` |
-| `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                  |
-| `ammo_type`      | Must be `NONE` for non-`WEAPON` types; any `AmmoType` value valid for `WEAPON`                 |
+| Field            | Constraint                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | Non-empty; lowercase letters, digits, and underscores only; must not start with a digit (snake_case convention — see note below) |
+| `ui_name`        | Non-empty; max `MAX_NAME_LENGTH` (12) chars; free-form display text                                                              |
+| `description`    | Non-empty; max `MAX_DESCRIPTION_LENGTH` (50) chars; free-form display text                                                       |
+| `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                                                        |
+| `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable                                                                       |
+| `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                                                  |
+| `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE`                                   |
+| `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                                                    |
+| `ammo_type`      | Must be `NONE` for non-`WEAPON` types; any `AmmoType` value valid for `WEAPON`                                                   |
+
+### id naming convention
+
+`id` is a code-level identifier, not display text. It must follow snake_case:
+lowercase letters, digits, and underscores only, with no leading digit (e.g.
+`field_medkit`, `smg_ammo`). This is a **hard constraint enforced by
+`ItemValidator`** — not just a style preference.
+
+The restriction exists because `RecipeRegistry` builds order-independent lookup
+keys by joining two ingredient IDs with a `|` separator. The snake_case
+constraint guarantees no ID can ever contain `|`, making key collisions
+impossible by construction.
+
+This is distinct from `ui_name` and `description`, which are free-form display
+strings and accept any non-empty text.
 
 ## ammo_type field ownership
 
 `ammo_type` is a weapon-side field — it describes which ammo type a `WEAPON` consumes,
-not what an `AMMO`-type item *is*. `ItemValidator` enforces that `ammo_type` must be
+not what an `AMMO`-type item _is_. `ItemValidator` enforces that `ammo_type` must be
 `NONE` on all non-`WEAPON` items, so `AMMO`-type items always carry `AmmoType.NONE`.
 
 This means the ammo-to-weapon relationship is one-directional: the weapon declares what
