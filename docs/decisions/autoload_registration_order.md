@@ -17,7 +17,7 @@ Register autoloads in **Project Settings → Globals → Autoload** in this exac
 Godot initializes autoloads top-to-bottom. Any autoload that calls another autoload
 inside its own `_ready` requires that dependency to be registered above it.
 
-`RecipeRegistry._ready` calls `ItemRegistry.validate_item_id` for every recipe — so
+`RecipeRegistry._ready` calls `ItemRegistry.validate_item_id_or_crash` for every recipe — so
 `ItemRegistry` must be fully initialized first. Reversing their order causes a null
 access crash at startup.
 

@@ -14,9 +14,15 @@ var _recipes: Dictionary[String, StringName] = {}
 
 
 func _ready() -> void:
+	Utils.require(
+		ItemRegistry.is_node_ready(), "RecipeRegistry: needs ItemRegistry autoload to be ready."
+	)
+
 	for recipe: Dictionary in RecipeDefinitions.RECIPES:
 		_validate_recipe(recipe)
 
+		# Cast to untyped Array — `as Array[String]` returns null at runtime when the
+		# source Variant is not already a typed Array[String], which would crash on arr[0].
 		var arr: Array = recipe.get("ingredients") as Array
 		var id_a: StringName = StringName(arr[0] as String)
 		var id_b: StringName = StringName(arr[1] as String)
@@ -47,9 +53,10 @@ func has_recipe(id_a: StringName, id_b: StringName) -> bool:
 ## Returns a canonical, order-independent key for an ingredient pair.
 ## Sorting by string value ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
 ##
-## [b]Assumption:[/b] item IDs never contain [code]|[/code]. The current naming
+## [ItemValidator] validates item IDs never contain [code]|[/code]. The current naming
 ## convention (lowercase letters and underscores only) makes a collision impossible.
-## If that convention ever changes, replace the separator or use a struct key.
+## [ItemRegistry] validates that there are no duplicate IDs.
+## This convention never changes.
 func _make_key(id_a: StringName, id_b: StringName) -> String:
 	var a: String = str(id_a)
 	var b: String = str(id_b)
@@ -60,6 +67,7 @@ func _make_key(id_a: StringName, id_b: StringName) -> String:
 
 ## Validates the structure and item IDs of a single recipe [Dictionary].
 ## Crashes via [method Utils.require] on the first violation.
+# Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
 func _validate_recipe(recipe: Dictionary) -> void:
 	var ingredients: Variant = recipe.get("ingredients", null)
 	Utils.require(
@@ -84,6 +92,6 @@ func _validate_recipe(recipe: Dictionary) -> void:
 		"RecipeDefinitions: result must be a non-empty String"
 	)
 
-	ItemRegistry.validate_item_id(StringName(arr[0] as String))
-	ItemRegistry.validate_item_id(StringName(arr[1] as String))
-	ItemRegistry.validate_item_id(StringName(result_raw as String))
+	ItemRegistry.validate_item_id_or_crash(StringName(arr[0] as String))
+	ItemRegistry.validate_item_id_or_crash(StringName(arr[1] as String))
+	ItemRegistry.validate_item_id_or_crash(StringName(result_raw as String))

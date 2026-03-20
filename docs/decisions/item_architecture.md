@@ -135,9 +135,9 @@ in `ItemSchema`.
 
 | Field            | Constraint                                                                                                                       |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `id`             | Non-empty; lowercase letters, digits, and underscores only; must not start with a digit (snake_case convention — see note below) |
-| `ui_name`        | Non-empty; max `MAX_NAME_LENGTH` (12) chars; free-form display text                                                              |
-| `description`    | Non-empty; max `MAX_DESCRIPTION_LENGTH` (50) chars; free-form display text                                                       |
+| `id`             | `MIN_ID_LENGTH`–`MAX_ID_LENGTH` (1–32) chars; lowercase letters, digits, and underscores only; must start and end with a letter or digit (snake_case convention — see note below) |
+| `ui_name`        | `MIN_NAME_LENGTH`–`MAX_NAME_LENGTH` (1–12) chars; free-form display text                                                         |
+| `description`    | `MIN_DESCRIPTION_LENGTH`–`MAX_DESCRIPTION_LENGTH` (1–50) chars; free-form display text                                           |
 | `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                                                        |
 | `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable                                                                       |
 | `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                                                  |
@@ -148,9 +148,9 @@ in `ItemSchema`.
 ### id naming convention
 
 `id` is a code-level identifier, not display text. It must follow snake_case:
-lowercase letters, digits, and underscores only, with no leading digit (e.g.
-`field_medkit`, `smg_ammo`). This is a **hard constraint enforced by
-`ItemValidator`** — not just a style preference.
+lowercase letters, digits, and underscores only, starting and ending with a
+letter or digit — no trailing underscore (e.g. `field_medkit`, `smg_ammo`).
+This is a **hard constraint enforced by `ItemValidator`** — not just a style preference.
 
 The restriction exists because `RecipeRegistry` builds order-independent lookup
 keys by joining two ingredient IDs with a `|` separator. The snake_case

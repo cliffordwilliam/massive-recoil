@@ -45,7 +45,7 @@ static func get_all() -> Array[ItemData]:
 			&"sterile_band",
 			#
 			# type
-			ItemData.Type.COMBINABLE_MED,
+			ItemData.Type.MED,
 			#
 			# ui name
 			"Sterile Band",
@@ -76,7 +76,7 @@ static func get_all() -> Array[ItemData]:
 			&"antiseptic",
 			#
 			# type
-			ItemData.Type.COMBINABLE_MED,
+			ItemData.Type.MED,
 			#
 			# ui name
 			"Antiseptic",
@@ -572,4 +572,5 @@ static func _make(
 	data.availability = availability
 	data.ammo_type = ammo_type
 	ItemValidator.validate(data)
+	data._initialized = true
 	return data

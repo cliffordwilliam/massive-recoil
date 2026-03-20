@@ -44,9 +44,9 @@ func get_all_items() -> Array[ItemData]:
 ## A missing id is an unrecoverable programmer error — callers should only
 ## request ids known to exist in the item database. Crashes via [method OS.crash]
 ## on an unknown id. Never silently returns [code]null[/code].
-func get_item(id: StringName) -> ItemData:
+func get_item_or_crash(id: StringName) -> ItemData:
 	var item: ItemData = _items.get(id, null)
-	Utils.require(item != null, "ItemRegistry.get_item: unknown id '%s'" % id)
+	Utils.require(item != null, "ItemRegistry.get_item_or_crash: unknown id '%s'" % id)
 
 	return item
 
@@ -55,5 +55,5 @@ func get_item(id: StringName) -> ItemData:
 ##
 ## Crashes via [method OS.crash] if the id is unknown. Use this when the caller
 ## only needs to confirm an id is valid without needing the [ItemData] return value.
-func validate_item_id(id: StringName) -> void:
-	Utils.require(_items.has(id), "ItemRegistry.validate_item_id: unknown id '%s'" % id)
+func validate_item_id_or_crash(id: StringName) -> void:
+	Utils.require(_items.has(id), "ItemRegistry.validate_item_id_or_crash: unknown id '%s'" % id)

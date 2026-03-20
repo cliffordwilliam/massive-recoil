@@ -26,5 +26,6 @@ var is_active: bool:
 			_hydrate_ui()
 
 ## Called every time this overlay becomes active. Populate or refresh UI contents here.
-## The overlay is already visible when this runs — [member is_active] has been assigned.
+## [member Node.visible] and [member Node.process_mode] are set before this is called,
+## so layout calculations that depend on visibility are safe to perform here.
 @abstract func _hydrate_ui() -> void

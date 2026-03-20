@@ -17,7 +17,9 @@ extends RefCounted
 ##
 ## Write-once — crashes if [param value] is [code]null[/code] or if [member data]
 ## has already been set. Only the [code]null → non-null[/code] transition is allowed.
-var data: ItemData:
+## No snapshot guard needed — write-once already prevents reassignment on both
+## live slots and snapshots.
+var data: ItemData = null:
 	set(value):
 		Utils.require(
 			data == null and value != null,
@@ -59,6 +61,9 @@ var stack_count: int = ItemSchema.MIN_STACK:
 		)
 		stack_count = value
 
+## [b]Convention:[/b] every mutable field added to this class must include its own
+## snapshot guard (checking [member is_snapshot]) to keep the read-only contract enforced.
+##
 ## Whether this instance is a detached snapshot produced by [method create_snapshot].
 ##
 ## Live slots always have this as [code]false[/code]; snapshots always [code]true[/code].
@@ -88,6 +93,18 @@ func _init(template: ItemData) -> void:
 ## [b]Allocates a new [ItemState] on every call[/b] — use a local variable if you
 ## need the snapshot more than once.
 func create_snapshot() -> ItemState:
+	Utils.require(
+		not is_snapshot,
+		(
+			"ItemState.create_snapshot: cannot snapshot a snapshot — only live slots may produce "
+			+ "snapshots"
+		)
+	)
+	Utils.require(
+		data != null,
+		"ItemState.create_snapshot: data is null — live slot was never properly initialized"
+	)
+
 	var copy: ItemState = ItemState.new(data)
 
 	copy.position = position

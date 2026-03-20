@@ -8,3 +8,4 @@ script = ExtResource("1_j31s1")
 
 [node name="UIShopItemList" parent="." unique_id=819571343 instance=ExtResource("2_rstnc")]
 position = Vector2(64, 32)
+render_mode = 1

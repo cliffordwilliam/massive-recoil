@@ -3,7 +3,7 @@ extends Node2D
 ## UI element representing a single item entry in shop buy and sell lists.
 ##
 ## Depending on the context, the item may represent:
-## - Simple meds available for purchase.
+## - Any item available for purchase (those with a non-zero [member ItemData.buy_price]).
 ## - Any item available for selling (those with a non-zero [member ItemData.sell_price]).
 ##
 ## The node expects several child nodes to exist in the scene tree:
@@ -13,7 +13,7 @@ extends Node2D
 ## - `Price` (`Label`) – Displays the price value.
 ## - `NewTag` (`Sprite2D`) – Displays the **NEW** tag for recently added items.
 ##
-## Each page type uses different combinations of these visual elements.
+## Each type uses different combinations of these visual elements.
 ## Exactly one of [method setup_buy] or [method setup_sell] is called per instance,
 ## determined by the owning [UIShopItemList] render mode, which is fixed at scene
 ## configuration time and never changes at runtime.
@@ -27,16 +27,18 @@ const _PREFIX_TEXT: String = "X"
 @onready var _new_tag: Sprite2D = $NewTag
 
 
-## Asserts [param text] is within [constant ItemSchema.MAX_NAME_LENGTH] characters.
+## Same pattern as [method _assert_value].
+## Asserts [param text] length is within [[constant ItemSchema.MIN_NAME_LENGTH],
+## [constant ItemSchema.MAX_NAME_LENGTH]].
 ## Crashes if violated — a trigger here means [ItemValidator] has a bug, not a
 ## recoverable condition. Returns [param text] unchanged for inline assignment:
 ## [code]_title.text = _assert_title(given_name)[/code]
 func _assert_title(text: String) -> String:
 	Utils.require(
-		text.length() <= ItemSchema.MAX_NAME_LENGTH,
+		text.length() >= ItemSchema.MIN_NAME_LENGTH and text.length() <= ItemSchema.MAX_NAME_LENGTH,
 		(
-			"UIShopItem._assert_title: name '%s' exceeds max length %d"
-			% [text, ItemSchema.MAX_NAME_LENGTH]
+			"UIShopItem._assert_title: name '%s' length %d out of range [%d, %d]"
+			% [text, text.length(), ItemSchema.MIN_NAME_LENGTH, ItemSchema.MAX_NAME_LENGTH]
 		)
 	)
 	return text
@@ -70,7 +72,7 @@ func _assert_price(number: int) -> int:
 	return number
 
 
-## Configures the item to display information for the **buy page**.
+## Configures the item to display information for the **buy list**.
 ##
 ## Displays the item name and purchase price.
 ## Stack-related UI elements are hidden.
@@ -91,7 +93,7 @@ func setup_buy(
 		_new_tag.hide()
 
 
-## Configures the item to display information for the **sell page**.
+## Configures the item to display information for the **sell list**.
 ##
 ## Displays the item name, quantity, and sell price.
 ## The stack prefix `"X"` is shown to indicate item stack count.

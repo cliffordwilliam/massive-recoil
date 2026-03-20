@@ -6,17 +6,17 @@ extends Node
 ## Holds the current chapter, the player's gold, and the set of shop item IDs the
 ## player has already seen. All three are persisted to the save file.
 ##
-## The current chapter is used by [code]buy_overlay.gd[/code] to
+## The current chapter is used by [code]BuyOverlay[/code] to
 ## filter which items appear in the shop.
 ##
-## The seen-item set drives the NEW badge in the shop buy page: any item whose id
+## The seen-item set drives the NEW badge in the shop buy overlay: any item whose id
 ## is absent from [member _seen_shop_item_ids] is considered unseen and shown as new.
 
 ## Starting chapter used on a new game.
 const _DEFAULT_CHAPTER: int = 1
 
 ## Starting gold used on a new game.
-const _DEFAULT_GOLD: int = 10000
+const _DEFAULT_GOLD: int = 0
 
 ## Maximum gold the player can hold at once.
 const _MAX_GOLD: int = 99999999
@@ -49,7 +49,7 @@ var gold: int = _DEFAULT_GOLD:
 		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		gold = value
 
-## IDs of items the player has already seen in the shop buy page.
+## IDs of items the player has already seen in the shop buy overlay.
 ## Used as a set — values are always [code]true[/code] and carry no meaning.
 var _seen_shop_item_ids: Dictionary[StringName, bool] = {}
 
@@ -61,6 +61,7 @@ func is_shop_item_new(id: StringName) -> bool:
 
 ## Marks [param id] as seen, clearing its NEW badge in the shop.
 func mark_shop_item_seen(id: StringName) -> void:
+	ItemRegistry.validate_item_id_or_crash(id)
 	_seen_shop_item_ids[id] = true
 
 
@@ -150,7 +151,7 @@ func _parse_seen_ids(save_data: Dictionary) -> void:
 		var seen_id: StringName = StringName(raw_id as String)
 		# Crash on unknown IDs — save data is all-or-nothing. Silently skipping stale
 		# IDs would mask corruption. If an item is removed, update or wipe the save.
-		ItemRegistry.validate_item_id(seen_id)
+		ItemRegistry.validate_item_id_or_crash(seen_id)
 
 		Utils.require(
 			not _seen_shop_item_ids.has(seen_id),

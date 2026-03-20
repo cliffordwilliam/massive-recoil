@@ -30,7 +30,13 @@ func _ready() -> void:
 
 	for child: Node in get_children():
 		var entry: BaseOverlay = child as BaseOverlay
-		Utils.require(entry != null, "OverlayRouter: child '%s' is not a BaseOverlay" % child.name)
+		(
+			Utils
+			. require(
+				entry != null,
+				"OverlayRouter: child '%s' is not a BaseOverlay" % child.name,
+			)
+		)
 
 		entry.is_active = false
 
@@ -65,33 +71,34 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 ## Opens the shop buy overlay.
-##
-## If an overlay is already open, this request is ignored.
-## See: "res://docs/decisions/overlay_router.md"
 func open_buy_overlay() -> void:
-	if _current_overlay:
-		return
-
 	_open_overlay(_buy_overlay)
 
 
 ## Opens the inventory overlay.
-##
-## If an overlay is already open, this request is ignored.
-## See: "res://docs/decisions/overlay_router.md"
 func open_inventory_overlay() -> void:
-	if _current_overlay:
-		return
-
 	_open_overlay(_inventory_overlay)
 
 
 ## Activates [param new_overlay] and pauses the tree.
 ## [param new_overlay] must not be null — crashes via [method Utils.require] if so.
+## If an overlay is already open, this request is ignored.
+## [member BaseOverlay.is_active]'s setter calls [method BaseOverlay._hydrate_ui] when set
+## to [code]true[/code] — this router does not call it directly.
+## See: "res://docs/decisions/overlay_router.md"
 func _open_overlay(new_overlay: BaseOverlay) -> void:
-	Utils.require(new_overlay != null, "OverlayRouter._open_overlay: overlay must not be null")
+	(
+		Utils
+		. require(
+			new_overlay != null,
+			"OverlayRouter._open_overlay: overlay must not be null",
+		)
+	)
+
+	if _current_overlay:
+		return
+
+	get_tree().paused = true
 
 	_current_overlay = new_overlay
 	_current_overlay.is_active = true
-
-	get_tree().paused = true

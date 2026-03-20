@@ -31,6 +31,9 @@ Every overlay extends `BaseOverlay`, which enforces a single lifecycle interface
 reflects the current game state (chapter, inventory contents, etc.) at the moment it
 appears.
 
+`OverlayRouter` never calls `_hydrate_ui()` directly. It sets `is_active = true`, and
+`BaseOverlay`'s `set is_active` setter calls `_hydrate_ui()` when the value is `true`.
+
 ## Opening and closing
 
 `OverlayRouter.open_X_overlay()` only opens an overlay when none is currently open.
