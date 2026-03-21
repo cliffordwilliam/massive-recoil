@@ -26,14 +26,19 @@ enum Type {
 	KEY,
 }
 
-## Ammo type a weapon consumes.
-enum AmmoType {
-	## No ammo (not a weapon or weapon does not use ammo).
+## Stat targeted by a [constant Type.WEAPON_UPGRADE] item.
+## [constant NONE] on all other item types (enforced by [ItemValidator]).
+enum UpgradeStat {
+	## Not a weapon upgrade — assigned to all non-[constant Type.WEAPON_UPGRADE] items.
 	NONE,
-	## Handgun ammunition.
-	HANDGUN_AMMO,
-	## Submachine gun ammunition.
-	SMG_AMMO,
+	## Targets weapon power.
+	POWER,
+	## Targets weapon rate of fire.
+	RATE_OF_FIRE,
+	## Targets weapon reload speed.
+	RELOAD_SPEED,
+	## Targets weapon ammo capacity.
+	AMMO_CAPACITY,
 }
 
 var id: StringName = &"":
@@ -86,12 +91,21 @@ var availability: int = ItemSchema.AVAILABILITY_NOT_FOR_SALE:
 		Utils.require(not _initialized, "ItemData.availability: immutable after initialization")
 		availability = value
 
-## Ammo type this weapon consumes. Must be NONE for non-WEAPON types (enforced by ItemValidator).
-## See field invariants in "res://docs/decisions/item_architecture.md".
-var ammo_type: AmmoType = AmmoType.NONE:
+## Weapon-specific data. Non-[code]null[/code] only when [member type] is
+## [constant Type.WEAPON]. Enforced by [ItemValidator].
+## See: "res://docs/decisions/item_architecture.md"
+var weapon_data: WeaponData = null:
 	set(value):
-		Utils.require(not _initialized, "ItemData.ammo_type: immutable after initialization")
-		ammo_type = value
+		Utils.require(not _initialized, "ItemData.weapon_data: immutable after initialization")
+		weapon_data = value
+
+## Stat targeted by this upgrade item. [constant UpgradeStat.NONE] for all
+## non-[constant Type.WEAPON_UPGRADE] items. Enforced by [ItemValidator].
+## See: "res://docs/decisions/item_architecture.md"
+var upgrade_stat: UpgradeStat = UpgradeStat.NONE:
+	set(value):
+		Utils.require(not _initialized, "ItemData.upgrade_stat: immutable after initialization")
+		upgrade_stat = value
 
 ## Write-once — only the [code]false → true[/code] transition is allowed.
 ## Set by [method ItemDefinitions._make] after all fields are assigned and validated.

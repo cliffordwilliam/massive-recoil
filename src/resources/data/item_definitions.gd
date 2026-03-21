@@ -36,9 +36,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.MIN_CHAPTER,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -67,9 +64,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -98,9 +92,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -129,9 +120,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -160,9 +148,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -191,9 +176,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -222,9 +204,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.MIN_CHAPTER,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -254,8 +233,11 @@ static func get_all() -> Array[ItemData]:
 			# availability
 			ItemSchema.MIN_CHAPTER,
 			#
-			# ammo type
-			ItemData.AmmoType.NONE,
+			# weapon data
+			null,
+			#
+			# upgrade stat
+			ItemData.UpgradeStat.POWER,
 		),
 		_make(
 			# id
@@ -285,8 +267,27 @@ static func get_all() -> Array[ItemData]:
 			# availability
 			ItemSchema.MIN_CHAPTER,
 			#
-			# ammo type
-			ItemData.AmmoType.HANDGUN_AMMO,
+			# weapon data
+			_make_weapon_data(
+				# ammo type
+				WeaponData.AmmoType.HANDGUN_AMMO,
+				# power: min, max, upgrade step
+				20,
+				60,
+				10,
+				# rate of fire: min, max, upgrade step
+				30,
+				60,
+				10,
+				# reload speed: min, max, upgrade step
+				50,
+				80,
+				10,
+				# ammo capacity: min, max, upgrade step
+				10,
+				20,
+				2,
+			),
 		),
 		_make(
 			# id
@@ -316,8 +317,27 @@ static func get_all() -> Array[ItemData]:
 			# availability
 			ItemSchema.MIN_CHAPTER,
 			#
-			# ammo type
-			ItemData.AmmoType.SMG_AMMO,
+			# weapon data
+			_make_weapon_data(
+				# ammo type
+				WeaponData.AmmoType.SMG_AMMO,
+				# power: min, max, upgrade step
+				10,
+				40,
+				5,
+				# rate of fire: min, max, upgrade step
+				70,
+				100,
+				5,
+				# reload speed: min, max, upgrade step
+				40,
+				70,
+				10,
+				# ammo capacity: min, max, upgrade step
+				20,
+				60,
+				5,
+			),
 		),
 		_make(
 			# id
@@ -346,9 +366,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -377,9 +394,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -408,9 +422,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -439,9 +450,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -470,9 +478,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -501,9 +506,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 		_make(
 			# id
@@ -532,9 +534,6 @@ static func get_all() -> Array[ItemData]:
 			#
 			# availability
 			ItemSchema.AVAILABILITY_NOT_FOR_SALE,
-			#
-			# ammo type
-			ItemData.AmmoType.NONE,
 		),
 	]
 
@@ -548,6 +547,13 @@ static func get_all() -> Array[ItemData]:
 ## [[constant ItemSchema.MIN_CHAPTER], [constant ItemSchema.MAX_CHAPTER]] when
 ## [param buy_price] is non-zero. Both directions are enforced by [ItemValidator] —
 ## no silent correction is applied.
+##
+## [param weapon_data] must be non-[code]null[/code] when [param type] is
+## [constant ItemData.Type.WEAPON] and [code]null[/code] for all other types.
+##
+## [param upgrade_stat] must be non-[constant ItemData.UpgradeStat.NONE] when [param type]
+## is [constant ItemData.Type.WEAPON_UPGRADE] and [constant ItemData.UpgradeStat.NONE]
+## for all other types.
 static func _make(
 	id: StringName,
 	type: ItemData.Type,
@@ -558,7 +564,8 @@ static func _make(
 	sell_price: int,
 	stack_size: int,
 	availability: int,
-	ammo_type: ItemData.AmmoType,
+	weapon_data: WeaponData = null,
+	upgrade_stat: ItemData.UpgradeStat = ItemData.UpgradeStat.NONE,
 ) -> ItemData:
 	var data: ItemData = ItemData.new()
 	data.id = id
@@ -570,7 +577,44 @@ static func _make(
 	data.sell_price = sell_price
 	data.stack_size = stack_size
 	data.availability = availability
-	data.ammo_type = ammo_type
+	data.weapon_data = weapon_data
+	data.upgrade_stat = upgrade_stat
 	ItemValidator.validate(data)
 	data._initialized = true
 	return data
+
+
+## Constructs and freezes a single [WeaponData] entry.
+## Called from [method _make] call sites for [constant ItemData.Type.WEAPON] items.
+## All constraints are enforced by [ItemValidator] when the parent [ItemData] is validated.
+static func _make_weapon_data(
+	ammo_type: WeaponData.AmmoType,
+	power_min: int,
+	power_max: int,
+	power_upgrade_step: int,
+	rate_of_fire_min: int,
+	rate_of_fire_max: int,
+	rate_of_fire_upgrade_step: int,
+	reload_speed_min: int,
+	reload_speed_max: int,
+	reload_speed_upgrade_step: int,
+	ammo_capacity_min: int,
+	ammo_capacity_max: int,
+	ammo_capacity_upgrade_step: int,
+) -> WeaponData:
+	var wd: WeaponData = WeaponData.new()
+	wd.ammo_type = ammo_type
+	wd.power_min = power_min
+	wd.power_max = power_max
+	wd.power_upgrade_step = power_upgrade_step
+	wd.rate_of_fire_min = rate_of_fire_min
+	wd.rate_of_fire_max = rate_of_fire_max
+	wd.rate_of_fire_upgrade_step = rate_of_fire_upgrade_step
+	wd.reload_speed_min = reload_speed_min
+	wd.reload_speed_max = reload_speed_max
+	wd.reload_speed_upgrade_step = reload_speed_upgrade_step
+	wd.ammo_capacity_min = ammo_capacity_min
+	wd.ammo_capacity_max = ammo_capacity_max
+	wd.ammo_capacity_upgrade_step = ammo_capacity_upgrade_step
+	wd._initialized = true
+	return wd

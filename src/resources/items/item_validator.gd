@@ -21,7 +21,8 @@ static func validate(data: ItemData) -> void:
 	_validate_stack_size(data)
 	_validate_availability(data)
 	_validate_inventory_size(data)
-	_validate_ammo_type(data)
+	_validate_weapon_data(data)
+	_validate_upgrade_stat(data)
 
 
 static func _validate_type(data: ItemData) -> void:
@@ -173,16 +174,99 @@ static func _validate_inventory_size(data: ItemData) -> void:
 	)
 
 
-static func _validate_ammo_type(data: ItemData) -> void:
-	# A weapon with AmmoType.NONE is valid — infinite-ammo weapon. NONE is included
-	# in AmmoType.values(), so the enum check below covers it intentionally.
+static func _validate_weapon_data(data: ItemData) -> void:
 	if data.type != ItemData.Type.WEAPON:
 		Utils.require(
-			data.ammo_type == ItemData.AmmoType.NONE,
-			"ItemData '%s': ammo_type must be NONE for non-weapon type" % data.id
+			data.weapon_data == null,
+			"ItemData '%s': weapon_data must be null for non-weapon type" % data.id
 		)
 		return
+
 	Utils.require(
-		data.ammo_type in ItemData.AmmoType.values(),
-		"ItemData '%s': ammo_type %d is not a valid AmmoType enum value" % [data.id, data.ammo_type]
+		data.weapon_data != null,
+		"ItemData '%s': weapon_data must not be null for weapon type" % data.id
+	)
+
+	var wd: WeaponData = data.weapon_data
+
+	Utils.require(
+		wd.ammo_type in WeaponData.AmmoType.values(),
+		(
+			"ItemData '%s': weapon_data.ammo_type %d is not a valid AmmoType value"
+			% [data.id, wd.ammo_type]
+		)
+	)
+
+	_validate_weapon_stat(data, "power", wd.power_min, wd.power_max, wd.power_upgrade_step)
+	_validate_weapon_stat(
+		data,
+		"rate_of_fire",
+		wd.rate_of_fire_min,
+		wd.rate_of_fire_max,
+		wd.rate_of_fire_upgrade_step,
+	)
+	_validate_weapon_stat(
+		data,
+		"reload_speed",
+		wd.reload_speed_min,
+		wd.reload_speed_max,
+		wd.reload_speed_upgrade_step,
+	)
+	_validate_weapon_stat(
+		data,
+		"ammo_capacity",
+		wd.ammo_capacity_min,
+		wd.ammo_capacity_max,
+		wd.ammo_capacity_upgrade_step,
+	)
+
+
+static func _validate_weapon_stat(
+	data: ItemData, stat_name: String, min_val: int, max_val: int, step: int
+) -> void:
+	Utils.require(
+		min_val >= ItemSchema.WEAPON_STAT_MIN and min_val <= ItemSchema.WEAPON_STAT_MAX,
+		(
+			"ItemData '%s': weapon_data.%s_min %d must be in [%d, %d]"
+			% [data.id, stat_name, min_val, ItemSchema.WEAPON_STAT_MIN, ItemSchema.WEAPON_STAT_MAX]
+		)
+	)
+	Utils.require(
+		max_val >= ItemSchema.WEAPON_STAT_MIN and max_val <= ItemSchema.WEAPON_STAT_MAX,
+		(
+			"ItemData '%s': weapon_data.%s_max %d must be in [%d, %d]"
+			% [data.id, stat_name, max_val, ItemSchema.WEAPON_STAT_MIN, ItemSchema.WEAPON_STAT_MAX]
+		)
+	)
+	Utils.require(
+		min_val <= max_val,
+		(
+			"ItemData '%s': weapon_data.%s_min %d must be <= %s_max %d"
+			% [data.id, stat_name, min_val, stat_name, max_val]
+		)
+	)
+	Utils.require(
+		step >= 0,
+		"ItemData '%s': weapon_data.%s_upgrade_step %d must be >= 0" % [data.id, stat_name, step]
+	)
+
+
+static func _validate_upgrade_stat(data: ItemData) -> void:
+	if data.type != ItemData.Type.WEAPON_UPGRADE:
+		Utils.require(
+			data.upgrade_stat == ItemData.UpgradeStat.NONE,
+			"ItemData '%s': upgrade_stat must be NONE for non-weapon-upgrade type" % data.id
+		)
+		return
+
+	Utils.require(
+		data.upgrade_stat != ItemData.UpgradeStat.NONE,
+		"ItemData '%s': upgrade_stat must not be NONE for weapon upgrade type" % data.id
+	)
+	Utils.require(
+		data.upgrade_stat in ItemData.UpgradeStat.values(),
+		(
+			"ItemData '%s': upgrade_stat %d is not a valid UpgradeStat enum value"
+			% [data.id, data.upgrade_stat]
+		)
 	)

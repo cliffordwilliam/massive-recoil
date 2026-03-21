@@ -61,6 +61,26 @@ var stack_count: int = ItemSchema.MIN_STACK:
 		)
 		stack_count = value
 
+## Runtime stat state for weapon items. [code]null[/code] for all
+## non-[constant ItemData.Type.WEAPON] items. Set by [code]PlayerInventory[/code]
+## immediately after slot construction.
+##
+## Guarded against mutation on snapshots. [method create_snapshot] assigns this field
+## before setting [member is_snapshot], so construction is unaffected.
+var weapon_stats_state: WeaponStatsState = null:
+	set(value):
+		(
+			Utils
+			. require(
+				not is_snapshot,
+				(
+					"ItemState.weapon_stats_state: snapshot is read-only — do not mutate a detached "
+					+ "copy"
+				),
+			)
+		)
+		weapon_stats_state = value
+
 ## [b]Convention:[/b] every mutable field added to this class must include its own
 ## snapshot guard (checking [member is_snapshot]) to keep the read-only contract enforced.
 ##
@@ -109,6 +129,8 @@ func create_snapshot() -> ItemState:
 
 	copy.position = position
 	copy.stack_count = stack_count
+	if weapon_stats_state != null:
+		copy.weapon_stats_state = weapon_stats_state.create_snapshot()
 	copy.is_snapshot = true
 
 	return copy

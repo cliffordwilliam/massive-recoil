@@ -200,6 +200,79 @@ func upgrade_grid() -> bool:
 	return false
 
 
+## Returns [code]true[/code] if the upgrade item at [param upgrade_pos] can be applied
+## to the weapon at [param weapon_pos].
+##
+## Returns [code]false[/code] if either slot is missing, if the types do not match, if
+## the weapon's upgrade step for the targeted stat is [code]0[/code], or if the stat is
+## already at its maximum value.
+func can_upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> bool:
+	var weapon_slot: ItemState = _get_slot_at(weapon_pos)
+	var upgrade_slot: ItemState = _get_slot_at(upgrade_pos)
+	if (
+		weapon_slot == null
+		or weapon_slot.data.type != ItemData.Type.WEAPON
+		or upgrade_slot == null
+		or upgrade_slot.data.type != ItemData.Type.WEAPON_UPGRADE
+	):
+		return false
+
+	var wd: WeaponData = weapon_slot.data.weapon_data
+	var stats: WeaponStatsState = weapon_slot.weapon_stats_state
+
+	match upgrade_slot.data.upgrade_stat:
+		ItemData.UpgradeStat.POWER:
+			return wd.power_upgrade_step > 0 and stats.power < wd.power_max
+		ItemData.UpgradeStat.RATE_OF_FIRE:
+			return wd.rate_of_fire_upgrade_step > 0 and stats.rate_of_fire < wd.rate_of_fire_max
+		ItemData.UpgradeStat.RELOAD_SPEED:
+			return wd.reload_speed_upgrade_step > 0 and stats.reload_speed < wd.reload_speed_max
+		ItemData.UpgradeStat.AMMO_CAPACITY:
+			return wd.ammo_capacity_upgrade_step > 0 and stats.ammo_capacity < wd.ammo_capacity_max
+
+	return false  # Unreachable — NONE excluded by WEAPON_UPGRADE type check. Required by type checker.
+
+
+## Applies the upgrade item at [param upgrade_pos] to the weapon at [param weapon_pos]
+## and removes the upgrade item from inventory.
+##
+## Call [method can_upgrade_weapon] first — invalid arguments crash via [method OS.crash].
+func upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> void:
+	(
+		Utils
+		. require(
+			can_upgrade_weapon(weapon_pos, upgrade_pos),
+			(
+				"PlayerInventory.upgrade_weapon: upgrade not applicable — upgrade at %s → weapon at %s"
+				% [upgrade_pos, weapon_pos]
+			),
+		)
+	)
+
+	var weapon_slot: ItemState = _get_slot_at(weapon_pos)
+	var upgrade_slot: ItemState = _get_slot_at(upgrade_pos)
+	var wd: WeaponData = weapon_slot.data.weapon_data
+	var stats: WeaponStatsState = weapon_slot.weapon_stats_state
+
+	match upgrade_slot.data.upgrade_stat:
+		ItemData.UpgradeStat.POWER:
+			stats.power = mini(stats.power + wd.power_upgrade_step, wd.power_max)
+		ItemData.UpgradeStat.RATE_OF_FIRE:
+			stats.rate_of_fire = mini(
+				stats.rate_of_fire + wd.rate_of_fire_upgrade_step, wd.rate_of_fire_max
+			)
+		ItemData.UpgradeStat.RELOAD_SPEED:
+			stats.reload_speed = mini(
+				stats.reload_speed + wd.reload_speed_upgrade_step, wd.reload_speed_max
+			)
+		ItemData.UpgradeStat.AMMO_CAPACITY:
+			stats.ammo_capacity = mini(
+				stats.ammo_capacity + wd.ammo_capacity_upgrade_step, wd.ammo_capacity_max
+			)
+
+	remove_item_at(upgrade_pos)
+
+
 ## Returns inventory state serialized for saving.
 func get_save_data() -> Dictionary:
 	var slots_data: Array[Dictionary] = []
@@ -207,16 +280,20 @@ func get_save_data() -> Dictionary:
 	# _append_slot, which only accepts data coming from ItemRegistry — a null
 	# would have already crashed at the call site. No null guard is needed here.
 	for slot: ItemState in _slots:
-		(
-			slots_data
-			. append(
-				{
-					"id": str(slot.data.id),
-					"stack_count": slot.stack_count,
-					"position": {"x": slot.position.x, "y": slot.position.y},
-				}
-			)
-		)
+		var slot_dict: Dictionary = {
+			"id": str(slot.data.id),
+			"stack_count": slot.stack_count,
+			"position": {"x": slot.position.x, "y": slot.position.y},
+		}
+		if slot.data.type == ItemData.Type.WEAPON:
+			var s: WeaponStatsState = slot.weapon_stats_state
+			slot_dict["weapon_stats"] = {
+				"power": s.power,
+				"rate_of_fire": s.rate_of_fire,
+				"reload_speed": s.reload_speed,
+				"ammo_capacity": s.ammo_capacity,
+			}
+		slots_data.append(slot_dict)
 	return {"grid_tier": _grid_tier, "slots": slots_data}
 
 
@@ -333,7 +410,11 @@ func _parse_and_append_slot_entry(entry: Dictionary) -> void:
 		)
 	)
 
-	_append_slot(data, pos, count)
+	var weapon_stats: WeaponStatsState = null
+	if data.type == ItemData.Type.WEAPON:
+		weapon_stats = _parse_weapon_stats_entry(entry, data)
+
+	_append_slot(data, pos, count, weapon_stats)
 
 
 ## Validates and places [param id] at [param position] with [param count].
@@ -375,11 +456,112 @@ func _place_item(id: StringName, position: Vector2i, count: int) -> bool:
 ## No validation is performed here — callers must ensure [param data] is non-null,
 ## [param pos] is a valid placement (checked via [method can_place]), and [param count]
 ## is already clamped to [[constant ItemSchema.MIN_STACK], [member ItemData.stack_size]].
-func _append_slot(data: ItemData, pos: Vector2i, count: int) -> void:
+##
+## [param weapon_stats] is only accepted for [constant ItemData.Type.WEAPON] slots and
+## is used when restoring from save data. When [code]null[/code], weapon slots are
+## initialised with each stat set to its [WeaponData] [code]_min[/code] value.
+func _append_slot(
+	data: ItemData, pos: Vector2i, count: int, weapon_stats: WeaponStatsState = null
+) -> void:
 	var slot: ItemState = ItemState.new(data)
 	slot.position = pos
 	slot.stack_count = count
+	if data.type == ItemData.Type.WEAPON:
+		if weapon_stats != null:
+			slot.weapon_stats_state = weapon_stats
+		else:
+			var stats: WeaponStatsState = WeaponStatsState.new()
+			stats.power = data.weapon_data.power_min
+			stats.rate_of_fire = data.weapon_data.rate_of_fire_min
+			stats.reload_speed = data.weapon_data.reload_speed_min
+			stats.ammo_capacity = data.weapon_data.ammo_capacity_min
+			slot.weapon_stats_state = stats
 	_slots.append(slot)
+
+
+## Parses and validates the [code]"weapon_stats"[/code] dict from a save slot [param entry]
+## and returns an initialised [WeaponStatsState].
+##
+## Crashes via [method OS.crash] on any missing or out-of-range field.
+## Each stat value is validated against the [param data] weapon's min/max range.
+func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStatsState:
+	var raw_ws: Variant = entry.get("weapon_stats", null)
+	Utils.require(
+		raw_ws is Dictionary,
+		"PlayerInventory.load_save: 'weapon_stats' missing or not a Dictionary for '%s'" % data.id
+	)
+
+	var ws: Dictionary = raw_ws as Dictionary
+	var wd: WeaponData = data.weapon_data
+
+	var raw_power: Variant = Utils.parse_json_int(ws.get("power", null))
+	Utils.require(
+		raw_power != null,
+		"PlayerInventory.load_save: weapon_stats.power missing or invalid for '%s'" % data.id
+	)
+	var power: int = raw_power as int
+	Utils.require(
+		power >= wd.power_min and power <= wd.power_max,
+		(
+			"PlayerInventory.load_save: weapon_stats.power %d out of range [%d, %d] for '%s'"
+			% [power, wd.power_min, wd.power_max, data.id]
+		)
+	)
+
+	var raw_rof: Variant = Utils.parse_json_int(ws.get("rate_of_fire", null))
+	Utils.require(
+		raw_rof != null,
+		"PlayerInventory.load_save: weapon_stats.rate_of_fire missing or invalid for '%s'" % data.id
+	)
+	var rate_of_fire: int = raw_rof as int
+	Utils.require(
+		rate_of_fire >= wd.rate_of_fire_min and rate_of_fire <= wd.rate_of_fire_max,
+		(
+			"PlayerInventory.load_save: weapon_stats.rate_of_fire %d out of range [%d, %d] for '%s'"
+			% [rate_of_fire, wd.rate_of_fire_min, wd.rate_of_fire_max, data.id]
+		)
+	)
+
+	var raw_reload: Variant = Utils.parse_json_int(ws.get("reload_speed", null))
+	Utils.require(
+		raw_reload != null,
+		"PlayerInventory.load_save: weapon_stats.reload_speed missing or invalid for '%s'" % data.id
+	)
+	var reload_speed: int = raw_reload as int
+	Utils.require(
+		reload_speed >= wd.reload_speed_min and reload_speed <= wd.reload_speed_max,
+		(
+			"PlayerInventory.load_save: weapon_stats.reload_speed %d out of range [%d, %d] for '%s'"
+			% [reload_speed, wd.reload_speed_min, wd.reload_speed_max, data.id]
+		)
+	)
+
+	var raw_ammo: Variant = Utils.parse_json_int(ws.get("ammo_capacity", null))
+	Utils.require(
+		raw_ammo != null,
+		(
+			"PlayerInventory.load_save: weapon_stats.ammo_capacity missing or invalid for '%s'"
+			% data.id
+		)
+	)
+	var ammo_capacity: int = raw_ammo as int
+	(
+		Utils
+		. require(
+			ammo_capacity >= wd.ammo_capacity_min and ammo_capacity <= wd.ammo_capacity_max,
+			(
+				"PlayerInventory.load_save: weapon_stats.ammo_capacity %d out of range [%d, %d] for '%s'"
+				% [ammo_capacity, wd.ammo_capacity_min, wd.ammo_capacity_max, data.id]
+			)
+		)
+	)
+
+	var stats: WeaponStatsState = WeaponStatsState.new()
+	stats.power = power
+	stats.rate_of_fire = rate_of_fire
+	stats.reload_speed = reload_speed
+	stats.ammo_capacity = ammo_capacity
+	return stats
 
 
 ## Returns the slot whose footprint contains [param position], or [code]null[/code].

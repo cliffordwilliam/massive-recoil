@@ -32,3 +32,7 @@ const MAX_ID_LENGTH: int = 32
 
 ## Sentinel assigned to non-shop items. See: "res://docs/decisions/item_architecture.md"
 const AVAILABILITY_NOT_FOR_SALE: int = MAX_CHAPTER + 1
+
+## Global range for all weapon stat values (power, rate of fire, reload speed, ammo capacity).
+const WEAPON_STAT_MIN: int = 0
+const WEAPON_STAT_MAX: int = 100
