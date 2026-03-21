@@ -197,6 +197,23 @@ static func _validate_weapon_data(data: ItemData) -> void:
 		)
 	)
 
+	# Infinite-ammo weapons have no magazine — ammo_capacity is meaningless and must be zeroed.
+	if wd.ammo_type == WeaponData.AmmoType.NONE:
+		Utils.require(
+			(
+				wd.ammo_capacity_min == 0
+				and wd.ammo_capacity_max == 0
+				and wd.ammo_capacity_upgrade_step == 0
+			),
+			(
+				(
+					"ItemData '%s': ammo_capacity stats must all be 0 for infinite-ammo weapons"
+					+ " (ammo_type == NONE)"
+				)
+				% data.id
+			)
+		)
+
 	_validate_weapon_stat(data, "power", wd.power_min, wd.power_max, wd.power_upgrade_step)
 	_validate_weapon_stat(
 		data,
@@ -268,5 +285,18 @@ static func _validate_upgrade_stat(data: ItemData) -> void:
 		(
 			"ItemData '%s': upgrade_stat %d is not a valid UpgradeStat enum value"
 			% [data.id, data.upgrade_stat]
+		)
+	)
+	# Drop-action exclusivity: a WEAPON_UPGRADE cannot also be stackable. If it were,
+	# dropping it on a matching item would have two valid outcomes — upgrade and stack merge —
+	# with no rule to resolve the ambiguity. ItemValidator enforces this at startup.
+	(
+		Utils
+		. require(
+			data.stack_size == ItemSchema.MIN_STACK,
+			(
+				"ItemData '%s': WEAPON_UPGRADE items must not be stackable (stack_size must equal MIN_STACK)"
+				% data.id
+			)
 		)
 	)

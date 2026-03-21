@@ -65,6 +65,35 @@ func _make_key(id_a: StringName, id_b: StringName) -> String:
 	return b + "|" + a
 
 
+## Validates drop-action exclusivity for a single recipe ingredient.
+##
+## A recipe ingredient must not be stackable or a [constant ItemData.Type.WEAPON_UPGRADE].
+## If it were, dropping it on a matching item could satisfy two outcomes simultaneously
+## (combine + stack, or combine + upgrade), creating unresolvable ambiguity.
+## Crashes via [method Utils.require] on the first violation.
+func _validate_ingredient(data: ItemData) -> void:
+	Utils.require(
+		data.stack_size == ItemSchema.MIN_STACK,
+		(
+			(
+				"RecipeDefinitions: ingredient '%s' is stackable"
+				+ " — recipe ingredients must not be stackable"
+			)
+			% data.id
+		)
+	)
+	Utils.require(
+		data.type != ItemData.Type.WEAPON_UPGRADE,
+		(
+			(
+				"RecipeDefinitions: ingredient '%s' is a WEAPON_UPGRADE"
+				+ " — recipe ingredients must not be weapon upgrades"
+			)
+			% data.id
+		)
+	)
+
+
 ## Validates the structure and item IDs of a single recipe [Dictionary].
 ## Crashes via [method Utils.require] on the first violation.
 # Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
@@ -95,3 +124,6 @@ func _validate_recipe(recipe: Dictionary) -> void:
 	ItemRegistry.validate_item_id_or_crash(StringName(arr[0] as String))
 	ItemRegistry.validate_item_id_or_crash(StringName(arr[1] as String))
 	ItemRegistry.validate_item_id_or_crash(StringName(result_raw as String))
+
+	_validate_ingredient(ItemRegistry.get_item_or_crash(StringName(arr[0] as String)))
+	_validate_ingredient(ItemRegistry.get_item_or_crash(StringName(arr[1] as String)))

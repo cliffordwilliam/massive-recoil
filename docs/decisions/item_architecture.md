@@ -93,6 +93,33 @@ constraint requiring the two ingredients to be distinct items.
 `RecipeRegistry` detects duplicate recipes (same ingredient pair appearing more than
 once) at startup and crashes if found.
 
+## Drop-action exclusivity
+
+When one item is dropped onto another in the inventory, exactly one of three outcomes
+can occur:
+
+| Outcome        | Condition                                                           |
+| -------------- | ------------------------------------------------------------------- |
+| Stack merge    | Both items share the same `ItemData` and the item is stackable (`stack_size > MIN_STACK`) |
+| Weapon upgrade | Dropped item is type `WEAPON_UPGRADE` and target is type `WEAPON`   |
+| Recipe combine | The two item IDs match a recipe in `RecipeRegistry`                 |
+
+These outcomes must be **mutually exclusive**. An item that qualifies for more than one
+creates unresolvable ambiguity in the UI — there is no priority rule, so the conflict is
+treated as a data error and caught at startup.
+
+The constraint is enforced in two places:
+
+- **`ItemValidator`** (runs at startup before `RecipeRegistry` exists):
+  A `WEAPON_UPGRADE` item must have `stack_size == MIN_STACK`. This prevents the
+  upgrade + stack conflict.
+
+- **`RecipeRegistry`** (runs after `ItemRegistry` is ready):
+  Each recipe ingredient must not be stackable (`stack_size > MIN_STACK`) and must not
+  be type `WEAPON_UPGRADE`. This prevents the recipe + stack and recipe + upgrade conflicts.
+
+Together these two checks cover all three pairwise conflicts at startup.
+
 ## Error handling philosophy
 
 When loading save data or validating static definitions, a hard crash is always
@@ -143,7 +170,8 @@ in `ItemSchema`.
 | `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                                                  |
 | `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE`                                   |
 | `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                                                    |
-| `ammo_type`      | Must be `NONE` for non-`WEAPON` types; any `AmmoType` value valid for `WEAPON`                                                   |
+| `weapon_data`    | `null` for all non-`WEAPON` types; non-`null` `WeaponData` for `WEAPON` (enforced bidirectionally)                               |
+| `upgrade_stat`   | `NONE` for all non-`WEAPON_UPGRADE` types; non-`NONE` `UpgradeStat` for `WEAPON_UPGRADE` (enforced bidirectionally)              |
 
 ### id naming convention
 
@@ -162,9 +190,10 @@ strings and accept any non-empty text.
 
 ## ammo_type field ownership
 
-`ammo_type` is a weapon-side field — it describes which ammo type a `WEAPON` consumes,
-not what an `AMMO`-type item _is_. `ItemValidator` enforces that `ammo_type` must be
-`NONE` on all non-`WEAPON` items, so `AMMO`-type items always carry `AmmoType.NONE`.
+`ammo_type` lives on `WeaponData` (not `ItemData`) — it describes which ammo type a
+`WEAPON` consumes, not what an `AMMO`-type item _is_. `ItemValidator` enforces that
+`weapon_data` is `null` on all non-`WEAPON` items, so `AMMO`-type items carry no
+`ammo_type` at all.
 
 This means the ammo-to-weapon relationship is one-directional: the weapon declares what
 it consumes; the ammo item carries no reference back to its compatible weapons. Pairing
@@ -172,6 +201,10 @@ is resolved at the point of use (e.g. a weapon fires, looks up its own `ammo_typ
 finds the matching `AMMO` item in inventory by convention).
 
 A `WEAPON` with `ammo_type == NONE` is valid and represents an infinite-ammo weapon.
+For infinite-ammo weapons, `ammo_capacity_min`, `ammo_capacity_max`, and
+`ammo_capacity_upgrade_step` must all be `0` — `ItemValidator` enforces this. Exposing
+an upgradeable ammo capacity on a weapon with no magazine is meaningless and would
+create a stat that silently does nothing.
 
 ## Static data pipeline
 
