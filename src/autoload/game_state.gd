@@ -55,18 +55,68 @@ var _seen_shop_item_ids: Dictionary[StringName, bool] = {}
 
 
 ## Returns [code]true[/code] if the player has not yet seen [param id] in the shop.
+## Crashes if [param id] is unknown or not a buyable item ([code]buy_price == 0[/code]).
 func is_shop_item_new(id: StringName) -> bool:
+	var item: ItemData = ItemRegistry.get_item_or_crash(id)
+	Utils.require(item.buy_price > 0, "GameState.is_shop_item_new: item '%s' is not buyable" % id)
 	return not _seen_shop_item_ids.has(id)
 
 
 ## Marks [param id] as seen, clearing its NEW badge in the shop.
+## Crashes if [param id] is unknown or not a buyable item ([code]buy_price == 0[/code]).
 func mark_shop_item_seen(id: StringName) -> void:
-	ItemRegistry.validate_item_id_or_crash(id)
+	var item: ItemData = ItemRegistry.get_item_or_crash(id)
+	Utils.require(
+		item.buy_price > 0, "GameState.mark_shop_item_seen: item '%s' is not buyable" % id
+	)
 	_seen_shop_item_ids[id] = true
 
 
+## Returns [code]true[/code] if adding [param amount] gold would not exceed [constant _MAX_GOLD].
+## Crashes if [param amount] is not positive.
+func can_add_gold(amount: int) -> bool:
+	Utils.require(amount > 0, "GameState.can_add_gold: amount must be positive, got %d" % amount)
+	return gold + amount <= _MAX_GOLD
+
+
+## Returns [code]true[/code] if the player has at least [param amount] gold.
+## Crashes if [param amount] is not positive.
+func can_spend_gold(amount: int) -> bool:
+	Utils.require(amount > 0, "GameState.can_spend_gold: amount must be positive, got %d" % amount)
+	return gold >= amount
+
+
+## Adds [param amount] to [member gold].
+## Crashes via [method can_add_gold] if [param amount] is not positive,
+## or if adding would exceed [constant _MAX_GOLD].
+func add_gold(amount: int) -> void:
+	Utils.require(
+		can_add_gold(amount),
+		"GameState.add_gold: would exceed max gold (%d + %d > %d)" % [gold, amount, _MAX_GOLD]
+	)
+	gold += amount
+
+
+## Subtracts [param amount] from [member gold].
+## Crashes via [method can_spend_gold] if [param amount] is not positive,
+## or if the player does not have enough gold.
+func spend_gold(amount: int) -> void:
+	Utils.require(
+		can_spend_gold(amount), "GameState.spend_gold: not enough gold (%d < %d)" % [gold, amount]
+	)
+	gold -= amount
+
+
+## Resets all state to defaults for a new game session.
+## Call this before starting a new game so no state from a previous session leaks in.
+func new_game() -> void:
+	chapter = _DEFAULT_CHAPTER
+	gold = _DEFAULT_GOLD
+	_seen_shop_item_ids.clear()
+
+
 ## Returns state serialized for saving.
-func get_save_data() -> Dictionary:
+func get_save_data() -> Dictionary[String, Variant]:
 	var ids: Array[String] = []
 	for k: StringName in _seen_shop_item_ids:
 		ids.append(str(k))
@@ -93,38 +143,21 @@ func load_save(save_data: Dictionary) -> void:
 
 
 ## Validates and returns the chapter value from [param save_data].
-## Crashes on missing or out-of-range value.
+## Crashes on missing or non-integer value. Range is enforced by the [member chapter] setter.
 func _parse_chapter(save_data: Dictionary) -> int:
 	var raw_chapter: Variant = save_data.get("chapter", null)
 	var parsed_chapter: Variant = Utils.parse_json_int(raw_chapter)
 	Utils.require(parsed_chapter != null, "GameState.load_save: invalid chapter '%s'" % raw_chapter)
-
-	var chapter_int: int = parsed_chapter as int
-	Utils.require(
-		chapter_int >= ItemSchema.MIN_CHAPTER and chapter_int <= ItemSchema.MAX_CHAPTER,
-		(
-			"GameState.load_save: chapter %d out of range [%d, %d]"
-			% [chapter_int, ItemSchema.MIN_CHAPTER, ItemSchema.MAX_CHAPTER]
-		)
-	)
-
-	return chapter_int
+	return parsed_chapter as int
 
 
 ## Validates and returns the gold value from [param save_data].
-## Crashes on missing or out-of-range value.
+## Crashes on missing or non-integer value. Range is enforced by the [member gold] setter.
 func _parse_gold(save_data: Dictionary) -> int:
 	var raw_gold: Variant = save_data.get("gold", null)
 	var parsed_gold: Variant = Utils.parse_json_int(raw_gold)
 	Utils.require(parsed_gold != null, "GameState.load_save: invalid gold '%s'" % raw_gold)
-
-	var gold_int: int = parsed_gold as int
-	Utils.require(
-		gold_int >= 0 and gold_int <= _MAX_GOLD,
-		"GameState.load_save: gold %d out of range [0, %d]" % [gold_int, _MAX_GOLD]
-	)
-
-	return gold_int
+	return parsed_gold as int
 
 
 ## Validates and populates [member _seen_shop_item_ids] from [param save_data].
@@ -132,7 +165,8 @@ func _parse_gold(save_data: Dictionary) -> int:
 func _parse_seen_ids(save_data: Dictionary) -> void:
 	_seen_shop_item_ids.clear()
 
-	var raw_seen: Variant = save_data.get("seen_shop_item_ids", [])
+	var raw_seen: Variant = save_data.get("seen_shop_item_ids", null)
+	Utils.require(raw_seen != null, "GameState.load_save: missing 'seen_shop_item_ids' key")
 	Utils.require(
 		raw_seen is Array,
 		"GameState.load_save: seen_shop_item_ids is not an Array — '%s'" % raw_seen
@@ -149,9 +183,13 @@ func _parse_seen_ids(save_data: Dictionary) -> void:
 		)
 
 		var seen_id: StringName = StringName(raw_id as String)
-		# Crash on unknown IDs — save data is all-or-nothing. Silently skipping stale
-		# IDs would mask corruption. If an item is removed, update or wipe the save.
-		ItemRegistry.validate_item_id_or_crash(seen_id)
+		# Crash on unknown or non-buyable IDs — save data is all-or-nothing. Silently
+		# skipping stale IDs would mask corruption. If an item is removed, update or wipe the save.
+		var seen_item: ItemData = ItemRegistry.get_item_or_crash(seen_id)
+		Utils.require(
+			seen_item.buy_price > 0,
+			"GameState.load_save: item '%s' in seen_shop_item_ids is not buyable" % seen_id
+		)
 
 		Utils.require(
 			not _seen_shop_item_ids.has(seen_id),

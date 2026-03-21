@@ -19,32 +19,31 @@ func _ready() -> void:
 	)
 
 	for recipe: Dictionary in RecipeDefinitions.RECIPES:
-		_validate_recipe(recipe)
-
-		# Cast to untyped Array — `as Array[String]` returns null at runtime when the
-		# source Variant is not already a typed Array[String], which would crash on arr[0].
-		var arr: Array = recipe.get("ingredients") as Array
-		var id_a: StringName = StringName(arr[0] as String)
-		var id_b: StringName = StringName(arr[1] as String)
-		var result_id: StringName = StringName(recipe.get("result") as String)
+		var ids: Array[StringName] = _validate_recipe(recipe)
+		var id_a: StringName = ids[0]
+		var id_b: StringName = ids[1]
+		var result_id: StringName = ids[2]
 		var key: String = _make_key(id_a, id_b)
 
 		Utils.require(
 			not _recipes.has(key),
-			"RecipeDefinitions: duplicate recipe for ingredients '%s' + '%s'" % [id_a, id_b]
+			"RecipeDefinitions: duplicate recipe for ingredients '%s' and '%s'" % [id_a, id_b]
 		)
 
 		_recipes[key] = result_id
 
 
 ## Returns the result item id when combining [param id_a] and [param id_b].
-## Returns an empty [StringName] if no recipe exists for this pair.
+## Returns an empty [StringName] ([code]&""[/code]) if no recipe exists for this pair.
+## Use [method has_recipe] when you only need existence; use this when you need the result id.
 ## Ingredient order does not matter.
 func get_result(id_a: StringName, id_b: StringName) -> StringName:
 	return _recipes.get(_make_key(id_a, id_b), &"")
 
 
 ## Returns [code]true[/code] if a recipe exists for combining [param id_a] and [param id_b].
+## Prefer this over checking [method get_result] against [code]&""[/code]
+## when you only need existence.
 ## Ingredient order does not matter.
 func has_recipe(id_a: StringName, id_b: StringName) -> bool:
 	return _recipes.has(_make_key(id_a, id_b))
@@ -54,12 +53,12 @@ func has_recipe(id_a: StringName, id_b: StringName) -> bool:
 ## Sorting by string value ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
 ##
 ## [ItemValidator] validates item IDs never contain [code]|[/code]. The current naming
-## convention (lowercase letters and underscores only) makes a collision impossible.
+## convention (lowercase letters, digits, and underscores only) makes a collision impossible.
 ## [ItemRegistry] validates that there are no duplicate IDs.
 ## This convention never changes.
 func _make_key(id_a: StringName, id_b: StringName) -> String:
-	var a: String = str(id_a)
-	var b: String = str(id_b)
+	var a: String = String(id_a)
+	var b: String = String(id_b)
 	if a <= b:
 		return a + "|" + b
 	return b + "|" + a
@@ -95,9 +94,10 @@ func _validate_ingredient(data: ItemData) -> void:
 
 
 ## Validates the structure and item IDs of a single recipe [Dictionary].
+## Returns [code][id_a, id_b, result_id][/code] as [StringName] values for the caller to use.
 ## Crashes via [method Utils.require] on the first violation.
 # Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
-func _validate_recipe(recipe: Dictionary) -> void:
+func _validate_recipe(recipe: Dictionary) -> Array[StringName]:
 	var ingredients: Variant = recipe.get("ingredients", null)
 	Utils.require(
 		ingredients is Array and (ingredients as Array).size() == 2,
@@ -105,25 +105,65 @@ func _validate_recipe(recipe: Dictionary) -> void:
 	)
 
 	var arr: Array = ingredients as Array
+	# Ingredients must be plain String literals — not StringName (&"id") — or this check fails.
 	Utils.require(
 		arr[0] is String and not (arr[0] as String).is_empty(),
-		"RecipeDefinitions: ingredient must be a non-empty String"
+		(
+			"RecipeDefinitions: ingredient must be a non-empty String (got %s)"
+			% type_string(typeof(arr[0]))
+		)
 	)
 
 	Utils.require(
 		arr[1] is String and not (arr[1] as String).is_empty(),
-		"RecipeDefinitions: ingredient must be a non-empty String"
+		(
+			"RecipeDefinitions: ingredient must be a non-empty String (got %s)"
+			% type_string(typeof(arr[1]))
+		)
 	)
 
 	var result_raw: Variant = recipe.get("result", null)
 	Utils.require(
 		result_raw is String and not (result_raw as String).is_empty(),
-		"RecipeDefinitions: result must be a non-empty String"
+		(
+			"RecipeDefinitions: result must be a non-empty String (got %s)"
+			% type_string(typeof(result_raw))
+		)
 	)
 
-	ItemRegistry.validate_item_id_or_crash(StringName(arr[0] as String))
-	ItemRegistry.validate_item_id_or_crash(StringName(arr[1] as String))
-	ItemRegistry.validate_item_id_or_crash(StringName(result_raw as String))
+	var id_a: StringName = StringName(arr[0] as String)
+	var id_b: StringName = StringName(arr[1] as String)
+	var result_id: StringName = StringName(result_raw as String)
 
-	_validate_ingredient(ItemRegistry.get_item_or_crash(StringName(arr[0] as String)))
-	_validate_ingredient(ItemRegistry.get_item_or_crash(StringName(arr[1] as String)))
+	var data_a: ItemData = ItemRegistry.get_item_or_crash(id_a)
+	var data_b: ItemData = ItemRegistry.get_item_or_crash(id_b)
+	var data_result: ItemData = ItemRegistry.get_item_or_crash(result_id)
+
+	_validate_ingredient(data_a)
+	_validate_ingredient(data_b)
+	# data_result is not validated as an ingredient — the result item may be stackable or a
+	# WEAPON_UPGRADE. Drop-action exclusivity only constrains items that can be dropped onto others.
+
+	Utils.require(
+		(
+			data_a.inventory_size == data_b.inventory_size
+			and data_a.inventory_size == data_result.inventory_size
+		),
+		(
+			(
+				"RecipeDefinitions: all items in a recipe must share inventory_size"
+				+ " — '%s' is %s, '%s' is %s, result '%s' is %s"
+			)
+			% [
+				data_a.id,
+				data_a.inventory_size,
+				data_b.id,
+				data_b.inventory_size,
+				data_result.id,
+				data_result.inventory_size
+			]
+		)
+	)
+
+	var result: Array[StringName] = [id_a, id_b, result_id]
+	return result

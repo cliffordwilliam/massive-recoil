@@ -35,14 +35,19 @@ var _slots: Array[ItemState] = []
 ## Returns [code]true[/code] if [param item_data] can be placed at [param position].
 ##
 ## Checks that the item's footprint fits within [member grid_size] and does not
-## overlap any existing slot.
-func can_place(item_data: ItemData, position: Vector2i) -> bool:
+## overlap any existing slot. Slots in [param excluded_slots] are treated as if
+## already removed — used by move and combine checks.
+func can_place(
+	item_data: ItemData, position: Vector2i, excluded_slots: Array[ItemState] = []
+) -> bool:
 	var footprint: Rect2i = Rect2i(position, item_data.inventory_size)
 
 	if not Rect2i(Vector2i.ZERO, grid_size).encloses(footprint):
 		return false
 
 	for slot: ItemState in _slots:
+		if slot in excluded_slots:
+			continue
 		if footprint.intersects(Rect2i(slot.position, slot.data.inventory_size)):
 			return false
 
@@ -52,8 +57,8 @@ func can_place(item_data: ItemData, position: Vector2i) -> bool:
 ## Places a new item identified by [param id] at [param position] with a
 ## [member ItemState.stack_count] of [param count].
 ##
-## Always marks the item as seen in [GameState] on success. For internal batch
-## operations (e.g. save loading), use [method _append_slot] directly.
+## Marks the item as seen in [GameState] on success if it is buyable ([code]buy_price > 0[/code]).
+## For internal batch operations (e.g. save loading), use [method _append_slot] directly.
 ##
 ## Returns [code]false[/code] without mutating state if [method can_place] fails.
 ## An out-of-range [param count] is a programmer error and crashes via [method OS.crash].
@@ -63,13 +68,18 @@ func place_item(id: StringName, position: Vector2i, count: int = 1) -> bool:
 
 	# Intentional reach into GameState — PlayerInventory is the single chokepoint where items
 	# enter the player's possession. See: "res://docs/decisions/item_architecture.md"
-	GameState.mark_shop_item_seen(id)
+	# Only buyable items are tracked in the seen-set — the NEW badge is a shop-only concept.
+	if ItemRegistry.get_item_or_crash(id).buy_price > 0:
+		GameState.mark_shop_item_seen(id)
 	return true
 
 
 ## Returns [code]true[/code] if [param id] can be added to the stack at [param position].
 ##
-## Requires a slot at [param position] holding the same item ID with remaining capacity.
+## Requires a slot whose footprint contains [param position] holding the same item ID
+## with remaining capacity.
+## Does [b]not[/b] validate [code]count[/code] — the caller is responsible for ensuring
+## [code]count > 0[/code] before calling [method add_to_stack].
 ## Call this before [method add_to_stack] — mirrors the [method can_place] /
 ## [method place_item] pattern.
 func can_add_to_stack(id: StringName, position: Vector2i) -> bool:
@@ -85,6 +95,16 @@ func can_add_to_stack(id: StringName, position: Vector2i) -> bool:
 ## is the grid cell of the target slot (any cell inside its footprint works,
 ## via [method _get_slot_at]).
 ##
+## Does [b]not[/b] call [method GameState.mark_shop_item_seen]. This is
+## intentional: stacking is only possible when a slot for the same item already
+## exists, which means the item was already placed (and thus already marked
+## seen) at some earlier point.
+##
+## For loot drops and shop purchases, use [method place_or_stack] instead —
+## it fills existing stacks and opens new slots automatically, and correctly
+## calls [method GameState.mark_shop_item_seen]. ([method place_or_stack]
+## calls this method internally — the guidance above applies to direct callers.)
+##
 ## Call [method can_add_to_stack] first — passing an invalid target is a
 ## programmer error and crashes via [method OS.crash].
 ##
@@ -92,6 +112,7 @@ func can_add_to_stack(id: StringName, position: Vector2i) -> bool:
 ## is possible when the stack has some but not enough remaining capacity.
 func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 	# Guard against non-positive count: mini(space, negative) would silently decrement stack_count.
+	# Checked separately — can_add_to_stack does not validate count.
 	(
 		Utils
 		. require(
@@ -99,26 +120,15 @@ func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 			"PlayerInventory.add_to_stack: count must be positive, got %d" % count,
 		)
 	)
+	(
+		Utils
+		. require(
+			can_add_to_stack(id, position),
+			"PlayerInventory.add_to_stack: cannot add '%s' to slot at %s" % [id, position],
+		)
+	)
 
 	var slot: ItemState = _get_slot_at(position)
-	Utils.require(slot != null, "PlayerInventory.add_to_stack: no slot at %s" % position)
-	(
-		Utils
-		. require(
-			slot.data.id == id,
-			(
-				"PlayerInventory.add_to_stack: slot at %s holds '%s', expected '%s'"
-				% [position, slot.data.id, id]
-			),
-		)
-	)
-	(
-		Utils
-		. require(
-			slot.stack_count < slot.data.stack_size,
-			"PlayerInventory.add_to_stack: slot at %s is already full" % position,
-		)
-	)
 
 	# Pour as much as fits, return the remainder — like topping up a glass.
 	# Partial fills are intentional: the caller owns the overflow and decides what to do with it.
@@ -127,6 +137,58 @@ func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 	slot.stack_count += added
 
 	return count - added
+
+
+## Places [param count] of [param id] into inventory, filling existing partial stacks
+## first and opening new slots for any remainder.
+##
+## Returns the number of units that could not fit (0 means everything was placed).
+##
+## This is the correct entry point for loot drops and shop purchases.
+##
+## Composed entirely from the public API ([method can_add_to_stack], [method add_to_stack],
+## [method place_item]) so each operation follows the same rules as a direct player action.
+## This keeps logic in one place and makes each step independently debuggable.
+## [method place_item] handles seen-marking — calling it once per new slot is safe because
+## [method GameState.mark_shop_item_seen] is a set insert and is idempotent.
+## Load-save bypasses this method and calls [method _append_slot] directly to skip
+## seen-marking, since the seen-set is already captured in saved [GameState] data.
+func place_or_stack(id: StringName, count: int) -> int:
+	Utils.require(
+		count > 0, "PlayerInventory.place_or_stack: count must be positive, got %d" % count
+	)
+	var data: ItemData = ItemRegistry.get_item_or_crash(id)
+	var remaining: int = count
+
+	# Fill existing partial stacks first.
+	# add_to_stack only mutates slot.stack_count — it never modifies _slots structurally.
+	# Duplicated defensively so this invariant remains safe if add_to_stack ever changes.
+	for slot: ItemState in _slots.duplicate():
+		if remaining <= 0:
+			break
+		if can_add_to_stack(id, slot.position):
+			remaining = add_to_stack(id, slot.position, remaining)
+
+	# Place remainder in new slots.
+	while remaining > 0:
+		var pos: Vector2i = find_open_position(data)
+		if pos == Vector2i(-1, -1):
+			break
+		var batch: int = mini(remaining, data.stack_size)
+		var placed: bool = place_item(id, pos, batch)
+		# find_open_position just confirmed this position is valid and no mutation has happened
+		# since — placed should always be true here. The require guards against any future
+		# change that breaks that assumption.
+		(
+			Utils
+			. require(
+				placed,
+				"PlayerInventory.place_or_stack: place_item failed for '%s' at %s" % [id, pos],
+			)
+		)
+		remaining -= batch
+
+	return remaining
 
 
 ## Returns [code]true[/code] if a slot occupies [param position].
@@ -161,19 +223,7 @@ func can_move_item(from_pos: Vector2i, to_pos: Vector2i) -> bool:
 	var slot: ItemState = _get_slot_at(from_pos)
 	if slot == null:
 		return false
-
-	var footprint: Rect2i = Rect2i(to_pos, slot.data.inventory_size)
-
-	if not Rect2i(Vector2i.ZERO, grid_size).encloses(footprint):
-		return false
-
-	for other: ItemState in _slots:
-		if other == slot:
-			continue  # Exclude the item itself — it vacates its current position on move.
-		if footprint.intersects(Rect2i(other.position, other.data.inventory_size)):
-			return false
-
-	return true
+	return can_place(slot.data, to_pos, [slot])
 
 
 ## Moves the item at [param from_pos] so its top-left corner is at [param to_pos].
@@ -201,13 +251,21 @@ func move_item(from_pos: Vector2i, to_pos: Vector2i) -> void:
 ## O(W × H × N) — acceptable for the fixed, small grid bounds.
 ## Revisit with a spatial index if bounds ever grow substantially.
 func find_open_position(item_data: ItemData) -> Vector2i:
+	return _find_open_position_excluding(item_data, [])
+
+
+## Returns the first open position where [param item_data] fits, treating
+## [param excluded_slots] as if they were already removed from the grid.
+##
+## Returns [code]Vector2i(-1, -1)[/code] if no space is available.
+func _find_open_position_excluding(
+	item_data: ItemData, excluded_slots: Array[ItemState]
+) -> Vector2i:
 	for y: int in grid_size.y:
 		for x: int in grid_size.x:
 			var pos: Vector2i = Vector2i(x, y)
-
-			if can_place(item_data, pos):
+			if can_place(item_data, pos, excluded_slots):
 				return pos
-
 	return Vector2i(-1, -1)
 
 
@@ -234,16 +292,13 @@ func can_upgrade_grid() -> bool:
 	return _grid_tier < _GRID_SIZES.size() - 1
 
 
-## Advances the grid to the next size tier if one is available.
+## Advances the grid to the next size tier.
 ##
-## Returns [code]true[/code] if the upgrade applied, [code]false[/code] if already
-## at the maximum tier. The UI can use this to show feedback (e.g. disable the
-## upgrade button once the cap is reached).
-func upgrade_grid() -> bool:
-	if _grid_tier < _GRID_SIZES.size() - 1:
-		_grid_tier += 1
-		return true
-	return false
+## Call [method can_upgrade_grid] first — calling this when already at the maximum
+## tier is a programmer error and crashes via [method OS.crash].
+func upgrade_grid() -> void:
+	Utils.require(can_upgrade_grid(), "PlayerInventory.upgrade_grid: already at maximum tier")
+	_grid_tier += 1
 
 
 ## Returns [code]true[/code] if the upgrade item at [param upgrade_pos] can be applied
@@ -275,8 +330,20 @@ func can_upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> bool:
 			return wd.reload_speed_upgrade_step > 0 and stats.reload_speed < wd.reload_speed_max
 		ItemData.UpgradeStat.AMMO_CAPACITY:
 			return wd.ammo_capacity_upgrade_step > 0 and stats.ammo_capacity < wd.ammo_capacity_max
-
-	return false  # Unreachable — NONE excluded by WEAPON_UPGRADE type check. Required by type checker.
+		_:
+			(
+				Utils
+				. require(
+					false,
+					(
+						"can_upgrade_weapon: unreachable — upgrade_stat NONE on WEAPON_UPGRADE item '%s'"
+						% upgrade_slot.data.id
+					)
+				)
+			)
+			# unreachable — satisfies GDScript return-type checker;
+			# upgrade_weapon's _ branch omits this since that function is void
+			return false
 
 
 ## Applies the upgrade item at [param upgrade_pos] to the weapon at [param weapon_pos]
@@ -300,6 +367,9 @@ func upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> void:
 	var wd: WeaponData = weapon_slot.data.weapon_data
 	var stats: WeaponStatsState = weapon_slot.weapon_stats_state
 
+	# mini caps each stat at its max. can_upgrade_weapon already guards against upgrading
+	# at max, so the cap is never reached in practice — defensive against future edits
+	# to can_upgrade_weapon.
 	match upgrade_slot.data.upgrade_stat:
 		ItemData.UpgradeStat.POWER:
 			stats.power = mini(stats.power + wd.power_upgrade_step, wd.power_max)
@@ -315,8 +385,91 @@ func upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> void:
 			stats.ammo_capacity = mini(
 				stats.ammo_capacity + wd.ammo_capacity_upgrade_step, wd.ammo_capacity_max
 			)
+		_:
+			(
+				Utils
+				. require(
+					false,
+					(
+						"PlayerInventory.upgrade_weapon: unreachable — upgrade_stat NONE on WEAPON_UPGRADE item '%s'"
+						% upgrade_slot.data.id
+					)
+				)
+			)
+			# No return needed — void function.
+		# can_upgrade_weapon's _ branch has return false to satisfy the type checker.
 
-	remove_item_at(upgrade_pos)
+	# Erase after the match so a crash in the _ branch never silently consumes the upgrade item.
+	_slots.erase(upgrade_slot)
+
+
+## Returns [code]true[/code] if the items at [param pos_a] and [param pos_b] can be combined.
+##
+## Returns [code]false[/code] if either position has no slot, if both positions resolve to
+## the same slot (including two positions inside one multi-cell item's footprint), or if no
+## recipe exists for the two item IDs.
+func can_combine_items(pos_a: Vector2i, pos_b: Vector2i) -> bool:
+	var slot_a: ItemState = _get_slot_at(pos_a)
+	var slot_b: ItemState = _get_slot_at(pos_b)
+	if slot_a == null or slot_b == null or slot_a == slot_b:
+		return false
+	return RecipeRegistry.has_recipe(slot_a.data.id, slot_b.data.id)
+
+
+## Combines the items at [param pos_a] (held) and [param pos_b] (target) into their recipe
+## result, removes both ingredients from inventory, and places the result at the target's
+## position.
+##
+## The result is guaranteed to fit at [param pos_b]'s slot top-left — all recipe items share
+## the same [member ItemData.inventory_size], so removing both ingredients always leaves that
+## cell free. See: "res://docs/decisions/item_architecture.md"
+##
+## Call [method can_combine_items] first — invalid arguments crash via [method OS.crash].
+func combine_items(pos_a: Vector2i, pos_b: Vector2i) -> void:
+	(
+		Utils
+		. require(
+			can_combine_items(pos_a, pos_b),
+			"PlayerInventory.combine_items: cannot combine items at %s and %s" % [pos_a, pos_b],
+		)
+	)
+
+	var slot_a: ItemState = _get_slot_at(pos_a)
+	var slot_b: ItemState = _get_slot_at(pos_b)
+	var result_id: StringName = RecipeRegistry.get_result(slot_a.data.id, slot_b.data.id)
+	var target_pos: Vector2i = slot_b.position
+
+	remove_item_at(slot_a.position)
+	remove_item_at(slot_b.position)
+
+	# place_item (not _place_item) is intentional — recipe results entering the
+	# player's possession by any means should mark buyable items as seen, per the
+	# same rule that applies to drops and shop purchases.
+	# See: "res://docs/decisions/item_architecture.md"
+	# Guaranteed by RecipeRegistry: all three items in a recipe share the same
+	# inventory_size, so slot_b's former position is always free after both
+	# ingredients are erased. See: "res://docs/decisions/item_architecture.md"
+	var placed: bool = place_item(result_id, target_pos)
+	# Both ingredients are already removed at this point. If place_item fails here,
+	# crashing is intentional — there is no rollback mechanism, so a hard crash is
+	# the only way to stay atomic and avoid leaving inventory in a permanently broken state.
+	(
+		Utils
+		. require(
+			placed,
+			(
+				"PlayerInventory.combine_items: place_item failed for result '%s' at %s"
+				% [result_id, target_pos]
+			),
+		)
+	)
+
+
+## Resets all inventory state for a new game session.
+## Call this before starting a new game so no state from a previous session leaks in.
+func new_game() -> void:
+	_slots.clear()
+	_grid_tier = 0
 
 
 ## Returns inventory state serialized for saving.
@@ -327,7 +480,7 @@ func get_save_data() -> Dictionary:
 	# would have already crashed at the call site. No null guard is needed here.
 	for slot: ItemState in _slots:
 		var slot_dict: Dictionary = {
-			"id": str(slot.data.id),
+			"id": slot.data.id as String,
 			"stack_count": slot.stack_count,
 			"position": {"x": slot.position.x, "y": slot.position.y},
 		}
@@ -355,6 +508,9 @@ func get_save_data() -> Dictionary:
 func load_save(save_data: Dictionary) -> void:
 	_slots.clear()
 
+	# _grid_tier must be restored before slots are parsed — _parse_and_append_slot_entry
+	# calls can_place, which derives grid_size from _grid_tier. Reordering these two lines
+	# would cause slot position validation to run against the wrong grid dimensions.
 	_grid_tier = _parse_grid_tier(save_data)
 
 	var raw_slots: Variant = save_data.get("slots", [])
@@ -394,10 +550,11 @@ func _parse_and_append_slot_entry(entry: Dictionary) -> void:
 	var raw_id: Variant = entry.get("id", "")
 	Utils.require(
 		raw_id is String and not (raw_id as String).is_empty(),
-		"PlayerInventory.load_save: slot entry has missing or empty id"
+		"PlayerInventory.load_save: slot entry 'id' is missing, empty, or not a String"
 	)
 
 	var id: StringName = StringName(raw_id as String)
+	# No null guard after get_item_or_crash — it already crashes via Utils.require for unknown IDs.
 	var data: ItemData = ItemRegistry.get_item_or_crash(id)
 
 	var raw_pos_val: Variant = entry.get("position", {})
@@ -420,6 +577,7 @@ func _parse_and_append_slot_entry(entry: Dictionary) -> void:
 	)
 
 	var pos: Vector2i = Vector2i(parsed_x as int, parsed_y as int)
+	# grid_size is already correct here — load_save restores _grid_tier before parsing slots.
 	# can_place covers both bounds and overlap — one call is enough.
 	Utils.require(
 		can_place(data, pos),
@@ -459,11 +617,24 @@ func _parse_and_append_slot_entry(entry: Dictionary) -> void:
 	var weapon_stats: WeaponStatsState = null
 	if data.type == ItemData.Type.WEAPON:
 		weapon_stats = _parse_weapon_stats_entry(entry, data)
+	else:
+		(
+			Utils
+			. require(
+				not entry.has("weapon_stats"),
+				"PlayerInventory.load_save: 'weapon_stats' present for non-WEAPON item '%s'" % id,
+			)
+		)
 
 	_append_slot(data, pos, count, weapon_stats)
 
 
 ## Validates and places [param id] at [param position] with [param count].
+##
+## Internal implementation called only by [method place_item]. All other callers
+## go through [method place_item] so that seen-marking is never skipped.
+## [method _append_slot] may also be called directly
+## when seen-marking must be suppressed (e.g. [method load_save]).
 ##
 ## Returns [code]false[/code] without mutating state if [method can_place] fails.
 ## An out-of-range [param count] is a programmer error and crashes via [method OS.crash].
@@ -509,6 +680,16 @@ func _place_item(id: StringName, position: Vector2i, count: int) -> bool:
 func _append_slot(
 	data: ItemData, pos: Vector2i, count: int, weapon_stats: WeaponStatsState = null
 ) -> void:
+	(
+		Utils
+		. require(
+			weapon_stats == null or data.type == ItemData.Type.WEAPON,
+			(
+				"PlayerInventory._append_slot: weapon_stats provided for non-WEAPON item '%s'"
+				% data.id
+			),
+		)
+	)
 	var slot: ItemState = ItemState.new(data)
 	slot.position = pos
 	slot.stack_count = count
@@ -534,7 +715,7 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 	var raw_ws: Variant = entry.get("weapon_stats", null)
 	Utils.require(
 		raw_ws is Dictionary,
-		"PlayerInventory.load_save: 'weapon_stats' missing or not a Dictionary for '%s'" % data.id
+		"_parse_weapon_stats_entry: 'weapon_stats' missing or not a Dictionary for '%s'" % data.id
 	)
 
 	var ws: Dictionary = raw_ws as Dictionary
@@ -543,13 +724,13 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 	var raw_power: Variant = Utils.parse_json_int(ws.get("power", null))
 	Utils.require(
 		raw_power != null,
-		"PlayerInventory.load_save: weapon_stats.power missing or invalid for '%s'" % data.id
+		"_parse_weapon_stats_entry: weapon_stats.power missing or invalid for '%s'" % data.id
 	)
 	var power: int = raw_power as int
 	Utils.require(
 		power >= wd.power_min and power <= wd.power_max,
 		(
-			"PlayerInventory.load_save: weapon_stats.power %d out of range [%d, %d] for '%s'"
+			"_parse_weapon_stats_entry: weapon_stats.power %d out of range [%d, %d] for '%s'"
 			% [power, wd.power_min, wd.power_max, data.id]
 		)
 	)
@@ -557,13 +738,13 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 	var raw_rof: Variant = Utils.parse_json_int(ws.get("rate_of_fire", null))
 	Utils.require(
 		raw_rof != null,
-		"PlayerInventory.load_save: weapon_stats.rate_of_fire missing or invalid for '%s'" % data.id
+		"_parse_weapon_stats_entry: weapon_stats.rate_of_fire missing or invalid for '%s'" % data.id
 	)
 	var rate_of_fire: int = raw_rof as int
 	Utils.require(
 		rate_of_fire >= wd.rate_of_fire_min and rate_of_fire <= wd.rate_of_fire_max,
 		(
-			"PlayerInventory.load_save: weapon_stats.rate_of_fire %d out of range [%d, %d] for '%s'"
+			"_parse_weapon_stats_entry: weapon_stats.rate_of_fire %d out of range [%d, %d] for '%s'"
 			% [rate_of_fire, wd.rate_of_fire_min, wd.rate_of_fire_max, data.id]
 		)
 	)
@@ -571,13 +752,13 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 	var raw_reload: Variant = Utils.parse_json_int(ws.get("reload_speed", null))
 	Utils.require(
 		raw_reload != null,
-		"PlayerInventory.load_save: weapon_stats.reload_speed missing or invalid for '%s'" % data.id
+		"_parse_weapon_stats_entry: weapon_stats.reload_speed missing or invalid for '%s'" % data.id
 	)
 	var reload_speed: int = raw_reload as int
 	Utils.require(
 		reload_speed >= wd.reload_speed_min and reload_speed <= wd.reload_speed_max,
 		(
-			"PlayerInventory.load_save: weapon_stats.reload_speed %d out of range [%d, %d] for '%s'"
+			"_parse_weapon_stats_entry: weapon_stats.reload_speed %d out of range [%d, %d] for '%s'"
 			% [reload_speed, wd.reload_speed_min, wd.reload_speed_max, data.id]
 		)
 	)
@@ -586,17 +767,19 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 	Utils.require(
 		raw_ammo != null,
 		(
-			"PlayerInventory.load_save: weapon_stats.ammo_capacity missing or invalid for '%s'"
+			"_parse_weapon_stats_entry: weapon_stats.ammo_capacity missing or invalid for '%s'"
 			% data.id
 		)
 	)
 	var ammo_capacity: int = raw_ammo as int
+	# For infinite-ammo weapons all three ammo capacity fields are 0 (ItemValidator-enforced),
+	# so the saved value is also 0 and this range check always passes for those weapons.
 	(
 		Utils
 		. require(
 			ammo_capacity >= wd.ammo_capacity_min and ammo_capacity <= wd.ammo_capacity_max,
 			(
-				"PlayerInventory.load_save: weapon_stats.ammo_capacity %d out of range [%d, %d] for '%s'"
+				"_parse_weapon_stats_entry: weapon_stats.ammo_capacity %d out of range [%d, %d] for '%s'"
 				% [ammo_capacity, wd.ammo_capacity_min, wd.ammo_capacity_max, data.id]
 			)
 		)

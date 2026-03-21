@@ -26,6 +26,10 @@ func _ready() -> void:
 	_grid.show_behind_parent = true
 
 
+func _on_close() -> void:
+	pass
+
+
 func _hydrate_ui() -> void:
 	_slots = PlayerInventory.get_slots()
 	var gs: Vector2i = PlayerInventory.grid_size

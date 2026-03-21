@@ -79,7 +79,7 @@ static func get_all() -> Array[ItemData]:
 			"Antiseptic vial used to disinfect wounds.",
 			#
 			# inventory size
-			Vector2i(1, 1),
+			Vector2i(2, 1),
 			#
 			# buy price
 			0,
@@ -269,20 +269,25 @@ static func get_all() -> Array[ItemData]:
 			#
 			# weapon data
 			_make_weapon_data(
+				#
 				# ammo type
 				WeaponData.AmmoType.HANDGUN_AMMO,
+				#
 				# power: min, max, upgrade step
 				20,
 				60,
 				10,
+				#
 				# rate of fire: min, max, upgrade step
 				30,
 				60,
 				10,
+				#
 				# reload speed: min, max, upgrade step
 				50,
 				80,
 				10,
+				#
 				# ammo capacity: min, max, upgrade step
 				10,
 				20,
@@ -319,20 +324,25 @@ static func get_all() -> Array[ItemData]:
 			#
 			# weapon data
 			_make_weapon_data(
+				#
 				# ammo type
 				WeaponData.AmmoType.SMG_AMMO,
+				#
 				# power: min, max, upgrade step
 				10,
 				40,
 				5,
+				#
 				# rate of fire: min, max, upgrade step
 				70,
 				100,
 				5,
+				#
 				# reload speed: min, max, upgrade step
 				40,
 				70,
 				10,
+				#
 				# ammo capacity: min, max, upgrade step
 				20,
 				60,

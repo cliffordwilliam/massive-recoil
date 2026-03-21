@@ -67,8 +67,10 @@ player has already seen. An item shows the NEW badge if its ID is not yet in tha
 seen-set.
 
 `PlayerInventory.place_item` calls `GameState.mark_shop_item_seen` on every successful
-placement — not only shop purchases. Once an item enters the player's possession by any
-means, the badge has served its purpose and should not reappear.
+placement of a **buyable item** (`buy_price > 0`) — not only shop purchases. Once a
+buyable item enters the player's possession by any means, the badge has served its purpose
+and should not reappear. Non-buyable items are never added to the seen-set because the
+NEW badge is a shop-only concept.
 
 Badge state is part of saved `GameState` data and is restored directly on load — it is
 not recalculated from inventory contents.
@@ -92,6 +94,12 @@ constraint requiring the two ingredients to be distinct items.
 
 `RecipeRegistry` detects duplicate recipes (same ingredient pair appearing more than
 once) at startup and crashes if found.
+
+All three items in a recipe — both ingredients and the result — must have identical
+`inventory_size`. `RecipeRegistry` enforces this at startup and crashes immediately on
+any violation. This guarantees that after both ingredients are removed from the
+inventory, the result is always placeable at the target ingredient's former grid
+position without a scan.
 
 ## Drop-action exclusivity
 

@@ -81,20 +81,15 @@ func open_inventory_overlay() -> void:
 
 
 ## Activates [param new_overlay] and pauses the tree.
-## [param new_overlay] must not be null — crashes via [method Utils.require] if so.
 ## If an overlay is already open, this request is ignored.
 ## [member BaseOverlay.is_active]'s setter calls [method BaseOverlay._hydrate_ui] when set
 ## to [code]true[/code] — this router does not call it directly.
 ## See: "res://docs/decisions/overlay_router.md"
+##
+## No null guard: both callers pass [code]@onready[/code] vars typed to concrete
+## [BaseOverlay] subclasses — null is only possible if the scene is wired incorrectly,
+## which would crash at [code]@onready[/code] resolution before reaching this method.
 func _open_overlay(new_overlay: BaseOverlay) -> void:
-	(
-		Utils
-		. require(
-			new_overlay != null,
-			"OverlayRouter._open_overlay: overlay must not be null",
-		)
-	)
-
 	if _current_overlay:
 		return
 

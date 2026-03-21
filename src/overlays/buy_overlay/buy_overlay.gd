@@ -11,6 +11,10 @@ extends BaseOverlay
 @onready var _ui_shop_item_list: UIShopItemList = $UIShopItemList
 
 
+func _on_close() -> void:
+	pass
+
+
 func _hydrate_ui() -> void:
 	var chapter: int = GameState.chapter
 	var buyable: Array[ItemData] = ItemRegistry.get_all_items().filter(

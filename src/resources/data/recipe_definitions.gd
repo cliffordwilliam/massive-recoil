@@ -3,6 +3,8 @@ extends RefCounted
 ## Static recipe catalog. Each entry defines two ingredients that combine into a result.
 ##
 ## All ids must exist in [ItemDefinitions].
+## All id values must be plain String literals — not StringName literals ([code]&"id"[/code]).
+## [RecipeRegistry] validates ids with [code]is String[/code]; a StringName will fail that check.
 
 const RECIPES: Array[Dictionary] = [
 	{

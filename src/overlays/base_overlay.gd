@@ -19,13 +19,21 @@ var is_active: bool:
 		# Godot 4 GDScript detects self-assignment within a setter and writes
 		# directly to the backing store — this does NOT cause infinite recursion.
 		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
+		var was_active: bool = is_active
 		is_active = value
 		process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED
 		visible = is_active
 		if is_active:
 			_hydrate_ui()
+		elif was_active:
+			_on_close()
 
 ## Called every time this overlay becomes active. Populate or refresh UI contents here.
 ## [member Node.visible] and [member Node.process_mode] are set before this is called,
 ## so layout calculations that depend on visibility are safe to perform here.
 @abstract func _hydrate_ui() -> void
+
+## Called every time this overlay transitions from active to inactive.
+## Not called during initial setup — only on a true close.
+## Use this to reset state machines or clear selection state before the next open.
+@abstract func _on_close() -> void

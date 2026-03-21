@@ -45,10 +45,9 @@ func get_all_items() -> Array[ItemData]:
 ## request ids known to exist in the item database. Crashes via [method OS.crash]
 ## on an unknown id. Never silently returns [code]null[/code].
 func get_item_or_crash(id: StringName) -> ItemData:
-	var item: ItemData = _items.get(id, null)
-	Utils.require(item != null, "ItemRegistry.get_item_or_crash: unknown id '%s'" % id)
+	Utils.require(_items.has(id), "ItemRegistry.get_item_or_crash: unknown id '%s'" % id)
 
-	return item
+	return _items[id]
 
 
 ## Asserts that [param id] exists in the catalog.
