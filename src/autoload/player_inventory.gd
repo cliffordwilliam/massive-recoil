@@ -147,6 +147,52 @@ func remove_item_at(position: Vector2i) -> void:
 	_slots.erase(slot)
 
 
+## Returns [code]true[/code] if the item at [param from_pos] can be moved so that its
+## top-left corner is at [param to_pos].
+##
+## Returns [code]false[/code] if no slot exists at [param from_pos], if [param to_pos]
+## would place the item outside the grid, or if the new footprint overlaps any other slot.
+## The item itself is excluded from the overlap check, so moves to adjacent or overlapping
+## positions are evaluated correctly.
+##
+## Call this before [method move_item] — mirrors the [method can_place] /
+## [method place_item] pattern.
+func can_move_item(from_pos: Vector2i, to_pos: Vector2i) -> bool:
+	var slot: ItemState = _get_slot_at(from_pos)
+	if slot == null:
+		return false
+
+	var footprint: Rect2i = Rect2i(to_pos, slot.data.inventory_size)
+
+	if not Rect2i(Vector2i.ZERO, grid_size).encloses(footprint):
+		return false
+
+	for other: ItemState in _slots:
+		if other == slot:
+			continue  # Exclude the item itself — it vacates its current position on move.
+		if footprint.intersects(Rect2i(other.position, other.data.inventory_size)):
+			return false
+
+	return true
+
+
+## Moves the item at [param from_pos] so its top-left corner is at [param to_pos].
+##
+## Updates [member ItemState.position] in place, preserving all slot state including
+## weapon stats. Call [method can_move_item] first — invalid arguments crash via
+## [method OS.crash].
+func move_item(from_pos: Vector2i, to_pos: Vector2i) -> void:
+	(
+		Utils
+		. require(
+			can_move_item(from_pos, to_pos),
+			"PlayerInventory.move_item: cannot move item from %s to %s" % [from_pos, to_pos],
+		)
+	)
+	var slot: ItemState = _get_slot_at(from_pos)
+	slot.position = to_pos
+
+
 ## Returns the first open position where [param item_data] fits in the current grid,
 ## scanning left-to-right, top-to-bottom.
 ##
