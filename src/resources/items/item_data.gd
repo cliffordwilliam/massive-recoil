@@ -120,3 +120,26 @@ var _initialized: bool = false:
 			"ItemData._initialized: write-once — can only transition from false to true"
 		)
 		_initialized = value
+
+
+## Returns [code]true[/code] if this item can form a stack of more than one unit.
+func is_stackable() -> bool:
+	return stack_size > ItemSchema.MIN_STACK
+
+
+## Returns [code]true[/code] if this item has a use action in the inventory overlay.
+##
+## Enabled for [constant Type.MED], [constant Type.INVENTORY_UPGRADE], and [constant Type.WEAPON].
+## All other types have no use action and the Use button should be disabled.
+func is_usable() -> bool:
+	return type in [Type.MED, Type.INVENTORY_UPGRADE, Type.WEAPON]
+
+
+## Returns [code]true[/code] if this item is available for purchase in the shop.
+func is_buyable() -> bool:
+	return buy_price > 0
+
+
+## Returns [code]true[/code] if this item can be sold to the shop.
+func is_sellable() -> bool:
+	return sell_price > 0

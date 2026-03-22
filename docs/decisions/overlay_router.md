@@ -60,7 +60,7 @@ On open: `get_tree().paused = true` halts all nodes not running
 `OverlayRouter` uses `PROCESS_MODE_ALWAYS` so it receives input regardless of pause
 state. `_unhandled_key_input` handles two global actions:
 
-- `pause` — closes the current overlay from anywhere (cancel behavior).
+- `cancel` — closes the current overlay from anywhere.
 - Opening overlays via key (`inventory` / `buy`) — only checked when no overlay is open.
 
 Overlay-specific inputs (scrolling a list, confirming a purchase) are handled inside

@@ -1,5 +1,10 @@
 # Inventory Overlay
 
+## Rendering model
+
+This overlay follows the project-wide pull-on-success rendering pattern.
+See `docs/decisions/ui_rendering_model.md`.
+
 ## Input model
 
 All input is keyboard-only. The player never uses a mouse or touch to interact with
@@ -45,12 +50,27 @@ Context-sensitive. Enabled only for item types with a gameplay effect:
 | `WEAPON`           | Equips the weapon as the player's active weapon                 |
 | All other types    | Button is disabled — item has no use action                     |
 
-On confirm for consumable types (`MED`, `INVENTORY_UPGRADE`): call
-`PlayerInventory.remove_item_at(snapshot.position)` to consume the item, then apply
-its effect. Returns to **Browse** state.
+On confirm for `MED`: call `PlayerInventory.remove_item_at(snapshot.position)` to
+consume the item, then apply its healing effect. Returns to **Browse** state.
+
+On confirm for `INVENTORY_UPGRADE`: call `PlayerInventory.can_upgrade_grid()` first.
+If `false`, the grid is already at maximum size — show feedback and stay in
+**Action menu** state without consuming the item. If `true`, call
+`PlayerInventory.remove_item_at(snapshot.position)`, then call
+`PlayerInventory.upgrade_grid()`. Returns to **Browse** state.
 
 On confirm for `WEAPON`: equip the weapon without removing it from inventory. Returns
 to **Browse** state.
+
+> **TODO:** The Use button is not yet visually disabled for item types with no use
+> action (the `_:` branch in `_try_use`). The action menu must be made aware of the
+> selected item's type when it is built so it can render the button in a disabled state.
+> See `action_menu_state.gd`.
+>
+> Until the button is visually disabled, pressing Use on an item with no use action
+> intentionally stays in **Action menu** state and plays the disabled-button click
+> sound. No inventory mutation occurs. This is the correct runtime behaviour even
+> before the visual state is implemented.
 
 ### Move
 
@@ -108,9 +128,19 @@ at most one outcome applies — there is never ambiguity.
 Conditions: held item and target item share the same `ItemData.id`, and
 `stack_size > ItemSchema.MIN_STACK`.
 
-Call `PlayerInventory.can_add_to_stack(target_pos, amount)`. If `true`, call
-`PlayerInventory.add_to_stack(target_pos, amount)` and
-`PlayerInventory.remove_item_at(held_pos)`. Returns to **Browse**.
+The actual `PlayerInventory` API is `can_add_to_stack(id, position)` — it only checks
+whether the slot has *any* remaining capacity, not whether a specific count fits. Because
+the UI must merge all-or-nothing (partial merge would remove the held item and lose the
+overflow units), check capacity inline:
+
+```
+(target.data.stack_size - target.stack_count) >= held.stack_count
+```
+
+If the condition holds, call `PlayerInventory.add_to_stack(held.data.id, target.position,
+held.stack_count)` and `PlayerInventory.remove_item_at(held.position)`. Assert the
+returned overflow is `0` with `Utils.require` — it should be unreachable given the
+preceding check. Returns to **Browse**.
 
 #### Weapon upgrade
 
@@ -126,13 +156,14 @@ drop with visual feedback; stay in Move state.
 
 Conditions: held item ID and target item ID match a recipe in `RecipeRegistry`.
 
-Check `RecipeRegistry.has_recipe(held_id, target_id)`. If `true`:
-1. Note the result ID via `RecipeRegistry.get_result(held_id, target_id)`.
-2. Find a valid placement position for the result item.
-3. Call `PlayerInventory.remove_item_at` on both ingredients.
-4. Call `PlayerInventory.place_item` with the result `ItemData`.
+Call `PlayerInventory.can_combine_items(held.position, target.position)`. If `true`,
+call `PlayerInventory.combine_items(held.position, target.position)`. Returns to
+**Browse** state.
 
-Returns to **Browse** state.
+`combine_items` internally looks up the recipe via `RecipeRegistry`, removes both
+ingredients, and places the result item. Placement always succeeds because the result
+item is guaranteed to share the same `inventory_size` as the ingredients by the
+drop-action exclusivity constraint (see `item_architecture.md`).
 
 #### No outcome matches
 
@@ -153,6 +184,10 @@ drop with visual feedback; stay in Move state.
 Player presses cancel — the item stays at its original position. Returns to
 **Browse** state. No inventory calls are needed; `ItemState` was never modified.
 
+Pressing confirm while the footprint is still at the item's origin cell is also
+treated as a cancel. This lets the player "put it back" without reaching for the
+dedicated cancel key. See `_on_drop` in `move_state.gd`.
+
 ## Examine state
 
 A floating modal shows the item's full detail:
@@ -172,10 +207,12 @@ menu is not shown in this state.
 
 | UI action                  | Check                                              | Mutation                                    |
 | -------------------------- | -------------------------------------------------- | ------------------------------------------- |
-| Use item                   | Item type is `MED` or `INVENTORY_UPGRADE`          | `remove_item_at(pos)`                       |
+| Use item (MED)             | Item type is `MED`                                 | `remove_item_at(pos)`                       |
+| Use item (INVENTORY_UPGRADE)| `can_upgrade_grid()`                              | `remove_item_at(pos)` + `upgrade_grid()`    |
+| Use item (WEAPON)          | Item type is `WEAPON`                              | _(equip — no inventory mutation yet)_       |
 | Discard item               | —                                                  | `remove_item_at(pos)`                       |
 | Move to empty space        | `can_move_item(from, to)`                          | `move_item(from, to)`                       |
-| Stack merge                | `can_add_to_stack(target_pos, amount)`             | `add_to_stack` + `remove_item_at`           |
+| Stack merge                | inline capacity check (see Stack merge section)    | `add_to_stack` + `remove_item_at`           |
 | Weapon upgrade             | `can_upgrade_weapon(weapon_pos, upgrade_pos)`      | `upgrade_weapon(weapon_pos, upgrade_pos)`   |
-| Recipe combine             | `RecipeRegistry.has_recipe(id_a, id_b)`            | `remove_item_at` × 2 + `place_item`         |
+| Recipe combine             | `can_combine_items(held_pos, target_pos)`           | `combine_items(held_pos, target_pos)`        |
 | Read a cell                | —                                                  | `get_slot_at(cell)` → snapshot              |

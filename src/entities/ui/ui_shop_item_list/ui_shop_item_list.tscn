@@ -4,9 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://tp5vjtbnbywt" path="res://src/entities/ui/ui_shop_item/ui_shop_item.tscn" id="2_oax86"]
 [ext_resource type="Texture2D" uid="uid://biqsew4payo87" path="res://assets/images/static/ui/ui_container.png" id="3_oax86"]
 [ext_resource type="Texture2D" uid="uid://ckjebqy4xnnyk" path="res://assets/images/static/ui/ui_cursor.png" id="4_2qt6m"]
-
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_wi24h"]
-blend_mode = 1
+[ext_resource type="Material" uid="uid://drdq0bewfgtn5" path="res://assets/materials/cursor_material.tres" id="4_wi24h"]
 
 [node name="UIShopItemList" type="Node2D" unique_id=819571343]
 script = ExtResource("1_2bcmr")
@@ -50,7 +48,7 @@ patch_margin_right = 4
 patch_margin_bottom = 4
 
 [node name="Cursor" type="Sprite2D" parent="." unique_id=1031753660]
-material = SubResource("CanvasItemMaterial_wi24h")
+material = ExtResource("4_wi24h")
 scale = Vector2(178, 17)
 texture = ExtResource("4_2qt6m")
 centered = false

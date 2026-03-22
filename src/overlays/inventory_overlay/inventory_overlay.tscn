@@ -3,9 +3,18 @@
 [ext_resource type="Texture2D" uid="uid://cmu5dsgxhksh3" path="res://assets/images/static/ui/ui_inventory_slot.png" id="1_7dn1k"]
 [ext_resource type="Texture2D" uid="uid://biqsew4payo87" path="res://assets/images/static/ui/ui_container.png" id="1_8ccl4"]
 [ext_resource type="Script" uid="uid://cy463i2cgxyhl" path="res://src/overlays/inventory_overlay/inventory_overlay.gd" id="1_qa4x4"]
+[ext_resource type="Script" uid="uid://du8cnytfv07x6" path="res://src/overlays/inventory_overlay/states/inventory_state_machine.gd" id="2_ism"]
+[ext_resource type="Script" uid="uid://b77usggbxxq2o" path="res://src/overlays/inventory_overlay/states/browse_state.gd" id="3_brs"]
+[ext_resource type="Script" uid="uid://6xcalrpi4utj" path="res://src/overlays/inventory_overlay/states/action_menu_state.gd" id="4_ams"]
+[ext_resource type="Script" uid="uid://vrivqywk3gro" path="res://src/overlays/inventory_overlay/states/move_state.gd" id="5_mvs"]
+[ext_resource type="Script" uid="uid://bt0ec1bbk724q" path="res://src/overlays/inventory_overlay/states/examine_state.gd" id="6_exs"]
+[ext_resource type="Texture2D" uid="uid://iisip7weacxo" path="res://assets/images/static/ui/ui_item.png" id="9_2fpbm"]
+[ext_resource type="Material" uid="uid://drdq0bewfgtn5" path="res://assets/materials/cursor_material.tres" id="10_tqd4m"]
+[ext_resource type="Texture2D" uid="uid://ckjebqy4xnnyk" path="res://assets/images/static/ui/ui_cursor.png" id="11_omuam"]
 
 [node name="InventoryOverlay" type="Node2D" unique_id=1145918844]
 script = ExtResource("1_qa4x4")
+metadata/_edit_vertical_guides_ = [48.0, 55.0]
 
 [node name="Grid" type="PanelContainer" parent="." unique_id=1917426765]
 offset_left = 16.0
@@ -32,3 +41,116 @@ patch_margin_bottom = 4
 layout_mode = 2
 texture = ExtResource("1_7dn1k")
 stretch_mode = 1
+
+[node name="InventoryStateMachine" type="Node" parent="." unique_id=100000001 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_ism")
+initial_state = NodePath("BrowseState")
+
+[node name="BrowseState" type="Node" parent="InventoryStateMachine" unique_id=100000002]
+script = ExtResource("3_brs")
+
+[node name="ActionMenuState" type="Node" parent="InventoryStateMachine" unique_id=100000003]
+script = ExtResource("4_ams")
+
+[node name="MoveState" type="Node" parent="InventoryStateMachine" unique_id=100000004]
+script = ExtResource("5_mvs")
+
+[node name="ExamineState" type="Node" parent="InventoryStateMachine" unique_id=100000005]
+script = ExtResource("6_exs")
+
+[node name="ActionMenuContainer" type="NinePatchRect" parent="." unique_id=1075196825]
+offset_left = -2.0
+offset_top = -3.0
+offset_right = 58.0
+offset_bottom = 74.0
+texture = ExtResource("1_8ccl4")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Use" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1956668595]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 3.0
+offset_right = 57.0
+offset_bottom = 21.0
+texture = ExtResource("9_2fpbm")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Label" type="Label" parent="ActionMenuContainer/Use" unique_id=25115558]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 14.0
+text = "Use"
+
+[node name="Move" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1911725476]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 21.0
+offset_right = 57.0
+offset_bottom = 39.0
+texture = ExtResource("9_2fpbm")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Label" type="Label" parent="ActionMenuContainer/Move" unique_id=127587368]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 14.0
+text = "Move"
+
+[node name="Examine" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1893461908]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 39.0
+offset_right = 57.0
+offset_bottom = 57.0
+texture = ExtResource("9_2fpbm")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Label" type="Label" parent="ActionMenuContainer/Examine" unique_id=877541541]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 14.0
+text = "Examine"
+
+[node name="Discard" type="NinePatchRect" parent="ActionMenuContainer" unique_id=189589199]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 57.0
+offset_right = 57.0
+offset_bottom = 75.0
+texture = ExtResource("9_2fpbm")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="Label" type="Label" parent="ActionMenuContainer/Discard" unique_id=1244260490]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 1.0
+offset_right = 47.0
+offset_bottom = 14.0
+text = "Discard"
+
+[node name="ActionMenuCursor" type="Sprite2D" parent="ActionMenuContainer" unique_id=230663695]
+material = ExtResource("10_tqd4m")
+position = Vector2(2.0000005, 3.0000007)
+scale = Vector2(55, 18)
+texture = ExtResource("11_omuam")

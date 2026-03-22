@@ -43,11 +43,11 @@ func _ready() -> void:
 
 ## Input is handled here for actions that control overlay routing.
 ##
-## [code]pause[/code] closes the current overlay from anywhere.
+## [code]cancel[/code] closes the current overlay from anywhere.
 ##
 ## Open other overlays only when none is currently open.
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause") and _current_overlay:
+	if event.is_action_pressed("cancel") and _current_overlay:
 		_current_overlay.is_active = false
 		_current_overlay = null
 		get_tree().paused = false

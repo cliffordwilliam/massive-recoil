@@ -191,18 +191,13 @@ func place_or_stack(id: StringName, count: int) -> int:
 	return remaining
 
 
-## Returns [code]true[/code] if a slot occupies [param position].
-##
-## Call this before [method remove_item_at] — mirrors the [method can_place] /
-## [method place_item] pattern.
-func can_remove_item_at(position: Vector2i) -> bool:
+func _can_remove_item_at(position: Vector2i) -> bool:
 	return _get_slot_at(position) != null
 
 
 ## Removes the slot whose footprint contains [param position].
 ##
-## Call [method can_remove_item_at] first — passing a position with no slot is a
-## programmer error and crashes via [method OS.crash].
+## Passing a position with no slot is a programmer error and crashes via [method OS.crash].
 func remove_item_at(position: Vector2i) -> void:
 	var slot: ItemState = _get_slot_at(position)
 	Utils.require(slot != null, "PlayerInventory.remove_item_at: no slot at %s" % position)
@@ -283,6 +278,16 @@ func get_slots() -> Array[ItemState]:
 	for slot: ItemState in _slots:
 		out.append(slot.create_snapshot())
 	return out
+
+
+## Returns a snapshot of the slot whose footprint contains [param cell], or [code]null[/code].
+##
+## Use this to resolve a grid cell to an item without holding a long-lived reference.
+func get_slot_at(cell: Vector2i) -> ItemState:
+	var slot: ItemState = _get_slot_at(cell)
+	if slot == null:
+		return null
+	return slot.create_snapshot()
 
 
 ## Returns [code]true[/code] if the grid can still be upgraded.
