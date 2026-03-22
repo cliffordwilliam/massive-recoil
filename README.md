@@ -25,13 +25,14 @@ Inside `src/` the codebase is organized into three main layers.
 
 ```
 src/
-  autoload/    → global singletons registered in Project Settings
-  editor/      → editor utility scripts (run once, never shipped)
-  entities/    → scene objects (Node) and gameplay UI
-  overlays/    → UI overlays shown above the current scene (shop, save, main menu, etc.)
-  resources/   → static data definitions and validation (item data classes and definitions)
-  state/       → runtime gameplay state (RefCounted objects)
-  utils.gd     → shared helper functions
+  autoload/      → global singletons registered in Project Settings
+  custom_nodes/  → reusable Node subclasses (state machine infrastructure, etc.)
+  editor/        → editor utility scripts (run once, never shipped)
+  entities/      → scene objects (Node) and gameplay UI
+  overlays/      → UI overlays shown above the current scene (shop, save, main menu, etc.)
+  resources/     → static data definitions and validation (item data classes and definitions)
+  state/         → runtime gameplay state (RefCounted objects)
+  utils.gd       → shared helper functions
 ```
 
 ## Formatter / Linter Setup

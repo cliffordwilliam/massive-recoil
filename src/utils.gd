@@ -2,6 +2,8 @@ class_name Utils
 extends RefCounted
 ## This class serves as a centralized collection of reusable utility functions
 ## that can be called statically without creating an instance.
+## This is not an autoload — it has no singleton instance and is never
+## registered in Project Settings.
 
 
 ## Crashes via [method OS.crash] if [param valid_condition] is false.

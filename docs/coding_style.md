@@ -33,13 +33,14 @@ the same base name.
 
 ```
 src/
-  autoload/    → global singletons registered in Project Settings
-  editor/      → editor utility scripts (run once, never shipped)
-  entities/    → scene objects (Node) and gameplay UI
-  overlays/    → UI overlays shown above the current scene
-  resources/   → static data definitions and validation
-  state/       → runtime gameplay state (RefCounted objects)
-  utils.gd     → shared helper functions
+  autoload/      → global singletons registered in Project Settings
+  custom_nodes/  → reusable Node subclasses (state machine infrastructure, etc.)
+  editor/        → editor utility scripts (run once, never shipped)
+  entities/      → scene objects (Node) and gameplay UI
+  overlays/      → UI overlays shown above the current scene
+  resources/     → static data definitions and validation
+  state/         → runtime gameplay state (RefCounted objects)
+  utils.gd       → shared helper functions
 ```
 
 **Layer rules:**
@@ -47,6 +48,7 @@ src/
 - `resources/` classes define structure and validate it — they do not drive gameplay or hold runtime state.
 - `entities/` and `overlays/` read from autoloads but do not store long-lived references to internal autoload state. Use snapshots when passing data to UI. See `docs/decisions/item_architecture.md`.
 - `autoload/` singletons are the only objects allowed to own mutable shared state across the session.
+- `custom_nodes/` classes are pure node infrastructure — no autoload calls, no game-specific logic.
 
 ## Naming
 
