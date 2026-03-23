@@ -126,7 +126,6 @@ func create_snapshot() -> ItemState:
 	)
 
 	var copy: ItemState = ItemState.new(data)
-
 	copy.position = position
 	copy.stack_count = stack_count
 	if weapon_stats_state != null:
