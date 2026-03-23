@@ -6,6 +6,14 @@ Items exist only as instances in the player's inventory. An item does not exist 
 the game world in any other form — drops, shop listings, and all other systems are
 simply operations that add, remove, or mutate inventory instances.
 
+## What "slot" means in this codebase
+
+A **slot** is one placed item instance in the inventory grid. It is not a single grid
+cell — an item can span multiple cells depending on its `inventory_size`. The word slot
+refers to the item as a whole: its position, its stack count, and (for weapons) its stat
+state. This is the meaning used throughout the code (`_slots`, `get_slots()`,
+`get_slot_at()`, `_append_slot()`) and all documentation.
+
 ## Static vs dynamic data
 
 Each item is represented by two separate objects:
