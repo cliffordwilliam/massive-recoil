@@ -216,12 +216,6 @@ it consumes; the ammo item carries no reference back to its compatible weapons. 
 is resolved at the point of use (e.g. a weapon fires, looks up its own `ammo_type`, and
 finds the matching `AMMO` item in inventory by convention).
 
-A `WEAPON` with `ammo_type == NONE` is valid and represents an infinite-ammo weapon.
-For infinite-ammo weapons, `ammo_capacity_min`, `ammo_capacity_max`, and
-`ammo_capacity_upgrade_step` must all be `0` — `ItemValidator` enforces this. Exposing
-an upgradeable ammo capacity on a weapon with no magazine is meaningless and would
-create a stat that silently does nothing.
-
 ## Static data pipeline
 
 ```

@@ -5,7 +5,10 @@ extends RefCounted
 ## All ids must exist in [ItemDefinitions].
 ## All id values must be plain String literals — not StringName literals ([code]&"id"[/code]).
 ## [RecipeRegistry] validates ids with [code]is String[/code]; a StringName will fail that check.
+##
+## See: "res://docs/decisions/item_architecture.md"
 
+## The full recipe catalog. Loaded and validated at startup by [RecipeRegistry].
 const RECIPES: Array[Dictionary] = [
 	{
 		"ingredients": ["sterile_band", "antiseptic"],

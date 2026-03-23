@@ -9,11 +9,13 @@ extends RefCounted
 ## Crashes via [method OS.crash] if [param valid_condition] is false.
 ##
 ## Use this to catch impossible or invalid states during runtime, programmer
-## errors and broken-build conditions that should never occur in correct code.
+## errors, and broken-build conditions that should never occur in correct code.
+##
+## In development builds, this also triggers [code]assert()[/code] so the error
+## message appears in the debugger. Note that [code]assert()[/code] is ignored
+## in release builds, so [method OS.crash] is still required to enforce failure.
 static func require(valid_condition: bool, message: String) -> void:
 	if not valid_condition:
-		# Assert works in dev env only.
-		# It is here so that there are messages for me to see in errors tab.
 		assert(false, message)
 		OS.crash(message)
 

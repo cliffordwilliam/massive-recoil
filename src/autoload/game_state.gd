@@ -58,7 +58,7 @@ var _seen_shop_item_ids: Dictionary[StringName, bool] = {}
 ## Crashes if [param id] is unknown or not a buyable item ([code]buy_price == 0[/code]).
 func is_shop_item_new(id: StringName) -> bool:
 	var item: ItemData = ItemRegistry.get_item_or_crash(id)
-	Utils.require(item.buy_price > 0, "GameState.is_shop_item_new: item '%s' is not buyable" % id)
+	Utils.require(item.is_buyable(), "GameState.is_shop_item_new: item '%s' is not buyable" % id)
 	return not _seen_shop_item_ids.has(id)
 
 
@@ -66,9 +66,7 @@ func is_shop_item_new(id: StringName) -> bool:
 ## Crashes if [param id] is unknown or not a buyable item ([code]buy_price == 0[/code]).
 func mark_shop_item_seen(id: StringName) -> void:
 	var item: ItemData = ItemRegistry.get_item_or_crash(id)
-	Utils.require(
-		item.buy_price > 0, "GameState.mark_shop_item_seen: item '%s' is not buyable" % id
-	)
+	Utils.require(item.is_buyable(), "GameState.mark_shop_item_seen: item '%s' is not buyable" % id)
 	_seen_shop_item_ids[id] = true
 
 
@@ -187,7 +185,7 @@ func _parse_seen_ids(save_data: Dictionary) -> void:
 		# skipping stale IDs would mask corruption. If an item is removed, update or wipe the save.
 		var seen_item: ItemData = ItemRegistry.get_item_or_crash(seen_id)
 		Utils.require(
-			seen_item.buy_price > 0,
+			seen_item.is_buyable(),
 			"GameState.load_save: item '%s' in seen_shop_item_ids is not buyable" % seen_id
 		)
 

@@ -6,8 +6,8 @@ extends Resource
 ## on all non-weapon items. [ItemValidator] enforces this coupling.
 ##
 ## Immutable after [member _initialized] is set to [code]true[/code].
-## [method ItemDefinitions._make_weapon_data] constructs instances;
-## [ItemValidator] enforces field constraints.
+## Constructed in [method _init]; [ItemValidator] enforces field constraints
+## when the parent [ItemData] is validated.
 ##
 ## All stat values are integers in [[constant ItemSchema.WEAPON_STAT_MIN],
 ## [constant ItemSchema.WEAPON_STAT_MAX]]. Each weapon starts at its [code]_min[/code]
@@ -18,16 +18,14 @@ extends Resource
 
 ## Ammo type this weapon consumes.
 enum AmmoType {
-	## No ammo consumed — infinite-ammo weapon.
-	NONE,
 	## Handgun ammunition.
 	HANDGUN_AMMO,
 	## Submachine gun ammunition.
 	SMG_AMMO,
 }
 
-## Ammo type this weapon consumes. [constant AmmoType.NONE] means infinite-ammo.
-var ammo_type: AmmoType = AmmoType.NONE:
+## Ammo type this weapon consumes.
+var ammo_type: AmmoType = AmmoType.HANDGUN_AMMO:
 	set(value):
 		Utils.require(not _initialized, "WeaponData.ammo_type: immutable after initialization")
 		ammo_type = value
@@ -136,7 +134,7 @@ var ammo_capacity_upgrade_step: int = 0:
 		)
 		ammo_capacity_upgrade_step = value
 
-## Write-once. Set by [method ItemDefinitions._make_weapon_data] after all fields are assigned.
+## Write-once. Set by [method _init] after all fields are assigned.
 ## Guards all fields against reassignment once set.
 ##
 ## [b]Convention:[/b] every field added to this class must include a setter that
@@ -151,3 +149,38 @@ var _initialized: bool = false:
 			)
 		)
 		_initialized = value
+
+
+## Constructs and freezes this [WeaponData] instance.
+## [ItemValidator] validates all fields when the parent [ItemData] is validated.
+## See: "res://docs/decisions/item_architecture.md"
+# gdlint:ignore = function-arguments-number
+func _init(
+	given_ammo_type: AmmoType,
+	given_power_min: int,
+	given_power_max: int,
+	given_power_upgrade_step: int,
+	given_rate_of_fire_min: int,
+	given_rate_of_fire_max: int,
+	given_rate_of_fire_upgrade_step: int,
+	given_reload_speed_min: int,
+	given_reload_speed_max: int,
+	given_reload_speed_upgrade_step: int,
+	given_ammo_capacity_min: int,
+	given_ammo_capacity_max: int,
+	given_ammo_capacity_upgrade_step: int,
+) -> void:
+	self.ammo_type = given_ammo_type
+	self.power_min = given_power_min
+	self.power_max = given_power_max
+	self.power_upgrade_step = given_power_upgrade_step
+	self.rate_of_fire_min = given_rate_of_fire_min
+	self.rate_of_fire_max = given_rate_of_fire_max
+	self.rate_of_fire_upgrade_step = given_rate_of_fire_upgrade_step
+	self.reload_speed_min = given_reload_speed_min
+	self.reload_speed_max = given_reload_speed_max
+	self.reload_speed_upgrade_step = given_reload_speed_upgrade_step
+	self.ammo_capacity_min = given_ammo_capacity_min
+	self.ammo_capacity_max = given_ammo_capacity_max
+	self.ammo_capacity_upgrade_step = given_ammo_capacity_upgrade_step
+	_initialized = true

@@ -69,7 +69,7 @@ func place_item(id: StringName, position: Vector2i, count: int = 1) -> bool:
 	# Intentional reach into GameState — PlayerInventory is the single chokepoint where items
 	# enter the player's possession. See: "res://docs/decisions/item_architecture.md"
 	# Only buyable items are tracked in the seen-set — the NEW badge is a shop-only concept.
-	if ItemRegistry.get_item_or_crash(id).buy_price > 0:
+	if ItemRegistry.get_item_or_crash(id).is_buyable():
 		GameState.mark_shop_item_seen(id)
 	return true
 
@@ -777,8 +777,6 @@ func _parse_weapon_stats_entry(entry: Dictionary, data: ItemData) -> WeaponStats
 		)
 	)
 	var ammo_capacity: int = raw_ammo as int
-	# For infinite-ammo weapons all three ammo capacity fields are 0 (ItemValidator-enforced),
-	# so the saved value is also 0 and this range check always passes for those weapons.
 	(
 		Utils
 		. require(

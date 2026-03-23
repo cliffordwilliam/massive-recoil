@@ -58,7 +58,7 @@ src/
 | Variables and functions | `snake_case` | `stack_count`, `find_open_position` |
 | Constants | `SCREAMING_SNAKE_CASE` | `MAX_NAME_LENGTH`, `_PAGE_SIZE` |
 | Private members | `_snake_case` (leading underscore) | `_slots`, `_parse_slot_entry` |
-| Enums | `PascalCase` name, `SCREAMING_SNAKE_CASE` values | `Type.WEAPON`, `AmmoType.NONE` |
+| Enums | `PascalCase` name, `SCREAMING_SNAKE_CASE` values | `Type.WEAPON`, `AmmoType.HANDGUN_AMMO` |
 | Signals | `snake_case`, past or present tense verb phrase | `inventory_changed`, `selection_changed` |
 | `StringName` literals | `&"..."` syntax | `&"handgun"`, `&""` |
 
@@ -107,11 +107,11 @@ func my_function() -> void:
 - Every `class_name` (placed immediately after `extends`)
 - Every public variable and constant
 - Every public function
+- Every private function (`_` prefix)
 - Every signal
 - Every enum and its values when the meaning is not obvious from the name
 
 **What does not need a `##` doc comment:**
-- Private functions (`_` prefix) whose names fully describe their purpose
 - `@onready` vars that are simple node references obvious from their name and type
 
 **Cross-references:** When a design decision explains why something works a certain way,

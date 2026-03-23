@@ -1,9 +1,11 @@
 class_name ItemValidator
 extends RefCounted
-## Validates [ItemData] field constraints. Called by [ItemDefinitions] during construction.
+## Validates [ItemData] field constraints. Called by [method ItemData._init] during construction.
 ##
 ## [method validate] runs all checks in order, crashing on the first violation.
 ## Private methods are the individual checks.
+##
+## See: "res://docs/decisions/item_architecture.md"
 
 static var _id_regex: RegEx = RegEx.create_from_string(ItemSchema.ID_PATTERN)
 
@@ -25,6 +27,7 @@ static func validate(data: ItemData) -> void:
 	_validate_upgrade_stat(data)
 
 
+## Checks that [member ItemData.type] is a recognized [enum ItemData.Type] value.
 static func _validate_type(data: ItemData) -> void:
 	Utils.require(
 		data.type in ItemData.Type.values(),
@@ -32,10 +35,14 @@ static func _validate_type(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.id] is within length bounds and matches the snake_case pattern.
+## See: "res://docs/decisions/item_architecture.md" (id naming convention)
 static func _validate_id(data: ItemData) -> void:
 	# id is StringName — convert to String for length checks and regex matching.
 	var id_str: String = String(data.id)
-	Utils.require(id_str.length() >= ItemSchema.MIN_ID_LENGTH, "ItemData: id must not be empty")
+	Utils.require(
+		id_str.length() >= ItemSchema.MIN_ID_LENGTH, "ItemData._validate_id: id must not be empty"
+	)
 	Utils.require(
 		id_str.length() <= ItemSchema.MAX_ID_LENGTH,
 		(
@@ -45,6 +52,7 @@ static func _validate_id(data: ItemData) -> void:
 	)
 	# Anchors ^...$ in ID_PATTERN make search() behave as a full-string match.
 	# GDScript's RegEx API has no match() method — this is the correct approach.
+	# See: "res://docs/godot/how_regex_search_works.md"
 	Utils.require(
 		_id_regex.search(id_str) != null,
 		(
@@ -57,6 +65,8 @@ static func _validate_id(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.ui_name] is within [constant ItemSchema.MIN_NAME_LENGTH] and
+## [constant ItemSchema.MAX_NAME_LENGTH].
 static func _validate_ui_name(data: ItemData) -> void:
 	Utils.require(
 		data.ui_name.length() >= ItemSchema.MIN_NAME_LENGTH,
@@ -71,6 +81,8 @@ static func _validate_ui_name(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.description] is within [constant ItemSchema.MIN_DESCRIPTION_LENGTH]
+## and [constant ItemSchema.MAX_DESCRIPTION_LENGTH].
 static func _validate_description(data: ItemData) -> void:
 	Utils.require(
 		data.description.length() >= ItemSchema.MIN_DESCRIPTION_LENGTH,
@@ -85,6 +97,8 @@ static func _validate_description(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.buy_price] is within [constant ItemSchema.MIN_PRICE] and
+## [constant ItemSchema.MAX_PRICE].
 static func _validate_buy_price(data: ItemData) -> void:
 	Utils.require(
 		data.buy_price >= ItemSchema.MIN_PRICE and data.buy_price <= ItemSchema.MAX_PRICE,
@@ -95,6 +109,8 @@ static func _validate_buy_price(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.sell_price] is within [constant ItemSchema.MIN_PRICE] and
+## [constant ItemSchema.MAX_PRICE].
 static func _validate_sell_price(data: ItemData) -> void:
 	Utils.require(
 		data.sell_price >= ItemSchema.MIN_PRICE and data.sell_price <= ItemSchema.MAX_PRICE,
@@ -105,6 +121,9 @@ static func _validate_sell_price(data: ItemData) -> void:
 	)
 
 
+## For buyable items ([member ItemData.buy_price] != 0), checks that sell_price is strictly less
+## than buy_price.
+## No constraint is applied when buy_price is 0.
 static func _validate_price_relationship(data: ItemData) -> void:
 	# No constraint on sell_price when item is not buyable.
 	if data.buy_price == 0:
@@ -118,6 +137,8 @@ static func _validate_price_relationship(data: ItemData) -> void:
 	)
 
 
+## Checks that [member ItemData.stack_size] is within [constant ItemSchema.MIN_STACK] and
+## [constant ItemSchema.MAX_STACK].
 static func _validate_stack_size(data: ItemData) -> void:
 	Utils.require(
 		data.stack_size >= ItemSchema.MIN_STACK and data.stack_size <= ItemSchema.MAX_STACK,
@@ -128,6 +149,12 @@ static func _validate_stack_size(data: ItemData) -> void:
 	)
 
 
+## Checks the bidirectional contract between [member ItemData.buy_price] and
+## [member ItemData.availability].
+## Non-buyable items (buy_price == 0) must use [constant ItemSchema.AVAILABILITY_NOT_FOR_SALE].
+## Buyable items (buy_price != 0) must have availability in [[constant ItemSchema.MIN_CHAPTER],
+## [constant ItemSchema.MAX_CHAPTER]].
+## See: "res://docs/decisions/item_architecture.md" (Buyable and sellable items)
 static func _validate_availability(data: ItemData) -> void:
 	if data.buy_price == 0:
 		Utils.require(
@@ -151,6 +178,8 @@ static func _validate_availability(data: ItemData) -> void:
 	)
 
 
+## Checks that each axis of [member ItemData.inventory_size] is within
+## [constant ItemSchema.MIN_SIZE_DIM] and [constant ItemSchema.MAX_SIZE_DIM].
 static func _validate_inventory_size(data: ItemData) -> void:
 	Utils.require(
 		(
@@ -174,6 +203,10 @@ static func _validate_inventory_size(data: ItemData) -> void:
 	)
 
 
+## Checks the bidirectional [member ItemData.weapon_data] contract: null for non-WEAPON types,
+## non-null for WEAPON.
+## For WEAPON items, validates ammo_type and delegates each stat to [method _validate_weapon_stat].
+## See: "res://docs/decisions/item_architecture.md" (ammo_type field ownership)
 static func _validate_weapon_data(data: ItemData) -> void:
 	if data.type != ItemData.Type.WEAPON:
 		Utils.require(
@@ -196,23 +229,6 @@ static func _validate_weapon_data(data: ItemData) -> void:
 			% [data.id, wd.ammo_type]
 		)
 	)
-
-	# Infinite-ammo weapons have no magazine — ammo_capacity is meaningless and must be zeroed.
-	if wd.ammo_type == WeaponData.AmmoType.NONE:
-		Utils.require(
-			(
-				wd.ammo_capacity_min == 0
-				and wd.ammo_capacity_max == 0
-				and wd.ammo_capacity_upgrade_step == 0
-			),
-			(
-				(
-					"ItemData '%s': ammo_capacity stats must all be 0 for infinite-ammo weapons"
-					+ " (ammo_type == NONE)"
-				)
-				% data.id
-			)
-		)
 
 	_validate_weapon_stat(data, "power", wd.power_min, wd.power_max, wd.power_upgrade_step)
 	_validate_weapon_stat(
@@ -238,6 +254,9 @@ static func _validate_weapon_data(data: ItemData) -> void:
 	)
 
 
+## Checks a single weapon stat triple (min, max, step) against [constant ItemSchema.WEAPON_STAT_MIN]
+## and [constant ItemSchema.WEAPON_STAT_MAX].
+## Requires min <= max and step >= 0.
 static func _validate_weapon_stat(
 	data: ItemData, stat_name: String, min_val: int, max_val: int, step: int
 ) -> void:
@@ -268,6 +287,10 @@ static func _validate_weapon_stat(
 	)
 
 
+## Checks the bidirectional [member ItemData.upgrade_stat] contract: NONE for non-WEAPON_UPGRADE
+## types, non-NONE for WEAPON_UPGRADE.
+## Also enforces drop-action exclusivity: WEAPON_UPGRADE items must not be stackable.
+## See: "res://docs/decisions/item_architecture.md" (Drop-action exclusivity)
 static func _validate_upgrade_stat(data: ItemData) -> void:
 	if data.type != ItemData.Type.WEAPON_UPGRADE:
 		Utils.require(
@@ -277,15 +300,15 @@ static func _validate_upgrade_stat(data: ItemData) -> void:
 		return
 
 	Utils.require(
-		data.upgrade_stat != ItemData.UpgradeStat.NONE,
-		"ItemData '%s': upgrade_stat must not be NONE for weapon upgrade type" % data.id
-	)
-	Utils.require(
 		data.upgrade_stat in ItemData.UpgradeStat.values(),
 		(
 			"ItemData '%s': upgrade_stat %d is not a valid UpgradeStat enum value"
 			% [data.id, data.upgrade_stat]
 		)
+	)
+	Utils.require(
+		data.upgrade_stat != ItemData.UpgradeStat.NONE,
+		"ItemData '%s': upgrade_stat must not be NONE for weapon upgrade type" % data.id
 	)
 	# Drop-action exclusivity: a WEAPON_UPGRADE cannot also be stackable. If it were,
 	# dropping it on a matching item would have two valid outcomes — upgrade and stack merge —
