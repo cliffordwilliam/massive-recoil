@@ -14,7 +14,7 @@ const MIN_PRICE: int = 0
 const MAX_PRICE: int = 999999
 
 const MIN_STACK: int = 1
-const MAX_STACK: int = 999
+const MAX_STACK: int = 99
 
 ## Per-axis bounds for [member ItemData.inventory_size] (width and height).
 const MIN_SIZE_DIM: int = 1
