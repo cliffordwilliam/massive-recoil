@@ -100,8 +100,12 @@ Combining an item with itself (both ingredients are the same ID) is explicitly
 supported — for example, two key fragments combining into a complete key. There is no
 constraint requiring the two ingredients to be distinct items.
 
-`RecipeRegistry` detects duplicate recipes (same ingredient pair appearing more than
-once) at startup and crashes if found.
+`RecipeRegistry` enforces two uniqueness constraints at startup and crashes if either
+is violated:
+
+- **Result IDs must be unique** — no two recipes may produce the same item.
+- **Ingredient pairs must be unique** — the same pair of ingredients may not appear in
+  more than one recipe.
 
 All three items in a recipe — both ingredients and the result — must have identical
 `inventory_size`. `RecipeRegistry` enforces this at startup and crashes immediately on

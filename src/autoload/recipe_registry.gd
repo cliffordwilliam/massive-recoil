@@ -18,18 +18,24 @@ func _ready() -> void:
 		ItemRegistry.is_node_ready(), "RecipeRegistry: needs ItemRegistry autoload to be ready."
 	)
 
-	for recipe: Dictionary in RecipeDefinitions.RECIPES:
-		var ids: Array[StringName] = _validate_recipe(recipe)
+	var seen_result_ids: Array[StringName] = []
+	for result: String in RecipeDefinitions.RECIPES:
+		var ids: Array[StringName] = _validate_recipe(result, RecipeDefinitions.RECIPES[result])
 		var id_a: StringName = ids[0]
 		var id_b: StringName = ids[1]
 		var result_id: StringName = ids[2]
 		var key: String = _make_key(id_a, id_b)
 
 		Utils.require(
+			not seen_result_ids.has(result_id),
+			"RecipeDefinitions: duplicate result id '%s'" % result_id
+		)
+		Utils.require(
 			not _recipes.has(key),
 			"RecipeDefinitions: duplicate recipe for ingredients '%s' and '%s'" % [id_a, id_b]
 		)
 
+		seen_result_ids.append(result_id)
 		_recipes[key] = result_id
 
 
@@ -93,12 +99,11 @@ func _validate_ingredient(data: ItemData) -> void:
 	)
 
 
-## Validates the structure and item IDs of a single recipe [Dictionary].
+## Validates the structure and item IDs of a single recipe entry.
 ## Returns [code][id_a, id_b, result_id][/code] as [StringName] values for the caller to use.
 ## Crashes via [method Utils.require] on the first violation.
 # Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
-func _validate_recipe(recipe: Dictionary) -> Array[StringName]:
-	var ingredients: Variant = recipe.get("ingredients", null)
+func _validate_recipe(result: String, ingredients: Variant) -> Array[StringName]:
 	Utils.require(
 		ingredients is Array and (ingredients as Array).size() == 2,
 		"RecipeDefinitions: each recipe must have exactly 2 ingredients"
@@ -122,18 +127,9 @@ func _validate_recipe(recipe: Dictionary) -> Array[StringName]:
 		)
 	)
 
-	var result_raw: Variant = recipe.get("result", null)
-	Utils.require(
-		result_raw is String and not (result_raw as String).is_empty(),
-		(
-			"RecipeDefinitions: result must be a non-empty String (got %s)"
-			% type_string(typeof(result_raw))
-		)
-	)
-
 	var id_a: StringName = StringName(arr[0] as String)
 	var id_b: StringName = StringName(arr[1] as String)
-	var result_id: StringName = StringName(result_raw as String)
+	var result_id: StringName = StringName(result)
 
 	var data_a: ItemData = ItemRegistry.get_item_or_crash(id_a)
 	var data_b: ItemData = ItemRegistry.get_item_or_crash(id_b)
@@ -165,5 +161,5 @@ func _validate_recipe(recipe: Dictionary) -> Array[StringName]:
 		)
 	)
 
-	var result: Array[StringName] = [id_a, id_b, result_id]
-	return result
+	var out: Array[StringName] = [id_a, id_b, result_id]
+	return out
