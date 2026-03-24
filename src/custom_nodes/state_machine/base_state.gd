@@ -9,7 +9,7 @@ extends Node
 
 ## The parent [StateMachine] that owns this state.
 ## Cast to the concrete subclass in [method Node._ready] to access typed sibling references.
-# Children are readied before parents, but get_parent() is valid at _ready time.
+## Children are readied before parents, but get_parent() is valid at _ready time.
 @onready var state_machine: StateMachine = get_parent() as StateMachine
 
 

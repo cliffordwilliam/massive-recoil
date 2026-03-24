@@ -118,11 +118,11 @@ position without a scan.
 When one item is dropped onto another in the inventory, exactly one of three outcomes
 can occur:
 
-| Outcome        | Condition                                                           |
-| -------------- | ------------------------------------------------------------------- |
+| Outcome        | Condition                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------- |
 | Stack merge    | Both items share the same `ItemData` and the item is stackable (`stack_size > MIN_STACK`) |
-| Weapon upgrade | Dropped item is type `WEAPON_UPGRADE` and target is type `WEAPON`   |
-| Recipe combine | The two item IDs match a recipe in `RecipeRegistry`                 |
+| Weapon upgrade | Dropped item is type `WEAPON_UPGRADE` and target is type `WEAPON`                         |
+| Recipe combine | The two item IDs match a recipe in `RecipeRegistry`                                       |
 
 These outcomes must be **mutually exclusive**. An item that qualifies for more than one
 creates unresolvable ambiguity in the UI — there is no priority rule, so the conflict is
@@ -155,24 +155,47 @@ This also applies to save file loading: if saved data references an item ID that
 longer exists, the game crashes rather than silently skipping it. If items are removed
 from the game after save files exist, the save data must be migrated or wiped.
 
-## Why ItemState has no validation
+## Atomic construction via \_init
 
-`ItemState` is a plain data holder — it performs no validation on its properties.
+Both `ItemState` and `WeaponStatsState` define `_init` with all required fields as
+parameters. All properties are populated as part of the `new()` call — there is no
+window between allocation and first use where a partially-initialised object exists.
 
-This is intentional. By the time any `ItemState` is constructed, the data flowing
-into it has already been validated at every stage of the pipeline:
+`PlayerInventory._append_slot` is the sole call site for `ItemState.new()` and passes
+all fields directly. `is_snapshot` is never a constructor parameter — it is always
+`false` at construction and transitions to `true` only via `create_snapshot`.
 
-1. `ItemDefinitions._make()` constructs each `ItemData` and calls `ItemValidator.validate()`.
-2. `ItemValidator` crashes on the first constraint violation — no partial data survives startup.
-3. `PlayerInventory` is the sole creator of `ItemState` instances and enforces all
-   business rules: `can_place` before placement, `data.stack_size` cap in `add_to_stack`.
+## The *Data / *State pattern
 
-Putting validation inside `ItemState` would duplicate those rules and create a second
-place to keep in sync. It would also have a subtle failure mode: `Utils.require` calls
-`OS.crash` unconditionally in both debug and release. Using it inside a constructor
-would be overly aggressive — crashing on every corrupt save file, for example, rather
-than skipping it. A plain field fails loudly and immediately at the point of access,
-which is easier to trace.
+Classes in this codebase follow a consistent split:
+
+| Class              | Role                                               | Validation                                           |
+| ------------------ | -------------------------------------------------- | ---------------------------------------------------- |
+| `ItemData`         | Static definition — programmer-authored, immutable | Validated by `ItemValidator` in `_init`, then frozen |
+| `WeaponData`       | Static definition — nested inside `ItemData`       | Validated as part of parent `ItemData` validation    |
+| `ItemState`        | Session object — mutable per-slot runtime state    | No business rules — only structural integrity guards |
+| `WeaponStatsState` | Session object — mutable per-weapon stat state     | No business rules — only structural integrity guards |
+
+`*Data` classes are programmer-authored static definitions — hardcoded in GDScript
+source, never populated from external input. They are validated once at startup to
+catch programmer errors, then frozen permanently as trusted constants for the rest of
+the session.
+
+`*State` classes are runtime instances whose values come from either save data or
+programmatic defaults (new game). External data never touches `*Data` — it flows
+through the autoload layer, which parses and validates it before constructing any
+`*State` object. The autoloads (`PlayerInventory`, `GameState`) are the actual
+boundary for external data: they act as a combined service and repository layer,
+enforcing all business rules before any `*State` is created or mutated.
+
+`*State` setters do have structural integrity guards — write-once fields, snapshot
+guards — but these protect the object's own consistency, not game-world business
+rules. By the time any `*State` constructor is called, every constraint has already
+been checked by its sole creator.
+
+Putting business validation inside a `*State` class would duplicate the rules already
+enforced by the autoloads, creating a second place to keep in sync with no added
+safety.
 
 ## ItemData field invariants
 
@@ -180,24 +203,24 @@ All constraints are enforced by `ItemValidator` at startup — a violation crash
 immediately, so no invalid `ItemData` can survive into runtime. Bounds are defined
 in `ItemSchema`.
 
-| Field            | Constraint                                                                                                                       |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `id`             | `MIN_ID_LENGTH`–`MAX_ID_LENGTH` (1–32) chars; lowercase letters, digits, and underscores only; must start and end with a letter or digit (snake_case convention — see note below) |
-| `ui_name`        | `MIN_NAME_LENGTH`–`MAX_NAME_LENGTH` (1–12) chars; free-form display text                                                         |
-| `description`    | `MIN_DESCRIPTION_LENGTH`–`MAX_DESCRIPTION_LENGTH` (1–50) chars; free-form display text                                           |
-| `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                                                        |
-| `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable                                                                       |
-| `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–999)                                                                                                  |
-| `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE`                                   |
-| `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                                                    |
-| `weapon_data`    | `null` for all non-`WEAPON` types; non-`null` `WeaponData` for `WEAPON` (enforced bidirectionally)                               |
-| `upgrade_stat`   | `NONE` for all non-`WEAPON_UPGRADE` types; non-`NONE` `UpgradeStat` for `WEAPON_UPGRADE` (enforced bidirectionally)              |
+| Field            | Constraint                                                                                                                                                                                                |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | `MIN_ID_LENGTH`–`MAX_ID_LENGTH` (1–32) chars; lowercase letters, digits, and underscores only; must start with a lowercase letter and end with a letter or digit (snake_case convention — see note below) |
+| `ui_name`        | `MIN_UI_NAME_LENGTH`–`MAX_UI_NAME_LENGTH` (1–12) chars; free-form display text                                                                                                                            |
+| `description`    | `MIN_DESCRIPTION_LENGTH`–`MAX_DESCRIPTION_LENGTH` (1–50) chars; free-form display text                                                                                                                    |
+| `buy_price`      | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not buyable                                                                                                                                                 |
+| `sell_price`     | `MIN_PRICE`–`MAX_PRICE` (0–999999); `0` means not sellable; must be strictly less than `buy_price` when `buy_price != 0`                                                                                  |
+| `stack_size`     | `MIN_STACK`–`MAX_STACK` (1–99)                                                                                                                                                                            |
+| `availability`   | `MIN_CHAPTER`–`MAX_CHAPTER` (1–4) when `buy_price != 0`; otherwise `AVAILABILITY_NOT_FOR_SALE`                                                                                                            |
+| `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                                                                                                                             |
+| `weapon_data`    | `null` for all non-`WEAPON` types; non-`null` `WeaponData` for `WEAPON` (enforced bidirectionally)                                                                                                        |
+| `upgrade_stat`   | `NONE` for all non-`WEAPON_UPGRADE` types; non-`NONE` `UpgradeStat` for `WEAPON_UPGRADE` (enforced bidirectionally)                                                                                       |
 
 ### id naming convention
 
 `id` is a code-level identifier, not display text. It must follow snake_case:
-lowercase letters, digits, and underscores only, starting and ending with a
-letter or digit — no trailing underscore (e.g. `field_medkit`, `smg_ammo`).
+lowercase letters, digits, and underscores only, starting with a lowercase
+letter and ending with a letter or digit — no trailing underscore (e.g. `field_medkit`, `smg_ammo`).
 This is a **hard constraint enforced by `ItemValidator`** — not just a style preference.
 
 The restriction exists because `RecipeRegistry` builds order-independent lookup
@@ -226,6 +249,6 @@ finds the matching `AMMO` item in inventory by convention).
 ItemDefinitions  →  ItemValidator  →  ItemRegistry  →  runtime
 ```
 
-`ItemDefinitions._make()` constructs each `ItemData` and immediately validates it via
+`ItemDefinitions.get_all()` constructs each `ItemData` and immediately validates it via
 `ItemValidator`. Any constraint violation crashes on the first error. `ItemRegistry`
 then stores the validated instances and checks for duplicate IDs.

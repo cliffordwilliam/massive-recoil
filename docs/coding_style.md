@@ -106,6 +106,7 @@ func my_function() -> void:
 **What requires a `##` doc comment:**
 - Every `class_name` (placed immediately after `extends`)
 - Every public variable and constant
+- Every private variable (`_` prefix)
 - Every public function
 - Every private function (`_` prefix)
 - Every signal

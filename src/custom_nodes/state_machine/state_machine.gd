@@ -40,17 +40,17 @@ extends Node
 var current_state: BaseState:
 	get:
 		return _current_state
-	set(_value):
-		Utils.require(false, "StateMachine: current_state is read-only — use transition_to()")
 
+## Backing dictionary populated in [method Node._ready], keyed by [StringName] node name.
 var _states: Dictionary[StringName, BaseState] = {}
+## Backing store for the [member current_state] read-only property.
 var _current_state: BaseState = null
-# Write-once — only the false → true transition is allowed.
-# Set by start() the first time processing is enabled.
-# Guards start() against being called more than once.
-#
-# Convention: every write-once guard added to this class must follow this
-# same setter pattern.
+## Write-once — only the false → true transition is allowed.
+## Set by [method start] the first time processing is enabled.
+## Guards [method start] against being called more than once.
+##
+## Convention: every write-once guard added to this class must follow this
+## same setter pattern.
 var _started: bool = false:
 	set(value):
 		(
@@ -63,6 +63,8 @@ var _started: bool = false:
 		_started = value
 
 
+## Validates [member initial_state], builds the [member _states] lookup from child nodes,
+## and disables processing until [method start] is called.
 func _ready() -> void:
 	(
 		Utils
@@ -98,18 +100,19 @@ func _ready() -> void:
 	set_process_unhandled_key_input(false)
 
 
+## Delegates [method BaseState.physics_update] to [member _current_state] each physics tick.
 func _physics_process(delta: float) -> void:
 	_current_state.physics_update(delta)
 
 
+## Delegates [method BaseState.handle_input] to [member _current_state] on key events.
+##
+## Only fires for [InputEventKey] — no guard needed.
+## Accepts [InputEvent] (not [InputEventKey]) because the Godot virtual method signature
+## types the parameter as the base class even though only [InputEventKey] events are
+## dispatched here. Narrowing to [InputEventKey] in the override or in
+## [method BaseState.handle_input] would cause a type mismatch at the call site.
 func _unhandled_key_input(event: InputEvent) -> void:
-	# _unhandled_key_input only fires for InputEventKey — no guard needed.
-	# handle_input() accepts InputEvent (not InputEventKey) because the Godot
-	# virtual method signature is _unhandled_key_input(event: InputEvent) — the
-	# engine types the parameter as the base class even though only InputEventKey
-	# events are dispatched here. Narrowing to InputEventKey in the override or in
-	# handle_input() would cause a type mismatch at the call site.
-
 	_current_state.handle_input(event)
 
 

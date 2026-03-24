@@ -18,6 +18,7 @@ extends Node2D
 ## determined by the owning [UIShopItemList] render mode, which is fixed at scene
 ## configuration time and never changes at runtime.
 
+## Stack quantity prefix shown in the sell list.
 const _PREFIX_TEXT: String = "X"
 
 @onready var _title: Label = $Title
@@ -25,51 +26,6 @@ const _PREFIX_TEXT: String = "X"
 @onready var _value: Label = $Value
 @onready var _price: Label = $Price
 @onready var _new_tag: Sprite2D = $NewTag
-
-
-## Same pattern as [method _assert_value].
-## Asserts [param text] length is within [[constant ItemSchema.MIN_NAME_LENGTH],
-## [constant ItemSchema.MAX_NAME_LENGTH]].
-## Crashes if violated — a trigger here means [ItemValidator] has a bug, not a
-## recoverable condition. Returns [param text] unchanged for inline assignment:
-## [code]_title.text = _assert_title(given_name)[/code]
-func _assert_title(text: String) -> String:
-	Utils.require(
-		text.length() >= ItemSchema.MIN_NAME_LENGTH and text.length() <= ItemSchema.MAX_NAME_LENGTH,
-		(
-			"UIShopItem._assert_title: name '%s' length %d out of range [%d, %d]"
-			% [text, text.length(), ItemSchema.MIN_NAME_LENGTH, ItemSchema.MAX_NAME_LENGTH]
-		)
-	)
-	return text
-
-
-## Same pattern as [method _assert_title].
-## Asserts [param number] is within [[constant ItemSchema.MIN_STACK],
-## [constant ItemSchema.MAX_STACK]].
-func _assert_value(number: int) -> int:
-	Utils.require(
-		number >= ItemSchema.MIN_STACK and number <= ItemSchema.MAX_STACK,
-		(
-			"UIShopItem._assert_value: stack_count %d out of range [%d, %d]"
-			% [number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK]
-		)
-	)
-	return number
-
-
-## Same pattern as [method _assert_title].
-## Asserts [param number] is within [[constant ItemSchema.MIN_PRICE],
-## [constant ItemSchema.MAX_PRICE]].
-func _assert_price(number: int) -> int:
-	Utils.require(
-		number >= ItemSchema.MIN_PRICE and number <= ItemSchema.MAX_PRICE,
-		(
-			"UIShopItem._assert_price: price %d out of range [%d, %d]"
-			% [number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE]
-		)
-	)
-	return number
 
 
 ## Configures the item to display information for the **buy list**.
@@ -108,3 +64,51 @@ func setup_sell(given_name: String, stack_count: int, price_value: int) -> void:
 
 	# NEW badge is buy-side only — it clears when the player purchases the item.
 	_new_tag.hide()
+
+
+## Asserts [param text] length is within [[constant ItemSchema.MIN_UI_NAME_LENGTH],
+## [constant ItemSchema.MAX_UI_NAME_LENGTH]].
+## Crashes if violated — a trigger here means [ItemValidator] has a bug, not a
+## recoverable condition. Returns [param text] unchanged for inline assignment:
+## [code]_title.text = _assert_title(given_name)[/code]
+## See: [method _assert_value], [method _assert_price] for the same pattern.
+func _assert_title(text: String) -> String:
+	Utils.require(
+		(
+			text.length() >= ItemSchema.MIN_UI_NAME_LENGTH
+			and text.length() <= ItemSchema.MAX_UI_NAME_LENGTH
+		),
+		(
+			"UIShopItem._assert_title: name '%s' length %d out of range [%d, %d]"
+			% [text, text.length(), ItemSchema.MIN_UI_NAME_LENGTH, ItemSchema.MAX_UI_NAME_LENGTH]
+		)
+	)
+	return text
+
+
+## Same pattern as [method _assert_title].
+## Asserts [param number] is within [[constant ItemSchema.MIN_STACK],
+## [constant ItemSchema.MAX_STACK]].
+func _assert_value(number: int) -> int:
+	Utils.require(
+		number >= ItemSchema.MIN_STACK and number <= ItemSchema.MAX_STACK,
+		(
+			"UIShopItem._assert_value: stack_count %d out of range [%d, %d]"
+			% [number, ItemSchema.MIN_STACK, ItemSchema.MAX_STACK]
+		)
+	)
+	return number
+
+
+## Same pattern as [method _assert_title].
+## Asserts [param number] is within [[constant ItemSchema.MIN_PRICE],
+## [constant ItemSchema.MAX_PRICE]].
+func _assert_price(number: int) -> int:
+	Utils.require(
+		number >= ItemSchema.MIN_PRICE and number <= ItemSchema.MAX_PRICE,
+		(
+			"UIShopItem._assert_price: price %d out of range [%d, %d]"
+			% [number, ItemSchema.MIN_PRICE, ItemSchema.MAX_PRICE]
+		)
+	)
+	return number

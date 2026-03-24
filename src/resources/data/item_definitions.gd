@@ -1,15 +1,15 @@
 class_name ItemDefinitions
 extends RefCounted
-## Static item catalog. [method get_all] constructs and returns all [ItemData] instances.
+## Static item catalog. [method make_all] constructs and returns all [ItemData] instances.
 ##
-## Add, remove, or edit entries in [method get_all].
+## Add, remove, or edit entries in [method make_all].
 ## Field constraints are documented in [ItemData] and [ItemSchema].
 ##
 ## See: "res://docs/decisions/item_architecture.md"
 
 
 ## Constructs and returns all item definitions. Add, remove, or edit items here.
-static func get_all() -> Array[ItemData]:
+static func make_all() -> Array[ItemData]:
 	return [
 		(
 			ItemData

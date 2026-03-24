@@ -13,16 +13,18 @@ extends Node
 var _items: Dictionary[StringName, ItemData] = {}
 
 
+## Loads all [ItemData] definitions from [ItemDefinitions] into the catalog.
+##
+## Crashes immediately on a duplicate id or if no items are returned.
 func _ready() -> void:
-	for data: ItemData in ItemDefinitions.get_all():
+	for data: ItemData in ItemDefinitions.make_all():
 		Utils.require(
-			not _items.has(data.id), "ItemRegistry: duplicate id '%s' in ItemDefinitions" % data.id
+			not _items.has(data.id),
+			"ItemRegistry._ready: duplicate id '%s' in ItemDefinitions" % data.id
 		)
-
 		_items[data.id] = data
-
 	Utils.require(
-		not _items.is_empty(), "ItemRegistry: ItemDefinitions.get_all() returned no items"
+		not _items.is_empty(), "ItemRegistry._ready: ItemDefinitions.make_all() returned no items"
 	)
 
 
@@ -46,7 +48,6 @@ func get_all_items() -> Array[ItemData]:
 ## on an unknown id. Never silently returns [code]null[/code].
 func get_item_or_crash(id: StringName) -> ItemData:
 	Utils.require(_items.has(id), "ItemRegistry.get_item_or_crash: unknown id '%s'" % id)
-
 	return _items[id]
 
 

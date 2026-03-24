@@ -5,15 +5,34 @@ extends RefCounted
 ## Held as [member ItemState.weapon_stats_state] on weapon [ItemState] instances;
 ## [code]null[/code] on all non-weapon items.
 ##
-## Set by [code]PlayerInventory[/code] immediately after slot construction. Each stat
-## starts at its [WeaponData] [code]_min[/code] value and is bounded by the corresponding
-## [code]_max[/code] — bounds are enforced by [code]PlayerInventory[/code], not here.
+## Constructed by [code]PlayerInventory[/code] via [method _init] — all four stats are
+## passed at construction time. Each stat starts at its corresponding [WeaponData]
+## [code]*_min[/code] value and is bounded by the corresponding [code]*_max[/code] —
+## bounds are enforced by [code]PlayerInventory[/code], not here.
 ##
 ## [method create_snapshot] produces a detached read-only copy for UI consumption.
 ##
 ## [b]No validation is performed here.[/b] [code]PlayerInventory[/code] enforces all bounds.
 ##
+## [b]Convention:[/b] every mutable field added to this class must include its own
+## snapshot guard (checking [member is_snapshot]) and must be copied in [method create_snapshot].
+##
 ## See: "res://docs/decisions/item_architecture.md"
+
+## Whether this instance is a detached snapshot produced by [method create_snapshot].
+##
+## Live slots always have this as [code]false[/code]; snapshots always [code]true[/code].
+## Write-once — only the [code]false → true[/code] transition is allowed, exactly once.
+var is_snapshot: bool = false:
+	set(value):
+		(
+			Utils
+			. require(
+				not is_snapshot and value,
+				"WeaponStatsState.is_snapshot: write-once — can only transition from false to true",
+			)
+		)
+		is_snapshot = value
 
 ## Current power value. Bounded by [member WeaponData.power_min] and [member WeaponData.power_max].
 ##
@@ -69,31 +88,22 @@ var ammo_capacity: int = 0:
 			Utils
 			. require(
 				not is_snapshot,
-				(
-					"WeaponStatsState.ammo_capacity: snapshot is read-only — do not mutate a detached "
-					+ "copy"
-				),
+				"WeaponStatsState.ammo_capacity: snapshot is read-only — do not mutate a detached copy",
 			)
 		)
 		ammo_capacity = value
 
-## [b]Convention:[/b] every mutable field added to this class must include its own
-## snapshot guard (checking [member is_snapshot]) to keep the read-only contract enforced.
+
+## Initialises all four stats atomically — no gap between allocation and first use.
 ##
-## Whether this instance is a detached snapshot produced by [method create_snapshot].
-##
-## Live slots always have this as [code]false[/code]; snapshots always [code]true[/code].
-## Write-once — only the [code]false → true[/code] transition is allowed, exactly once.
-var is_snapshot: bool = false:
-	set(value):
-		(
-			Utils
-			. require(
-				not is_snapshot and value,
-				"WeaponStatsState.is_snapshot: write-once — can only transition from false to true",
-			)
-		)
-		is_snapshot = value
+## Setters are safe at construction time because [member is_snapshot] defaults to
+## [code]false[/code] and its initialiser writes directly to the backing store,
+## bypassing the setter.
+func _init(p_power: int, p_rate_of_fire: int, p_reload_speed: int, p_ammo_capacity: int) -> void:
+	power = p_power
+	rate_of_fire = p_rate_of_fire
+	reload_speed = p_reload_speed
+	ammo_capacity = p_ammo_capacity
 
 
 ## Returns a detached copy of this state for read-only use by the UI.
@@ -105,22 +115,17 @@ var is_snapshot: bool = false:
 ## [b]Allocates a new [WeaponStatsState] on every call[/b] — use a local variable if
 ## you need the snapshot more than once.
 func create_snapshot() -> WeaponStatsState:
-	(
-		Utils
-		. require(
-			not is_snapshot,
-			(
-				"WeaponStatsState.create_snapshot: cannot snapshot a snapshot — "
-				+ "only live slots may produce snapshots"
-			),
+	Utils.require(
+		not is_snapshot,
+		(
+			"WeaponStatsState.create_snapshot: cannot snapshot a snapshot — only live slots may "
+			+ "produce snapshots"
 		)
 	)
 
-	var copy: WeaponStatsState = WeaponStatsState.new()
-	copy.power = power
-	copy.rate_of_fire = rate_of_fire
-	copy.reload_speed = reload_speed
-	copy.ammo_capacity = ammo_capacity
+	var copy: WeaponStatsState = WeaponStatsState.new(
+		power, rate_of_fire, reload_speed, ammo_capacity
+	)
 	copy.is_snapshot = true
 
 	return copy

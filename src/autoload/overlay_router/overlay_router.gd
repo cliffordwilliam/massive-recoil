@@ -8,7 +8,11 @@ extends CanvasLayer
 ## The game tree is paused while an overlay is open and unpaused on close.
 ##
 ## Uses [constant Node.PROCESS_MODE_ALWAYS] so input is received even while the
-## tree is paused. Each overlay child uses [constant Node.PROCESS_MODE_DISABLED]
+## tree is paused. PROCESS_MODE_ALWAYS is intentional — not PROCESS_MODE_WHEN_PAUSED.
+## The player can press "inventory" during live gameplay (game not yet paused),
+## so this node must process input before any pause is set. Switching to
+## PROCESS_MODE_WHEN_PAUSED would silently drop that initial keypress.
+## Each overlay child uses [constant Node.PROCESS_MODE_DISABLED]
 ## when inactive, controlled via [member BaseOverlay.is_active].
 ##
 ## See: "res://docs/decisions/overlay_router.md"
@@ -21,11 +25,8 @@ var _current_overlay: BaseOverlay = null
 @onready var _inventory_overlay: InventoryOverlay = $InventoryOverlay
 
 
+## Sets [constant Node.PROCESS_MODE_ALWAYS] and deactivates all child overlays.
 func _ready() -> void:
-	# PROCESS_MODE_ALWAYS is intentional — not PROCESS_MODE_WHEN_PAUSED.
-	# The player can press "inventory" during live gameplay (game not yet paused),
-	# so this node must process input before any pause is set. Switching to
-	# PROCESS_MODE_WHEN_PAUSED would silently drop that initial keypress.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 	for child: Node in get_children():
@@ -37,7 +38,6 @@ func _ready() -> void:
 				"OverlayRouter: child '%s' is not a BaseOverlay" % child.name,
 			)
 		)
-
 		entry.is_active = false
 
 
@@ -47,26 +47,23 @@ func _ready() -> void:
 ##
 ## Open other overlays only when none is currently open.
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("cancel") and _current_overlay:
+	# cancel with no active overlay is intentionally unhandled — let it propagate.
+	if event.is_action_pressed(&"cancel") and _current_overlay:
 		_current_overlay.is_active = false
 		_current_overlay = null
 		get_tree().paused = false
-
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed("inventory") and _current_overlay == null:
+	elif event.is_action_pressed(&"inventory") and _current_overlay == null:
 		open_inventory_overlay()
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed("buy") and _current_overlay == null:
+	elif event.is_action_pressed(&"buy") and _current_overlay == null:
 		open_buy_overlay()
 		get_viewport().set_input_as_handled()
 
 	# Once any overlay is open, the only valid action is closing it (via cancel).
-	elif (
-		(event.is_action_pressed("inventory") or event.is_action_pressed("buy"))
-		and _current_overlay
-	):
+	elif event.is_action_pressed(&"inventory") or event.is_action_pressed(&"buy"):
 		get_viewport().set_input_as_handled()
 
 
@@ -94,6 +91,5 @@ func _open_overlay(new_overlay: BaseOverlay) -> void:
 		return
 
 	get_tree().paused = true
-
 	_current_overlay = new_overlay
 	_current_overlay.is_active = true

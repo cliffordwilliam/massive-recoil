@@ -65,18 +65,18 @@ static func _validate_id(data: ItemData) -> void:
 	)
 
 
-## Checks that [member ItemData.ui_name] is within [constant ItemSchema.MIN_NAME_LENGTH] and
-## [constant ItemSchema.MAX_NAME_LENGTH].
+## Checks that [member ItemData.ui_name] is within [constant ItemSchema.MIN_UI_NAME_LENGTH] and
+## [constant ItemSchema.MAX_UI_NAME_LENGTH].
 static func _validate_ui_name(data: ItemData) -> void:
 	Utils.require(
-		data.ui_name.length() >= ItemSchema.MIN_NAME_LENGTH,
+		data.ui_name.length() >= ItemSchema.MIN_UI_NAME_LENGTH,
 		"ItemData '%s': ui_name must not be empty" % data.id
 	)
 	Utils.require(
-		data.ui_name.length() <= ItemSchema.MAX_NAME_LENGTH,
+		data.ui_name.length() <= ItemSchema.MAX_UI_NAME_LENGTH,
 		(
 			"ItemData '%s': ui_name exceeds max %d chars (got %d)"
-			% [data.id, ItemSchema.MAX_NAME_LENGTH, data.ui_name.length()]
+			% [data.id, ItemSchema.MAX_UI_NAME_LENGTH, data.ui_name.length()]
 		)
 	)
 
@@ -254,24 +254,24 @@ static func _validate_weapon_data(data: ItemData) -> void:
 	)
 
 
-## Checks a single weapon stat triple (min, max, step) against [constant ItemSchema.WEAPON_STAT_MIN]
-## and [constant ItemSchema.WEAPON_STAT_MAX].
+## Checks a single weapon stat triple (min, max, step) against [constant ItemSchema.MIN_WEAPON_STAT]
+## and [constant ItemSchema.MAX_WEAPON_STAT].
 ## Requires min <= max and step >= 0.
 static func _validate_weapon_stat(
 	data: ItemData, stat_name: String, min_val: int, max_val: int, step: int
 ) -> void:
 	Utils.require(
-		min_val >= ItemSchema.WEAPON_STAT_MIN and min_val <= ItemSchema.WEAPON_STAT_MAX,
+		min_val >= ItemSchema.MIN_WEAPON_STAT and min_val <= ItemSchema.MAX_WEAPON_STAT,
 		(
 			"ItemData '%s': weapon_data.%s_min %d must be in [%d, %d]"
-			% [data.id, stat_name, min_val, ItemSchema.WEAPON_STAT_MIN, ItemSchema.WEAPON_STAT_MAX]
+			% [data.id, stat_name, min_val, ItemSchema.MIN_WEAPON_STAT, ItemSchema.MAX_WEAPON_STAT]
 		)
 	)
 	Utils.require(
-		max_val >= ItemSchema.WEAPON_STAT_MIN and max_val <= ItemSchema.WEAPON_STAT_MAX,
+		max_val >= ItemSchema.MIN_WEAPON_STAT and max_val <= ItemSchema.MAX_WEAPON_STAT,
 		(
 			"ItemData '%s': weapon_data.%s_max %d must be in [%d, %d]"
-			% [data.id, stat_name, max_val, ItemSchema.WEAPON_STAT_MIN, ItemSchema.WEAPON_STAT_MAX]
+			% [data.id, stat_name, max_val, ItemSchema.MIN_WEAPON_STAT, ItemSchema.MAX_WEAPON_STAT]
 		)
 	)
 	Utils.require(

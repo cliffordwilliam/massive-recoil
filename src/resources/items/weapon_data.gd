@@ -9,14 +9,14 @@ extends Resource
 ## Constructed in [method _init]; [ItemValidator] enforces field constraints
 ## when the parent [ItemData] is validated.
 ##
-## All stat values are integers in [[constant ItemSchema.WEAPON_STAT_MIN],
-## [constant ItemSchema.WEAPON_STAT_MAX]]. Each weapon starts at its [code]_min[/code]
+## All stat values are integers in [[constant ItemSchema.MIN_WEAPON_STAT],
+## [constant ItemSchema.MAX_WEAPON_STAT]]. Each weapon starts at its [code]_min[/code]
 ## value and upgrades push toward [code]_max[/code]. A [code]_upgrade_step[/code] of
 ## [code]0[/code] means that stat cannot be upgraded.
 ##
 ## See: "res://docs/decisions/item_architecture.md"
 
-## Ammo type this weapon consumes.
+## Available ammo types a weapon can consume.
 enum AmmoType {
 	## Handgun ammunition.
 	HANDGUN_AMMO,

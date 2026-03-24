@@ -2,10 +2,10 @@ class_name ItemData
 extends Resource
 ## Static definition for any item that can exist in the game world.
 ##
-## Bounds are in [ItemSchema]. See: "res://docs/decisions/item_architecture.md"
+## Bounds are in [ItemSchema]. Constructed and validated in [method _init].
+## [ItemValidator] enforces field constraints; [code]PlayerInventory[/code] enforces business rules.
 ##
-## Constructed and validated in [method _init]. [ItemValidator] enforces field
-## constraints; [code]PlayerInventory[/code] enforces business rules.
+## See: "res://docs/decisions/item_architecture.md"
 
 ## Type determines item behaviour and gameplay role.
 enum Type {
@@ -170,8 +170,6 @@ func is_stackable() -> bool:
 
 
 ## Returns [code]true[/code] if this item has a use action in the inventory overlay.
-## The enabled types and their effects are defined in "res://docs/decisions/inventory_overlay.md"
-## (Use action section).
 ##
 ## [constant Type.WEAPON_UPGRADE] is excluded: it targets a specific weapon and is applied
 ## by dragging it onto that weapon in Move state — Use cannot resolve the target because one

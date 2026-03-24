@@ -66,11 +66,18 @@ func _draw() -> void:
 ## Shows the action menu container, anchors it to the selected item's top-left,
 ## clamped so it stays within the viewport, then positions the cursor at [param index].
 func show_action_menu(index: int) -> void:
-	var item_top_left: Vector2 = _grid.position + Vector2(_sm.selected_snapshot.position) * _CELL_PX
+	var snapshot: ItemState = _sm.selected_snapshot
+	var item_top_right: Vector2 = (
+		_grid.position
+		+ (
+			Vector2(snapshot.position.x + snapshot.data.inventory_size.x, snapshot.position.y)
+			* _CELL_PX
+		)
+	)
 	var viewport_size: Vector2 = get_viewport_rect().size
 	_action_menu_container.position = Vector2(
-		clampf(item_top_left.x, 0.0, viewport_size.x - _action_menu_container.size.x),
-		clampf(item_top_left.y, 0.0, viewport_size.y - _action_menu_container.size.y),
+		clampf(item_top_right.x, 0.0, viewport_size.x - _action_menu_container.size.x),
+		clampf(item_top_right.y, 0.0, viewport_size.y - _action_menu_container.size.y),
 	)
 	_action_menu_container.show()
 	update_action_cursor(index)

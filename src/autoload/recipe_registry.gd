@@ -8,18 +8,21 @@ extends Node
 ## table for the combine system.
 ##
 ## Must be registered in Project Settings after [code]ItemRegistry[/code].
+## See: "res://docs/decisions/autoload_registration_order.md"
 
 ## Maps a canonical ingredient-pair key (see [method _make_key]) to a result id.
 var _recipes: Dictionary[String, StringName] = {}
 
 
+## Validates all recipes from [RecipeDefinitions] against [ItemRegistry] and
+## builds the ingredient-pair → result lookup table.
 func _ready() -> void:
 	Utils.require(
 		ItemRegistry.is_node_ready(), "RecipeRegistry: needs ItemRegistry autoload to be ready."
 	)
 
 	var seen_result_ids: Array[StringName] = []
-	for result: String in RecipeDefinitions.RECIPES:
+	for result: StringName in RecipeDefinitions.RECIPES:
 		var ids: Array[StringName] = _validate_recipe(result, RecipeDefinitions.RECIPES[result])
 		var id_a: StringName = ids[0]
 		var id_b: StringName = ids[1]
@@ -56,13 +59,13 @@ func has_recipe(id_a: StringName, id_b: StringName) -> bool:
 
 
 ## Returns a canonical, order-independent key for an ingredient pair.
-## Sorting by string value ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
+## Sorting lexicographically ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
 ##
 ## [ItemValidator] validates item IDs never contain [code]|[/code]. The current naming
 ## convention (lowercase letters, digits, and underscores only) makes a collision impossible.
 ## [ItemRegistry] validates that there are no duplicate IDs.
 ## This convention never changes.
-func _make_key(id_a: StringName, id_b: StringName) -> String:
+static func _make_key(id_a: StringName, id_b: StringName) -> String:
 	var a: String = String(id_a)
 	var b: String = String(id_b)
 	if a <= b:
@@ -76,6 +79,7 @@ func _make_key(id_a: StringName, id_b: StringName) -> String:
 ## If it were, dropping it on a matching item could satisfy two outcomes simultaneously
 ## (combine + stack, or combine + upgrade), creating unresolvable ambiguity.
 ## Crashes via [method Utils.require] on the first violation.
+## See: "res://docs/decisions/item_architecture.md"
 func _validate_ingredient(data: ItemData) -> void:
 	Utils.require(
 		data.stack_size == ItemSchema.MIN_STACK,
@@ -102,43 +106,42 @@ func _validate_ingredient(data: ItemData) -> void:
 ## Validates the structure and item IDs of a single recipe entry.
 ## Returns [code][id_a, id_b, result_id][/code] as [StringName] values for the caller to use.
 ## Crashes via [method Utils.require] on the first violation.
-# Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
-func _validate_recipe(result: String, ingredients: Variant) -> Array[StringName]:
+## Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
+func _validate_recipe(result: StringName, ingredients: Variant) -> Array[StringName]:
+	Utils.require(not result.is_empty(), "RecipeDefinitions: result must be a non-empty StringName")
 	Utils.require(
 		ingredients is Array and (ingredients as Array).size() == 2,
 		"RecipeDefinitions: each recipe must have exactly 2 ingredients"
 	)
 
 	var arr: Array = ingredients as Array
-	# Ingredients must be plain String literals — not StringName (&"id") — or this check fails.
 	Utils.require(
-		arr[0] is String and not (arr[0] as String).is_empty(),
+		arr[0] is StringName and not (arr[0] as StringName).is_empty(),
 		(
-			"RecipeDefinitions: ingredient must be a non-empty String (got %s)"
+			"RecipeDefinitions: ingredient must be a non-empty StringName (got %s)"
 			% type_string(typeof(arr[0]))
 		)
 	)
-
 	Utils.require(
-		arr[1] is String and not (arr[1] as String).is_empty(),
+		arr[1] is StringName and not (arr[1] as StringName).is_empty(),
 		(
-			"RecipeDefinitions: ingredient must be a non-empty String (got %s)"
+			"RecipeDefinitions: ingredient must be a non-empty StringName (got %s)"
 			% type_string(typeof(arr[1]))
 		)
 	)
 
-	var id_a: StringName = StringName(arr[0] as String)
-	var id_b: StringName = StringName(arr[1] as String)
-	var result_id: StringName = StringName(result)
+	var id_a: StringName = arr[0] as StringName
+	var id_b: StringName = arr[1] as StringName
+	var result_id: StringName = result
 
 	var data_a: ItemData = ItemRegistry.get_item_or_crash(id_a)
 	var data_b: ItemData = ItemRegistry.get_item_or_crash(id_b)
 	var data_result: ItemData = ItemRegistry.get_item_or_crash(result_id)
 
-	_validate_ingredient(data_a)
-	_validate_ingredient(data_b)
 	# data_result is not validated as an ingredient — the result item may be stackable or a
 	# WEAPON_UPGRADE. Drop-action exclusivity only constrains items that can be dropped onto others.
+	_validate_ingredient(data_a)
+	_validate_ingredient(data_b)
 
 	Utils.require(
 		(

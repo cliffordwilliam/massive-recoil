@@ -43,12 +43,12 @@ whether it transitions out of this state and to which state.
 
 Context-sensitive. Enabled only for item types with a gameplay effect:
 
-| Type               | Effect                                                          |
-| ------------------ | --------------------------------------------------------------- |
-| `MED`              | Restores health                                                 |
-| `INVENTORY_UPGRADE`| Permanently expands inventory capacity                          |
-| `WEAPON`           | Equips the weapon as the player's active weapon                 |
-| All other types    | Button is disabled — item has no use action                     |
+| Type                | Effect                                          |
+| ------------------- | ----------------------------------------------- |
+| `MED`               | Restores health                                 |
+| `INVENTORY_UPGRADE` | Permanently expands inventory capacity          |
+| `WEAPON`            | Equips the weapon as the player's active weapon |
+| All other types     | Button is disabled — item has no use action     |
 
 On confirm for `MED`: call `PlayerInventory.remove_item_at(snapshot.position)` to
 consume the item, then apply its healing effect. Returns to **Browse** state.
@@ -129,7 +129,7 @@ Conditions: held item and target item share the same `ItemData.id`, and
 `stack_size > ItemSchema.MIN_STACK`.
 
 The actual `PlayerInventory` API is `can_add_to_stack(id, position)` — it only checks
-whether the slot has *any* remaining capacity, not whether a specific count fits. Because
+whether the slot has _any_ remaining capacity, not whether a specific count fits. Because
 the UI must merge all-or-nothing (partial merge would remove the held item and lose the
 overflow units), check capacity inline:
 
@@ -205,14 +205,14 @@ menu is not shown in this state.
 
 ## Backend API summary
 
-| UI action                  | Check                                              | Mutation                                    |
-| -------------------------- | -------------------------------------------------- | ------------------------------------------- |
-| Use item (MED)             | Item type is `MED`                                 | `remove_item_at(pos)`                       |
-| Use item (INVENTORY_UPGRADE)| `can_upgrade_grid()`                              | `remove_item_at(pos)` + `upgrade_grid()`    |
-| Use item (WEAPON)          | Item type is `WEAPON`                              | _(equip — no inventory mutation yet)_       |
-| Discard item               | —                                                  | `remove_item_at(pos)`                       |
-| Move to empty space        | `can_move_item(from, to)`                          | `move_item(from, to)`                       |
-| Stack merge                | inline capacity check (see Stack merge section)    | `add_to_stack` + `remove_item_at`           |
-| Weapon upgrade             | `can_upgrade_weapon(weapon_pos, upgrade_pos)`      | `upgrade_weapon(weapon_pos, upgrade_pos)`   |
-| Recipe combine             | `can_combine_items(held_pos, target_pos)`           | `combine_items(held_pos, target_pos)`        |
-| Read a cell                | —                                                  | `get_slot_at(cell)` → snapshot              |
+| UI action                    | Check                                           | Mutation                                  |
+| ---------------------------- | ----------------------------------------------- | ----------------------------------------- |
+| Use item (MED)               | Item type is `MED`                              | `remove_item_at(pos)`                     |
+| Use item (INVENTORY_UPGRADE) | `can_upgrade_grid()`                            | `remove_item_at(pos)` + `upgrade_grid()`  |
+| Use item (WEAPON)            | Item type is `WEAPON`                           | _(equip — no inventory mutation yet)_     |
+| Discard item                 | —                                               | `remove_item_at(pos)`                     |
+| Move to empty space          | `can_move_item(from, to)`                       | `move_item(from, to)`                     |
+| Stack merge                  | inline capacity check (see Stack merge section) | `add_to_stack` + `remove_item_at`         |
+| Weapon upgrade               | `can_upgrade_weapon(weapon_pos, upgrade_pos)`   | `upgrade_weapon(weapon_pos, upgrade_pos)` |
+| Recipe combine               | `can_combine_items(held_pos, target_pos)`       | `combine_items(held_pos, target_pos)`     |
+| Read a cell                  | —                                               | `get_slot_at(cell)` → snapshot            |

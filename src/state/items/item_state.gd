@@ -11,7 +11,25 @@ extends RefCounted
 ## snapshots are never in [member PlayerInventory._slots] and must not be passed to
 ## any mutation method.
 ##
+## [b]Convention:[/b] every mutable field added to this class must include its own
+## snapshot guard (checking [member is_snapshot]) and must be copied in [method create_snapshot].
+##
 ## See: "res://docs/decisions/item_architecture.md"
+
+## Whether this instance is a detached snapshot produced by [method create_snapshot].
+##
+## Live slots always have this as [code]false[/code]; snapshots always [code]true[/code].
+## Write-once — only the [code]false → true[/code] transition is allowed, exactly once.
+var is_snapshot: bool = false:
+	set(value):
+		(
+			Utils
+			. require(
+				not is_snapshot and value,
+				"ItemState.is_snapshot: write-once — can only transition from false to true",
+			)
+		)
+		is_snapshot = value
 
 ## Static template describing the item.
 ##
@@ -21,28 +39,33 @@ extends RefCounted
 ## live slots and snapshots.
 var data: ItemData = null:
 	set(value):
-		Utils.require(
-			data == null and value != null,
-			"ItemState.data: write-once — value must be non-null and cannot be reassigned"
+		(
+			Utils
+			. require(
+				data == null and value != null,
+				"ItemState.data: write-once — value must be non-null and cannot be reassigned",
+			)
 		)
 		data = value
 
 ## Grid position of this item's top-left corner in the inventory.
 ##
-## [b]Always set by [code]PlayerInventory[/code] immediately after construction,[/b]
-## before the slot is appended to [member PlayerInventory._slots]. The sentinel
-## [code]Vector2i(-1, -1)[/code] is never a valid grid position — a slot in
+## [b]Always set by [code]PlayerInventory[/code] at construction via [method _init].[/b]
+## The sentinel [code]Vector2i(-1, -1)[/code] is never a valid grid position — a slot in
 ## [code]_slots[/code] always has an explicitly assigned position.
 ##
-## Guarded against mutation on snapshots. [method create_snapshot] assigns
-## this field before setting [member is_snapshot], so construction is unaffected.
+## Guarded against mutation on snapshots. Safe to set in [method _init] because
+## [member is_snapshot] is always [code]false[/code] on a freshly allocated object.
 var position: Vector2i = Vector2i(-1, -1):
 	set(value):
 		# Guard against mutating a snapshot: writing position here would not update
 		# the live slot in PlayerInventory._slots — it would silently diverge from it.
-		Utils.require(
-			not is_snapshot,
-			"ItemState.position: snapshot is read-only — do not mutate a detached copy"
+		(
+			Utils
+			. require(
+				not is_snapshot,
+				"ItemState.position: snapshot is read-only — do not mutate a detached copy",
+			)
 		)
 		position = value
 
@@ -50,56 +73,62 @@ var position: Vector2i = Vector2i(-1, -1):
 ## Floor is [constant ItemSchema.MIN_STACK], cap is [member ItemData.stack_size];
 ## both enforced by [code]PlayerInventory[/code].
 ##
-## Guarded against mutation on snapshots. [method create_snapshot] assigns
-## this field before setting [member is_snapshot], so construction is unaffected.
+## Guarded against mutation on snapshots. Safe to set in [method _init] because
+## [member is_snapshot] is always [code]false[/code] on a freshly allocated object.
 var stack_count: int = ItemSchema.MIN_STACK:
 	set(value):
 		# Same reasoning as the position setter.
-		Utils.require(
-			not is_snapshot,
-			"ItemState.stack_count: snapshot is read-only — do not mutate a detached copy"
+		(
+			Utils
+			. require(
+				not is_snapshot,
+				"ItemState.stack_count: snapshot is read-only — do not mutate a detached copy",
+			)
 		)
 		stack_count = value
 
 ## Runtime stat state for weapon items. [code]null[/code] for all
 ## non-[constant ItemData.Type.WEAPON] items. Set by [code]PlayerInventory[/code]
-## immediately after slot construction.
+## at construction via [method _init].
 ##
-## Guarded against mutation on snapshots. [method create_snapshot] assigns this field
-## before setting [member is_snapshot], so construction is unaffected.
+## For weapon items: write-once — the setter requires a non-[code]null[/code] value and
+## crashes if called more than once. Only the [code]null → non-null[/code] transition is allowed.
+## For non-weapon items: the setter is never called — the field stays at its default
+## [code]null[/code] without passing through the setter at all.
+## No snapshot guard needed — write-once already prevents reassignment on both
+## live slots and snapshots.
 var weapon_stats_state: WeaponStatsState = null:
 	set(value):
 		(
 			Utils
 			. require(
-				not is_snapshot,
-				(
-					"ItemState.weapon_stats_state: snapshot is read-only — do not mutate a detached "
-					+ "copy"
-				),
+				weapon_stats_state == null and value != null,
+				"ItemState.weapon_stats_state: write-once — value must be non-null and cannot be reassigned",
 			)
 		)
 		weapon_stats_state = value
 
-## [b]Convention:[/b] every mutable field added to this class must include its own
-## snapshot guard (checking [member is_snapshot]) to keep the read-only contract enforced.
-##
-## Whether this instance is a detached snapshot produced by [method create_snapshot].
-##
-## Live slots always have this as [code]false[/code]; snapshots always [code]true[/code].
-## Write-once — only the [code]false → true[/code] transition is allowed, exactly once.
-var is_snapshot: bool = false:
-	set(value):
-		Utils.require(
-			not is_snapshot and value,
-			"ItemState.is_snapshot: write-once — can only transition from false to true"
-		)
-		is_snapshot = value
 
-
-func _init(template: ItemData) -> void:
-	# No null guard — validation is the pipeline's responsibility. See class docstring.
-	data = template
+## Initialises all fields atomically — no gap between allocation and first use.
+##
+## [param p_weapon_stats] is [code]null[/code] for non-[constant ItemData.Type.WEAPON]
+## items and non-[code]null[/code] for weapons. Setters are safe at construction time
+## because [member is_snapshot] is always [code]false[/code] when [method _init] runs.
+## Godot initialises property default values directly in the backing store — bypassing
+## the setter — so [member is_snapshot] starts at [code]false[/code] without triggering
+## its write-once guard. The snapshot guards on [member position] and
+## [member stack_count] then pass because [member is_snapshot] is [code]false[/code].
+func _init(
+	p_data: ItemData,
+	p_position: Vector2i,
+	p_count: int,
+	p_weapon_stats: WeaponStatsState = null,
+) -> void:
+	data = p_data
+	position = p_position
+	stack_count = p_count
+	if p_weapon_stats != null:
+		weapon_stats_state = p_weapon_stats
 
 
 ## Returns a detached copy of this slot for read-only use by the UI.
@@ -116,8 +145,8 @@ func create_snapshot() -> ItemState:
 	Utils.require(
 		not is_snapshot,
 		(
-			"ItemState.create_snapshot: cannot snapshot a snapshot — only live slots may produce "
-			+ "snapshots"
+			"ItemState.create_snapshot: cannot snapshot a snapshot — only live slots may "
+			+ "produce snapshots"
 		)
 	)
 	Utils.require(
@@ -125,11 +154,10 @@ func create_snapshot() -> ItemState:
 		"ItemState.create_snapshot: data is null — live slot was never properly initialized"
 	)
 
-	var copy: ItemState = ItemState.new(data)
-	copy.position = position
-	copy.stack_count = stack_count
+	var weapon_stats_copy: WeaponStatsState = null
 	if weapon_stats_state != null:
-		copy.weapon_stats_state = weapon_stats_state.create_snapshot()
+		weapon_stats_copy = weapon_stats_state.create_snapshot()
+	var copy: ItemState = ItemState.new(data, position, stack_count, weapon_stats_copy)
 	copy.is_snapshot = true
 
 	return copy

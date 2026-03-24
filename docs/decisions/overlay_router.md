@@ -22,10 +22,10 @@ scene-tree change.
 
 Every overlay extends `BaseOverlay`, which enforces a single lifecycle interface:
 
-| Member          | Purpose                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------- |
-| `is_active`     | Written by `OverlayRouter` only. Drives `visible` and `process_mode`.                                      |
-| `_hydrate_ui()` | Abstract. Called each time the overlay becomes active. Subclasses refresh their UI here.                   |
+| Member          | Purpose                                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------- |
+| `is_active`     | Written by `OverlayRouter` only. Drives `visible` and `process_mode`.                                       |
+| `_hydrate_ui()` | Abstract. Called each time the overlay becomes active. Subclasses refresh their UI here.                    |
 | `_on_close()`   | Abstract. Called each time the overlay transitions from active to inactive. Subclasses clean up state here. |
 
 `_hydrate_ui` is called on every open — not once at startup — so each overlay always
@@ -48,7 +48,7 @@ current overlay is closed (there is no switching or queuing).
 This is intentional — the overlay system is **first-come-first-serve with no page
 navigation**. There is no back-stack, no switching between overlays, and no
 programmatic close triggered by overlay logic. The player always closes the
-current overlay with a single key (`pause`). Keeping close player-driven means
+current overlay with a single key (`cancel`). Keeping close player-driven means
 any overlay can be dismissed at any time without each overlay needing to know
 when it is "done".
 

@@ -58,25 +58,10 @@ func _try_buy() -> void:
 		)
 		return
 
-	var pos: Vector2i = PlayerInventory.find_open_position(item_data)
-	if pos == Vector2i(-1, -1):
+	if not PlayerInventory.place_batch(item_data.id, 1):
 		print("BuyOverlay: no inventory space for '%s'" % item_data.ui_name)
 		return
 
-	var placed: bool = PlayerInventory.place_item(item_data.id, pos)
-	(
-		Utils
-		. require(
-			placed,
-			(
-				"BuyOverlay._try_buy: expected place_item to succeed for '%s' at %s"
-				% [
-					item_data.ui_name,
-					pos,
-				]
-			)
-		)
-	)
 	GameState.gold -= item_data.buy_price
 
 	# Refresh the shop list so NEW badges / availability reflect the updated
