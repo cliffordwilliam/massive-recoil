@@ -3,13 +3,14 @@ extends Node
 ## Generic finite state machine.
 ##
 ## Manages a set of [BaseState] child nodes and drives transitions between them.
-## Add [BaseState] nodes as children in the scene tree, set [member initial_state],
-## then call [method start] from the owner's [method Node._ready].
+## Add [BaseState] nodes as children in the scene tree and set [member initial_state]
+## in the Inspector. The machine must be a direct child of its owner — it starts
+## automatically once the parent emits its [signal Node.ready].
 ##
 ## [b]Usage:[/b] Create a concrete subclass for each state machine. The subclass holds
 ## typed [code]@onready[/code] references to each child state and exposes named transition
-## methods. This avoids raw [StringName] literals scattered across state files and gives
-## each state typed access to its siblings.
+## methods. Transition methods pass the typed child reference directly to [method transition_to],
+## which avoids raw [StringName] literals and makes the call site type-safe.
 ##
 ## [codeblock]
 ## class_name InventoryStateMachine
@@ -19,52 +20,43 @@ extends Node
 ## @onready var action_menu: ActionMenuState = $ActionMenuState
 ##
 ## func go_to_browse() -> void:
-##     transition_to(&"BrowseState")
+##     transition_to(browse)
 ## [/codeblock]
 ##
-## Each [BaseState] subclass then casts [member BaseState.state_machine] to the concrete type
-## to call the named transition methods and access sibling state references:
-##
-## [codeblock]
-## @onready var _sm: InventoryStateMachine = state_machine as InventoryStateMachine
-##
-## func _on_confirm() -> void:
-##     _sm.go_to_browse()
-## [/codeblock]
+## For typed access to the concrete machine inside each state, create an intermediate
+## base class that performs the cast once — see [InventoryBaseState] for the pattern.
 
-## The initial state entered when [method start] is called. Must be a direct child of this node.
-@export var initial_state: BaseState
-
-## The currently active state. Read-only — use [method transition_to] or [method start] to change
-## it.
-var current_state: BaseState:
-	get:
-		return _current_state
-
-## Backing dictionary populated in [method Node._ready], keyed by [StringName] node name.
-var _states: Dictionary[StringName, BaseState] = {}
-## Backing store for the [member current_state] read-only property.
-var _current_state: BaseState = null
-## Write-once — only the false → true transition is allowed.
-## Set by [method start] the first time processing is enabled.
-## Guards [method start] against being called more than once.
-##
-## Convention: every write-once guard added to this class must follow this
-## same setter pattern.
-var _started: bool = false:
+## The initial state entered when the parent owner is ready.
+## Must be a direct child of this node.
+## Write-once — set once via the Inspector; crashes if reassigned or set to [code]null[/code].
+@export var initial_state: BaseState:
 	set(value):
 		(
 			Utils
 			. require(
-				not _started and value,
-				"StateMachine._started: write-once — can only transition from false to true",
+				value != null,
+				"StateMachine.initial_state: must not be assigned null",
 			)
 		)
-		_started = value
+		(
+			Utils
+			. require(
+				initial_state == null,
+				"StateMachine.initial_state: write-once — already assigned",
+			)
+		)
+		initial_state = value
+
+## The currently active state. Private — transitions are the only valid way to change it.
+var _current_state: BaseState = null
 
 
-## Validates [member initial_state], builds the [member _states] lookup from child nodes,
-## and disables processing until [method start] is called.
+## Validates [member initial_state], asserts all children are [BaseState], sets
+## [constant Node.PROCESS_MODE_DISABLED], then awaits the parent's [signal Node.ready]
+## before restoring [constant Node.PROCESS_MODE_INHERIT] and entering [member initial_state].
+##
+## This function is a coroutine — the [code]await[/code] suspends it after initial validation
+## so the parent can finish its [method Node._ready] normally before the machine starts.
 func _ready() -> void:
 	(
 		Utils
@@ -82,12 +74,11 @@ func _ready() -> void:
 				"StateMachine._ready: all children must be BaseState, got: " + c.name,
 			)
 		)
-		_states[c.name] = c as BaseState
 
 	(
 		Utils
 		. require(
-			_states.has(initial_state.name),
+			initial_state.get_parent() == self,
 			"StateMachine._ready: initial_state must be a direct child of this node",
 		)
 	)
@@ -95,9 +86,13 @@ func _ready() -> void:
 	# No null-check needed — initial_state was already verified to be a BaseState above.
 	_current_state = initial_state
 
-	# Disable processing until start() is called by the owner's _ready().
-	set_physics_process(false)
-	set_process_unhandled_key_input(false)
+	# Disable processing until the parent owner is ready.
+	process_mode = Node.PROCESS_MODE_DISABLED
+
+	await get_parent().ready
+
+	_current_state.enter(null)
+	process_mode = Node.PROCESS_MODE_INHERIT
 
 
 ## Delegates [method BaseState.physics_update] to [member _current_state] each physics tick.
@@ -116,63 +111,52 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	_current_state.handle_input(event)
 
 
-## Transitions from the current state to the state named [param target_state_name].
+## Transitions from the current state to [param target].
 ## Calls [method BaseState.exit] on the outgoing state and [method BaseState.enter]
-## on the incoming state, passing the previous state name automatically.
-## Crashes if [param target_state_name] is the current state — self-transitions are not allowed.
-func transition_to(target_state_name: StringName) -> void:
+## on the incoming state. The outgoing state is passed to [method BaseState.enter]
+## (or [code]null[/code] on the first entry from [method Node._ready]).
+## Crashes if [param target] is the current state — self-transitions are not allowed.
+## Crashes if [param target] is not a direct child of this node.
+func transition_to(target: BaseState) -> void:
 	(
 		Utils
 		. require(
-			_states.has(target_state_name),
-			"StateMachine.transition_to: no state found for: '%s'" % target_state_name,
+			target.get_parent() == self,
+			"StateMachine.transition_to: '%s' is not a direct child of this machine" % target.name,
 		)
 	)
 	(
 		Utils
 		. require(
-			target_state_name != _current_state.name,
-			"StateMachine.transition_to: already in state: '%s'" % target_state_name,
+			target != _current_state,
+			"StateMachine.transition_to: already in state: '%s'" % target.name,
 		)
 	)
 
-	var previous_state_name: StringName = _current_state.name
-	var target_state: BaseState = _states[target_state_name]
-
+	var previous_state: BaseState = _current_state
 	_current_state.exit()
-	_current_state = target_state
-	_current_state.enter(previous_state_name)
+	_current_state = target
+	_current_state.enter(previous_state)
 
 
-## Returns [code]true[/code] when the machine is not already in [member initial_state].
+## Delegates [method BaseState.draw] to [member _current_state].
+## Call this from the owner's [method CanvasItem._draw] after drawing any elements
+## that are always visible regardless of state.
+func draw_state() -> void:
+	_current_state.draw()
+
+
+## Returns [code]true[/code] when the machine has started and is not already in
+## [member initial_state].
 ## Check this before calling [method reset].
 func can_reset() -> bool:
-	return _current_state != initial_state
+	return _current_state != null and _current_state != initial_state
 
 
 ## Resets to [member initial_state] by calling [method transition_to].
 ## Crashes if already at [member initial_state] — call [method can_reset] first.
+## The explicit guard here produces a clearer error than the equivalent check inside
+## [method transition_to] would.
 func reset() -> void:
 	Utils.require(can_reset(), "StateMachine.reset: already at initial_state")
-	transition_to(initial_state.name)
-
-
-## Enables processing and enters [member initial_state].
-## An empty [StringName] is passed as the previous state to signal initial entry.
-##
-## Must be called exactly once from the owner's [method Node._ready].
-## Crashes if called before [method Node._ready] or a second time.
-func start() -> void:
-	(
-		Utils
-		. require(
-			_current_state != null,
-			"StateMachine.start: called before _ready() — call start() from the owner's _ready()",
-		)
-	)
-	_started = true
-
-	set_physics_process(true)
-	set_process_unhandled_key_input(true)
-
-	_current_state.enter(&"")
+	transition_to(initial_state)

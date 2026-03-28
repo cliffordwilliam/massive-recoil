@@ -51,30 +51,50 @@ const _SCROLL_BAR_COLOR: Color = Color("767b84")
 		)
 		render_mode = value
 
+## Items available for purchase. Populated by [method set_buy_items]. Only valid in
+## [constant RenderMode.BUY] mode.
 var _buy_items: Array[ItemData] = []
+
+## Items available for sale. Populated by [method set_sell_items]. Only valid in
+## [constant RenderMode.SELL] mode.
 var _sell_items: Array[ItemState] = []
 
 ## Current selected item index within the active items array.
-## Starts at -1 (uninitialized) so the first [method set_current_index] call always
-## triggers [method _update_page], even when the target index is 0.
+## Starts at -1 (uninitialized) so the first assignment always triggers [method _update_page],
+## even when the target index is 0.
+## Clamped to the valid range of the active items array on every write.
+##
+## No early-return on unchanged index by design: when the list transitions from
+## non-empty to empty while already at index 0, both old and new index resolve
+## to 0 — skipping the update would leave stale entries visible. Always calling
+## [method _update_page] keeps the logic guard-free and correct at the cost of one
+## redundant redraw per no-op call, which is acceptable for a single scroll list.
 var _current_index: int = -1:
-	# Godot 4 GDScript detects self-assignment within a setter and writes
-	# directly to the backing store — this does NOT cause infinite recursion.
-	# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
-	set = _set_current_index
-
-## [UIShopItem] entry nodes, populated from [code]$ItemContainer[/code] children in [method _ready].
-## Count is asserted against [constant _PAGE_SIZE] at startup.
-var _entries: Array[UIShopItem] = []
+	set(value):
+		# Self-assignment writes directly to the backing store — no infinite recursion.
+		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
+		#
+		# _get_items_size() crashes if render_mode is NONE. This setter is only called
+		# from set_buy_items and set_sell_items, both of which guard for their respective
+		# modes before mutating _current_index, so render_mode is always set by the time
+		# this runs.
+		_current_index = clampi(value, 0, maxi(0, _get_items_size() - 1))
+		_update_page()
 
 ## The cursor node positioned over the currently selected entry.
 @onready var _cursor: Sprite2D = $Cursor
 
-## Top of the scroll track. The full track height represents all pages stacked height.
+## Top of the scroll track. Together with [member _scroll_track_bottom], defines the track height.
 @onready var _scroll_track_top: Marker2D = $ScrollTrackTop
+
+## Bottom of the scroll track. Together with [member _scroll_track_top], defines the track height.
 @onready var _scroll_track_bottom: Marker2D = $ScrollTrackBottom
 
+## Background panel drawn behind the scroll thumb. Visible only when there is more than one page.
 @onready var _scrollbar_background: NinePatchRect = $ScrollbarBackground
+
+## Container holding the fixed set of [UIShopItem] children, one per page slot.
+@onready var _item_container: Node = $ItemContainer
 
 
 func _ready() -> void:
@@ -83,26 +103,20 @@ func _ready() -> void:
 		"UIShopItemList._ready: render_mode is unset — configure it in the Inspector"
 	)
 
-	var container: Node = $ItemContainer
-
 	Utils.require(
-		container.get_child_count() == _PAGE_SIZE,
+		_item_container.get_child_count() == _PAGE_SIZE,
 		(
 			"UIShopItemList: expected %d children in ItemContainer, found %d"
-			% [_PAGE_SIZE, container.get_child_count()]
+			% [_PAGE_SIZE, _item_container.get_child_count()]
 		)
 	)
 
-	for child: Node in container.get_children():
+	for child: Node in _item_container.get_children():
 		var entry: UIShopItem = child as UIShopItem
 		Utils.require(
 			entry != null,
 			"UIShopItemList: child '%s' in ItemContainer is not a UIShopItem" % child.name
 		)
-
-	# assign() converts the untyped Array into a typed Array[T].
-	# read "res://docs/godot/how_assign_works.md"
-	_entries.assign(container.get_children())
 
 	_cursor.centered = false
 
@@ -112,11 +126,13 @@ func _ready() -> void:
 
 ## Draws the scroll thumb.
 ##
-## No [method Node.is_node_ready] guard is needed here. [code]_draw[/code] is only
-## ever triggered by the Godot renderer (which runs after [method _ready]) or by
-## [method queue_redraw], which is only called from [method _update_page] — and
-## [method _update_page] already guards on [method Node.is_node_ready] before
-## calling [method queue_redraw]. So [code]_draw[/code] can never fire before ready.
+## No [method Node.is_node_ready] guard is needed here. [code]_draw[/code] is delivered
+## during idle time — after [method _ready] has already fired. This holds because this
+## node is always a pre-placed scene child, never dynamically instantiated into a
+## visible tree. Whether triggered manually or by the engine, the delivery is deferred
+## to idle time, so this method cannot run before the node is ready in this context.
+##
+## See: "res://docs/godot/how_draw_works.md"
 func _draw() -> void:
 	# float() cast is required: without it, integer division truncates before ceili
 	# can apply ceiling rounding (e.g. 7 / 5 == 1 as int, but ceil(7.0 / 5) == 2).
@@ -138,17 +154,16 @@ func _draw() -> void:
 	draw_rect(Rect2(thumb_x, thumb_y, _SCROLL_BAR_WIDTH, thumb_height), _SCROLL_BAR_COLOR)
 
 
-## Sets the items displayed in buy mode and resets selection.
+## Sets the items displayed in buy mode and preserves the current selection, clamped to the new
+## size.
 ## Calling this while not in BUY mode is a programmer error and crashes via [method Utils.require].
 ##
-## [b]False positive note:[/b] The absence of per-element validation here
-## (compared to [method set_sell_items]) is intentional and not asymmetric.
-## [Array][ItemData] is a typed array — Godot enforces element types at
-## assignment, so no null or wrong-type element can enter [member _buy_items]
-## without a runtime type error first. [method set_sell_items] has an extra
-## [member ItemState.is_snapshot] check because the snapshot contract is an
-## architectural concern beyond what the type system can express — GDScript
-## cannot distinguish a live slot from a snapshot copy at the type level.
+## [b]False positive note:[/b] The absence of an [member ItemState.is_snapshot]-equivalent
+## check here (compared to [method set_sell_items]) is intentional and not asymmetric.
+## [method set_sell_items] requires that extra check because the snapshot contract is an
+## architectural concern beyond what the type system can express — GDScript cannot
+## distinguish a live slot from a snapshot copy at the type level. [Array][ItemData]
+## carries no equivalent ownership contract, so no analogous check is needed.
 func set_buy_items(items: Array[ItemData]) -> void:
 	(
 		Utils
@@ -164,10 +179,11 @@ func set_buy_items(items: Array[ItemData]) -> void:
 	# assign() converts the untyped Array into a typed Array[T].
 	# read "res://docs/godot/how_assign_works.md"
 	_buy_items.assign(items)
-	_set_current_index(0)
+	_current_index = _current_index
 
 
-## Sets the items displayed in sell mode and resets selection.
+## Sets the items displayed in sell mode and preserves the current selection, clamped to the new
+## size.
 ## Calling this while not in SELL mode is a programmer error and crashes via [method Utils.require].
 ##
 ## [param items] must be snapshots from [method PlayerInventory.get_slots] —
@@ -199,21 +215,21 @@ func set_sell_items(items: Array[ItemState]) -> void:
 	# assign() converts the untyped Array into a typed Array[T].
 	# read "res://docs/godot/how_assign_works.md"
 	_sell_items.assign(items)
-	_set_current_index(0)
+	_current_index = _current_index
 
 
 ## Moves the selection to the next item in the list.
 ## Clamps at the last item; does not wrap around.
 func next() -> void:
 	Utils.require(render_mode != RenderMode.NONE, "UIShopItemList.next: render_mode is unset")
-	_set_current_index(_current_index + 1)
+	_current_index = _current_index + 1
 
 
 ## Moves the selection to the previous item in the list.
 ## Clamps at the first item; does not wrap around.
 func previous() -> void:
 	Utils.require(render_mode != RenderMode.NONE, "UIShopItemList.previous: render_mode is unset")
-	_set_current_index(_current_index - 1)
+	_current_index = _current_index - 1
 
 
 ## Returns the currently selected [ItemData] in buy mode.
@@ -227,7 +243,8 @@ func previous() -> void:
 func get_selected_buy_item() -> ItemData:
 	if render_mode != RenderMode.BUY:
 		Utils.require(false, "UIShopItemList.get_selected_buy_item: called while not in BUY mode")
-		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+		# Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+		return null
 
 	if _buy_items.is_empty():
 		return null
@@ -252,7 +269,8 @@ func get_selected_buy_item() -> ItemData:
 func get_selected_sell_item() -> ItemState:
 	if render_mode != RenderMode.SELL:
 		Utils.require(false, "UIShopItemList.get_selected_sell_item: called while not in SELL mode")
-		return null  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+		# Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+		return null
 
 	if _sell_items.is_empty():
 		return null
@@ -271,24 +289,6 @@ func get_selected_sell_item() -> ItemState:
 	return _sell_items[_current_index]
 
 
-## Sets the currently selected item index.
-## The value is clamped to ensure it remains within the valid
-## range of the active items array. Changing the index automatically updates
-## the visible page.
-##
-## No early-return on unchanged index by design: when the list transitions from
-## non-empty to empty while already at index 0, both old and new index resolve
-## to 0 — skipping the update would leave stale entries visible. Always calling
-## [method _update_page] keeps the logic guard-free and correct at the cost of one
-## redundant redraw per no-op call, which is acceptable for a single scroll list.
-##
-## [method _update_page] self-guards via [method Node.is_node_ready] internally,
-## so this is safe to call during @export deserialization before [method _ready] fires.
-func _set_current_index(value: int) -> void:
-	_current_index = clampi(value, 0, maxi(0, _get_items_size() - 1))
-	_update_page()
-
-
 ## Returns the number of items in the currently active array.
 func _get_items_size() -> int:
 	match render_mode:
@@ -297,10 +297,11 @@ func _get_items_size() -> int:
 		RenderMode.SELL:
 			return _sell_items.size()
 	Utils.require(false, "UIShopItemList._get_items_size: render_mode is unset")
-	return 0  # Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+	# Unreachable — Utils.require crashes via OS.crash. Required by the type checker.
+	return 0
 
 
-## Returns the starting index of the current page.
+## Returns the starting index of the current page based on [member _current_index].
 func _get_page_start() -> int:
 	@warning_ignore("integer_division")
 	return (_current_index / _PAGE_SIZE) * _PAGE_SIZE
@@ -308,20 +309,12 @@ func _get_page_start() -> int:
 
 ## Updates the visible entries based on the current page.
 ##
-## Guards on [method Node.is_node_ready] so it is safe to call before [method _ready] fires —
-## for example, when the parent calls [method set_buy_items] or [method set_sell_items] in its
-## own [method _ready]. Godot guarantees children are ready before parents, so by the time
-## any parent [method _ready] runs this node is already ready and the guard is a no-op.
-## [br][br]
 ## [b]Note:[/b] [method _ready] does not call [method _update_page] itself. Initial rendering
 ## is always triggered by the first [method set_buy_items] or [method set_sell_items] call.
 func _update_page() -> void:
-	if not is_node_ready():
-		return
-
 	var items_size: int = _get_items_size()
 	for entry_index: int in _PAGE_SIZE:
-		var entry: UIShopItem = _entries[entry_index]
+		var entry: UIShopItem = _item_container.get_child(entry_index) as UIShopItem
 		var item_index: int = _get_page_start() + entry_index
 
 		if item_index < items_size:
@@ -356,17 +349,22 @@ func _update_page() -> void:
 
 					entry.setup_sell(state.data.ui_name, state.stack_count, state.data.sell_price)
 
+				_:
+					Utils.require(false, "UIShopItemList._update_page: render_mode is unset")
+
 			entry.show()
 		else:
 			entry.hide()
 
-	# _entries always has exactly _PAGE_SIZE elements (asserted in _ready), so
+	# ItemContainer always has exactly _PAGE_SIZE children (asserted in _ready), so
 	# selected_slot is always a valid index — including when the list is empty
 	# (_current_index == 0, selected_slot == 0). The cursor is hidden below when
 	# the list is empty, so its position in that case does not matter.
 	var selected_slot: int = _current_index % _PAGE_SIZE
 	_cursor.visible = items_size > 0
-	_cursor.position = to_local(_entries[selected_slot].global_position)
+	_cursor.global_position = (
+		(_item_container.get_child(selected_slot) as UIShopItem).global_position
+	)
 
 	_scrollbar_background.visible = ceili(float(items_size) / _PAGE_SIZE) > 1
 

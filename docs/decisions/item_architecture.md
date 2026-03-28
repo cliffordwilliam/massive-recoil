@@ -215,6 +215,7 @@ in `ItemSchema`.
 | `inventory_size` | Each axis `MIN_SIZE_DIM`–`MAX_SIZE_DIM` (1–8)                                                                                                                                                             |
 | `weapon_data`    | `null` for all non-`WEAPON` types; non-`null` `WeaponData` for `WEAPON` (enforced bidirectionally)                                                                                                        |
 | `upgrade_stat`   | `NONE` for all non-`WEAPON_UPGRADE` types; non-`NONE` `UpgradeStat` for `WEAPON_UPGRADE` (enforced bidirectionally)                                                                                       |
+| `slot_texture_path` | Non-empty path beginning with `res://` pointing at this item's inventory slot texture; enforced by `ItemValidator`                                                                                    |
 
 ### id naming convention
 

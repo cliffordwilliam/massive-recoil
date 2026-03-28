@@ -48,22 +48,24 @@ func _ready() -> void:
 ## Open other overlays only when none is currently open.
 func _unhandled_key_input(event: InputEvent) -> void:
 	# cancel with no active overlay is intentionally unhandled — let it propagate.
-	if event.is_action_pressed(&"cancel") and _current_overlay:
+	if event.is_action_pressed(InputActions.CANCEL) and _current_overlay:
 		_current_overlay.is_active = false
 		_current_overlay = null
 		get_tree().paused = false
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed(&"inventory") and _current_overlay == null:
+	elif event.is_action_pressed(InputActions.INVENTORY) and _current_overlay == null:
 		open_inventory_overlay()
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed(&"buy") and _current_overlay == null:
+	elif event.is_action_pressed(InputActions.BUY) and _current_overlay == null:
 		open_buy_overlay()
 		get_viewport().set_input_as_handled()
 
 	# Once any overlay is open, the only valid action is closing it (via cancel).
-	elif event.is_action_pressed(&"inventory") or event.is_action_pressed(&"buy"):
+	elif (
+		event.is_action_pressed(InputActions.INVENTORY) or event.is_action_pressed(InputActions.BUY)
+	):
 		get_viewport().set_input_as_handled()
 
 

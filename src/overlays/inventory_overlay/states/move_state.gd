@@ -1,5 +1,5 @@
-class_name MoveState
-extends BaseState
+class_name InventoryMoveState
+extends InventoryBaseState
 ## Move state for [InventoryStateMachine].
 ##
 ## The cursor becomes the selected item's footprint (a rectangle matching its size).
@@ -14,11 +14,15 @@ extends BaseState
 ##
 ## See: "res://docs/decisions/inventory_overlay.md"
 
-@onready var _sm: InventoryStateMachine = state_machine as InventoryStateMachine
+
+## Draws item footprints (excluding the held item) then the moving footprint via the overlay.
+func draw() -> void:
+	_sm.overlay.draw_item_footprints(_sm.selected_snapshot.position)
+	_sm.overlay.draw_move_footprint()
 
 
 ## Positions the footprint cursor at the held item's current grid position.
-func enter(_old_state: StringName) -> void:
+func enter(_old_state: BaseState) -> void:
 	# Start the footprint at the item's current grid position.
 	_sm.cursor_cell = _sm.selected_snapshot.position
 	_sm.overlay.queue_redraw()
@@ -26,40 +30,30 @@ func enter(_old_state: StringName) -> void:
 
 ## Shifts the footprint with movement keys; confirm attempts a drop; cancel aborts without mutation.
 func handle_input(event: InputEvent) -> void:
-	if event.is_action_pressed("up"):
-		var new_y: int = max(0, _sm.cursor_cell.y - 1)
-		if new_y != _sm.cursor_cell.y:
-			_sm.cursor_cell.y = new_y
+	var dir_x: int = (
+		int(event.is_action_pressed(InputActions.RIGHT))
+		- int(event.is_action_pressed(InputActions.LEFT))
+	)
+	var dir_y: int = (
+		int(event.is_action_pressed(InputActions.DOWN))
+		- int(event.is_action_pressed(InputActions.UP))
+	)
+	if dir_x != 0 or dir_y != 0:
+		var size: Vector2i = _sm.selected_snapshot.data.inventory_size
+		var new_x: int = clampi(_sm.cursor_cell.x + dir_x, 0, PlayerInventory.grid_size.x - size.x)
+		var new_y: int = clampi(_sm.cursor_cell.y + dir_y, 0, PlayerInventory.grid_size.y - size.y)
+		if new_x != _sm.cursor_cell.x or new_y != _sm.cursor_cell.y:
+			_sm.cursor_cell = Vector2i(new_x, new_y)
 			_sm.overlay.queue_redraw()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("down"):
-		var max_y: int = PlayerInventory.grid_size.y - _sm.selected_snapshot.data.inventory_size.y
-		var new_y: int = min(max_y, _sm.cursor_cell.y + 1)
-		if new_y != _sm.cursor_cell.y:
-			_sm.cursor_cell.y = new_y
-			_sm.overlay.queue_redraw()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("left"):
-		var new_x: int = max(0, _sm.cursor_cell.x - 1)
-		if new_x != _sm.cursor_cell.x:
-			_sm.cursor_cell.x = new_x
-			_sm.overlay.queue_redraw()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("right"):
-		var max_x: int = PlayerInventory.grid_size.x - _sm.selected_snapshot.data.inventory_size.x
-		var new_x: int = min(max_x, _sm.cursor_cell.x + 1)
-		if new_x != _sm.cursor_cell.x:
-			_sm.cursor_cell.x = new_x
-			_sm.overlay.queue_redraw()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("accept"):
-		_on_drop()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("cancel"):
+	elif event.is_action_pressed(InputActions.CANCEL):
 		# Item remains at its original position — no inventory calls needed.
 		_sm.go_to_browse()
 		get_viewport().set_input_as_handled()
-	#elif event.is_action_pressed("rotate"):
+	elif event.is_action_pressed(InputActions.ACCEPT):
+		_on_drop()
+		get_viewport().set_input_as_handled()
+	#elif event.is_action_pressed(InputActions.ROTATE):
 	# TODO: rotation requires is_rotated on ItemState — not yet implemented.
 	# See: "res://docs/decisions/inventory_overlay.md"
 	#print("InventoryOverlay: rotation is not yet implemented")

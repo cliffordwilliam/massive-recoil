@@ -41,6 +41,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.MIN_CHAPTER,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_field_medkit_slot.png",
 			)
 		),
 		(
@@ -73,6 +76,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_sterile_band_slot.png",
 			)
 		),
 		(
@@ -105,6 +111,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_antiseptic_slot.png",
 			)
 		),
 		(
@@ -137,6 +146,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_treat_band_slot.png",
 			)
 		),
 		(
@@ -169,6 +181,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_handgun_ammo_slot.png",
 			)
 		),
 		(
@@ -201,6 +216,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_smg_ammo_slot.png",
 			)
 		),
 		(
@@ -233,6 +251,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.MIN_CHAPTER,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_pack_upgrade_slot.png",
 			)
 		),
 		(
@@ -266,6 +287,9 @@ static func make_all() -> Array[ItemData]:
 				# availability
 				ItemSchema.MIN_CHAPTER,
 				#
+				# slot texture
+				"res://assets/images/static/ui/ui_damage_upgrade_slot.png",
+				#
 				# weapon data
 				null,
 				#
@@ -290,7 +314,7 @@ static func make_all() -> Array[ItemData]:
 				"Reliable semi-auto handgun.",
 				#
 				# inventory size
-				Vector2i(2, 2),
+				Vector2i(3, 2),
 				#
 				# buy price
 				8000,
@@ -303,6 +327,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.MIN_CHAPTER,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_handgun_slot.png",
 				#
 				# weapon data
 				(
@@ -352,7 +379,7 @@ static func make_all() -> Array[ItemData]:
 				"Compact SMG with very high fire rate.",
 				#
 				# inventory size
-				Vector2i(3, 2),
+				Vector2i(6, 3),
 				#
 				# buy price
 				16000,
@@ -365,6 +392,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.MIN_CHAPTER,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_smg_slot.png",
 				#
 				# weapon data
 				(
@@ -427,6 +457,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_ornate_pendant_slot.png",
 			)
 		),
 		(
@@ -459,6 +492,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_ruby_gem_slot.png",
 			)
 		),
 		(
@@ -491,6 +527,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_jeweled_pendant_slot.png",
 			)
 		),
 		(
@@ -523,6 +562,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_maintenance_key_slot.png",
 			)
 		),
 		(
@@ -555,6 +597,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_sun_key_fragment_slot.png",
 			)
 		),
 		(
@@ -587,6 +632,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_moon_key_fragment_slot.png",
 			)
 		),
 		(
@@ -619,6 +667,9 @@ static func make_all() -> Array[ItemData]:
 				#
 				# availability
 				ItemSchema.AVAILABILITY_NOT_FOR_SALE,
+				#
+				# slot texture
+				"res://assets/images/static/ui/ui_sun_moon_key_slot.png",
 			)
 		),
 	]

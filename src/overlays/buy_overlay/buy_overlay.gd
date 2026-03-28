@@ -27,15 +27,15 @@ func _hydrate_ui() -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("down"):
+	if event.is_action_pressed(InputActions.DOWN):
 		_ui_shop_item_list.next()
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed("up"):
+	elif event.is_action_pressed(InputActions.UP):
 		_ui_shop_item_list.previous()
 		get_viewport().set_input_as_handled()
 
-	elif event.is_action_pressed("accept"):
+	elif event.is_action_pressed(InputActions.ACCEPT):
 		_try_buy()
 		get_viewport().set_input_as_handled()
 

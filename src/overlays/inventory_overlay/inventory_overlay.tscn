@@ -9,12 +9,10 @@
 [ext_resource type="Script" uid="uid://vrivqywk3gro" path="res://src/overlays/inventory_overlay/states/move_state.gd" id="5_mvs"]
 [ext_resource type="Script" uid="uid://bt0ec1bbk724q" path="res://src/overlays/inventory_overlay/states/examine_state.gd" id="6_exs"]
 [ext_resource type="Texture2D" uid="uid://iisip7weacxo" path="res://assets/images/static/ui/ui_item.png" id="9_2fpbm"]
-[ext_resource type="Material" uid="uid://drdq0bewfgtn5" path="res://assets/materials/cursor_material.tres" id="10_tqd4m"]
-[ext_resource type="Texture2D" uid="uid://ckjebqy4xnnyk" path="res://assets/images/static/ui/ui_cursor.png" id="11_omuam"]
+[ext_resource type="PackedScene" uid="uid://cdpxqvtwkcedi" path="res://src/entities/ui/ui_simple_list/ui_simple_list.tscn" id="12_tqd4m"]
 
 [node name="InventoryOverlay" type="Node2D" unique_id=1145918844]
 script = ExtResource("1_qa4x4")
-metadata/_edit_vertical_guides_ = [48.0, 55.0]
 
 [node name="Grid" type="PanelContainer" parent="." unique_id=1917426765]
 offset_left = 16.0
@@ -44,113 +42,110 @@ stretch_mode = 1
 
 [node name="InventoryStateMachine" type="Node" parent="." unique_id=100000001 node_paths=PackedStringArray("initial_state")]
 script = ExtResource("2_ism")
-initial_state = NodePath("BrowseState")
+initial_state = NodePath("InventoryBrowseState")
 
-[node name="BrowseState" type="Node" parent="InventoryStateMachine" unique_id=100000002]
+[node name="InventoryBrowseState" type="Node" parent="InventoryStateMachine" unique_id=100000002]
 script = ExtResource("3_brs")
 
-[node name="ActionMenuState" type="Node" parent="InventoryStateMachine" unique_id=100000003]
+[node name="InventoryActionMenuState" type="Node" parent="InventoryStateMachine" unique_id=100000003]
 script = ExtResource("4_ams")
 
-[node name="MoveState" type="Node" parent="InventoryStateMachine" unique_id=100000004]
+[node name="InventoryMoveState" type="Node" parent="InventoryStateMachine" unique_id=100000004]
 script = ExtResource("5_mvs")
 
-[node name="ExamineState" type="Node" parent="InventoryStateMachine" unique_id=100000005]
+[node name="InventoryExamineState" type="Node" parent="InventoryStateMachine" unique_id=100000005]
 script = ExtResource("6_exs")
 
-[node name="ActionMenuContainer" type="NinePatchRect" parent="." unique_id=1075196825]
-offset_left = -2.0
-offset_top = -3.0
-offset_right = 58.0
-offset_bottom = 74.0
-texture = ExtResource("1_8ccl4")
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
+[node name="UISimpleList" parent="." unique_id=2059310859 instance=ExtResource("12_tqd4m")]
+offset_right = 62.0
+offset_bottom = 77.0
 
-[node name="Use" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1956668595]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 3.0
-offset_right = 57.0
-offset_bottom = 21.0
+[node name="Use" type="PanelContainer" parent="UISimpleList/MarginContainer/ItemContainer" parent_id_path=PackedInt32Array(2059310859, 126420833) index="0" unique_id=413584329]
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="UISimpleList/MarginContainer/ItemContainer/Use" unique_id=1452577637]
+layout_mode = 2
 texture = ExtResource("9_2fpbm")
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="Label" type="Label" parent="ActionMenuContainer/Use" unique_id=25115558]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 1.0
-offset_right = 47.0
-offset_bottom = 14.0
+[node name="MarginContainer" type="MarginContainer" parent="UISimpleList/MarginContainer/ItemContainer/Use" unique_id=1343347805]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="UISimpleList/MarginContainer/ItemContainer/Use/MarginContainer" unique_id=1855043500]
+layout_mode = 2
 text = "Use"
 
-[node name="Move" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1911725476]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 21.0
-offset_right = 57.0
-offset_bottom = 39.0
+[node name="Move" type="PanelContainer" parent="UISimpleList/MarginContainer/ItemContainer" parent_id_path=PackedInt32Array(2059310859, 126420833) index="1" unique_id=2102137251]
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="UISimpleList/MarginContainer/ItemContainer/Move" unique_id=1903034406]
+layout_mode = 2
 texture = ExtResource("9_2fpbm")
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="Label" type="Label" parent="ActionMenuContainer/Move" unique_id=127587368]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 1.0
-offset_right = 47.0
-offset_bottom = 14.0
+[node name="MarginContainer" type="MarginContainer" parent="UISimpleList/MarginContainer/ItemContainer/Move" unique_id=1208303842]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="UISimpleList/MarginContainer/ItemContainer/Move/MarginContainer" unique_id=427041715]
+layout_mode = 2
 text = "Move"
 
-[node name="Examine" type="NinePatchRect" parent="ActionMenuContainer" unique_id=1893461908]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 39.0
-offset_right = 57.0
-offset_bottom = 57.0
+[node name="Examine" type="PanelContainer" parent="UISimpleList/MarginContainer/ItemContainer" parent_id_path=PackedInt32Array(2059310859, 126420833) index="2" unique_id=1197221511]
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="UISimpleList/MarginContainer/ItemContainer/Examine" unique_id=491992622]
+layout_mode = 2
 texture = ExtResource("9_2fpbm")
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="Label" type="Label" parent="ActionMenuContainer/Examine" unique_id=877541541]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 1.0
-offset_right = 47.0
-offset_bottom = 14.0
+[node name="MarginContainer" type="MarginContainer" parent="UISimpleList/MarginContainer/ItemContainer/Examine" unique_id=116462231]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="UISimpleList/MarginContainer/ItemContainer/Examine/MarginContainer" unique_id=1237554357]
+layout_mode = 2
 text = "Examine"
 
-[node name="Discard" type="NinePatchRect" parent="ActionMenuContainer" unique_id=189589199]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 57.0
-offset_right = 57.0
-offset_bottom = 75.0
+[node name="Discard" type="PanelContainer" parent="UISimpleList/MarginContainer/ItemContainer" parent_id_path=PackedInt32Array(2059310859, 126420833) index="3" unique_id=463968786]
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="UISimpleList/MarginContainer/ItemContainer/Discard" unique_id=1863744086]
+layout_mode = 2
 texture = ExtResource("9_2fpbm")
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
 
-[node name="Label" type="Label" parent="ActionMenuContainer/Discard" unique_id=1244260490]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 1.0
-offset_right = 47.0
-offset_bottom = 14.0
+[node name="MarginContainer" type="MarginContainer" parent="UISimpleList/MarginContainer/ItemContainer/Discard" unique_id=626640821]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="UISimpleList/MarginContainer/ItemContainer/Discard/MarginContainer" unique_id=1193669131]
+layout_mode = 2
 text = "Discard"
 
-[node name="ActionMenuCursor" type="Sprite2D" parent="ActionMenuContainer" unique_id=230663695]
-material = ExtResource("10_tqd4m")
-position = Vector2(2.0000005, 3.0000007)
-scale = Vector2(55, 18)
-texture = ExtResource("11_omuam")
+[editable path="UISimpleList"]

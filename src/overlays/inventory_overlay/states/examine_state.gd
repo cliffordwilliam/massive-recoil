@@ -1,5 +1,5 @@
-class_name ExamineState
-extends BaseState
+class_name InventoryExamineState
+extends InventoryBaseState
 ## Examine state for [InventoryStateMachine].
 ##
 ## Shows a detail view for the selected item. The only valid action is Close,
@@ -10,11 +10,9 @@ extends BaseState
 ##
 ## See: "res://docs/decisions/inventory_overlay.md"
 
-@onready var _sm: InventoryStateMachine = state_machine as InventoryStateMachine
-
 
 ## Prints item details to the console as a placeholder for the modal UI.
-func enter(_old_state: StringName) -> void:
+func enter(_old_state: BaseState) -> void:
 	_print_item_details()
 	_sm.overlay.queue_redraw()
 
@@ -26,13 +24,19 @@ func exit() -> void:
 	pass
 
 
-## Closes the examine view on accept or cancel, returning to [BrowseState].
+## Draws item footprints via the overlay.
+func draw() -> void:
+	_sm.overlay.draw_item_footprints()
+
+
+## Closes the examine view on accept or cancel, returning to [InventoryBrowseState].
 func handle_input(event: InputEvent) -> void:
-	if event.is_action_pressed("accept") or event.is_action_pressed("cancel"):
+	if event.is_action_pressed(InputActions.ACCEPT) or event.is_action_pressed(InputActions.CANCEL):
 		_sm.go_to_browse()
 		get_viewport().set_input_as_handled()
 
 
+## Prints item name, description, and weapon stats to the console as a placeholder for the modal UI.
 func _print_item_details() -> void:
 	var snapshot: ItemState = _sm.selected_snapshot
 	print("=== %s ===" % snapshot.data.ui_name)

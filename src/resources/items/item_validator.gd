@@ -23,6 +23,7 @@ static func validate(data: ItemData) -> void:
 	_validate_stack_size(data)
 	_validate_availability(data)
 	_validate_inventory_size(data)
+	_validate_slot_texture_path(data)
 	_validate_weapon_data(data)
 	_validate_upgrade_stat(data)
 
@@ -199,6 +200,21 @@ static func _validate_inventory_size(data: ItemData) -> void:
 		(
 			"ItemData '%s': inventory_size.y %d must be in [%d, %d]"
 			% [data.id, data.inventory_size.y, ItemSchema.MIN_SIZE_DIM, ItemSchema.MAX_SIZE_DIM]
+		)
+	)
+
+
+## Checks that [member ItemData.slot_texture_path] is a non-empty [code]res://[/code] path.
+static func _validate_slot_texture_path(data: ItemData) -> void:
+	Utils.require(
+		data.slot_texture_path.length() > 0,
+		"ItemData '%s': slot_texture_path must not be empty" % data.id
+	)
+	Utils.require(
+		data.slot_texture_path.begins_with("res://"),
+		(
+			"ItemData '%s': slot_texture_path must begin with 'res://', got '%s'"
+			% [data.id, data.slot_texture_path]
 		)
 	)
 

@@ -113,6 +113,16 @@ var upgrade_stat: UpgradeStat = UpgradeStat.NONE:
 		Utils.require(not _initialized, "ItemData.upgrade_stat: immutable after initialization")
 		upgrade_stat = value
 
+## Godot resource path to this item's inventory slot texture
+## (e.g. [code]"res://assets/images/static/ui/ui_handgun_slot.png"[/code]).
+## Drawn at natural image size when rendering the inventory grid.
+var slot_texture_path: String = "":
+	set(value):
+		Utils.require(
+			not _initialized, "ItemData.slot_texture_path: immutable after initialization"
+		)
+		slot_texture_path = value
+
 ## Write-once — only the [code]false → true[/code] transition is allowed.
 ## Set by [method _init] after all fields are assigned and validated.
 ## Guards all fields against reassignment once set.
@@ -144,6 +154,7 @@ func _init(
 	given_sell_price: int,
 	given_stack_size: int,
 	given_availability: int,
+	given_slot_texture_path: String,
 	given_weapon_data: WeaponData = null,
 	given_upgrade_stat: UpgradeStat = UpgradeStat.NONE,
 ) -> void:
@@ -156,6 +167,7 @@ func _init(
 	self.sell_price = given_sell_price
 	self.stack_size = given_stack_size
 	self.availability = given_availability
+	self.slot_texture_path = given_slot_texture_path
 	self.weapon_data = given_weapon_data
 	self.upgrade_stat = given_upgrade_stat
 	ItemValidator.validate(self)
