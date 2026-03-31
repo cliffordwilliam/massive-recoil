@@ -24,8 +24,24 @@ The inventory overlay has four states. Only one is active at a time.
 
 ## Browse state
 
-The cursor is a single highlighted cell. Movement keys move it one cell at a time.
+The cursor normally highlights a single cell and moves one cell at a time.
 The grid renders all placed items beneath the cursor.
+
+### Item snapping
+
+Whenever the cursor overlaps an item it snaps to the item's top-left corner and
+expands to cover the item's full footprint. Snapping also runs on entry to the
+browse state (including re-entry from Action menu, Move, or Examine) so that a
+new item placed under the saved cursor position is correctly reflected.
+
+When the cursor is on an item and the player presses a movement key, the move
+originates from the item's top-left corner. If the candidate cell is still
+inside the item (possible for multi-cell footprints), the cursor is pushed to
+just past the item's far edge in the movement direction, then clamped to the
+grid, then snapped to any item that occupies the resulting cell.
+
+This means the cursor never sits on a non-top-left cell of an item — it either
+sits at the top-left (snapped) or on an empty cell.
 
 Pressing confirm on an occupied cell transitions to **Action menu** state for that
 item. Pressing confirm on an empty cell does nothing.

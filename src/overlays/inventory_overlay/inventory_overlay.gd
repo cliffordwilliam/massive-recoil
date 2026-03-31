@@ -145,14 +145,20 @@ func refresh_slots() -> void:
 	queue_redraw()
 
 
-## Draws the single-cell cursor at [member InventoryStateMachine.cursor_cell].
+## Draws the browse cursor at [member InventoryStateMachine.cursor_cell].
+## Expands to cover the full item footprint when the cursor is snapped to an item;
+## otherwise draws a single cell.
 ## Called by [InventoryBrowseState.draw].
 func draw_browse_cursor() -> void:
 	var grid_origin: Vector2 = _grid.position
+	var cursor_size: Vector2i = Vector2i.ONE
+	var slot: ItemState = PlayerInventory.get_slot_at(_sm.cursor_cell)
+	if slot != null:
+		cursor_size = slot.data.inventory_size
 	draw_rect(
 		Rect2(
 			grid_origin + Vector2(_sm.cursor_cell) * _CELL_PX,
-			Vector2(_CELL_PX, _CELL_PX),
+			Vector2(cursor_size) * _CELL_PX,
 		),
 		_CURSOR_COLOR,
 	)

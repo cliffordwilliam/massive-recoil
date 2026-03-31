@@ -63,7 +63,7 @@ static func make_all() -> Array[ItemData]:
 				"Clean bandage. Restores a small amount of health.",
 				#
 				# inventory size
-				Vector2i(2, 1),
+				Vector2i(1, 2),
 				#
 				# buy price
 				0,
@@ -98,7 +98,7 @@ static func make_all() -> Array[ItemData]:
 				"Antiseptic vial used to disinfect wounds.",
 				#
 				# inventory size
-				Vector2i(2, 1),
+				Vector2i(1, 2),
 				#
 				# buy price
 				0,
@@ -133,7 +133,7 @@ static func make_all() -> Array[ItemData]:
 				"Bandage treated with antiseptic. Restores health.",
 				#
 				# inventory size
-				Vector2i(2, 1),
+				Vector2i(1, 2),
 				#
 				# buy price
 				0,
