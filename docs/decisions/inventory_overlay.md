@@ -183,17 +183,29 @@ drop-action exclusivity constraint (see `item_architecture.md`).
 
 #### No outcome matches
 
-The drop destination is occupied but none of the above outcomes apply. Reject the
-drop with visual feedback; stay in Move state.
+The drop destination is occupied but none of the first three outcomes apply. Before
+rejecting the drop, attempt a **displace**:
 
-> **TODO — swap mechanic:** When none of the above outcomes apply and the held item's
-> footprint overlaps exactly one other item, the player should be able to drop the
-> held item and pick up the one it overlaps with. This requires a new `is_held` flag
-> on `ItemState`. The flag tells `PlayerInventory` to skip that item in collision
-> checks (generalising the existing "skip the item being moved" logic in
-> `can_move_item`). At most one item has `is_held == true` at any time — enforced by
-> `PlayerInventory`. The flag must not be written to save data; on load all items
-> start with `is_held == false`.
+Call `PlayerInventory.can_displace_item(held.position, to_pos, target.position)`. This
+succeeds when two conditions both hold:
+
+1. The target has at least one open parking position, treating the held item's footprint
+   as free space and `to_pos` as already claimed (so the target cannot be assigned the
+   same cell the held item is heading to).
+2. The held item fits at `to_pos` with the target excluded (always true given the
+   `_find_unique_target` precondition, but checked as a safety guard).
+
+If `can_displace_item` returns `true`: call
+`PlayerInventory.displace_item(held.position, to_pos, target.position)`. The target
+moves to its parking position; the held item moves to `to_pos`. The method returns the
+parking position (`displaced_pos`) where the target now lives. Update
+`_sm.selected_snapshot` and `_sm.cursor_cell` to the displaced item at `displaced_pos`
+and stay in **Move** state — the player is now holding the displaced item and can place
+it freely. Pressing cancel commits the displaced item to its parking position and
+returns to **Browse**.
+
+If `can_displace_item` returns `false`: no valid parking position exists for the target
+— reject the drop with visual feedback; stay in Move state.
 
 ### Cancel move
 
@@ -231,4 +243,5 @@ menu is not shown in this state.
 | Stack merge                  | inline capacity check (see Stack merge section) | `add_to_stack` + `remove_item_at`         |
 | Weapon upgrade               | `can_upgrade_weapon(weapon_pos, upgrade_pos)`   | `upgrade_weapon(weapon_pos, upgrade_pos)` |
 | Recipe combine               | `can_combine_items(held_pos, target_pos)`       | `combine_items(held_pos, target_pos)`     |
+| Displace                     | `can_displace_item(held_pos, to_pos, target_pos)` | `displace_item(held_pos, to_pos, target_pos)` → `displaced_pos` |
 | Read a cell                  | —                                               | `get_slot_at(cell)` → snapshot            |

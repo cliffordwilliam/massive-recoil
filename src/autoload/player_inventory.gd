@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 # Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
 # This is the PlayerInventory autoload
 extends Node
@@ -450,6 +451,58 @@ func combine_items(h_pos: Vector2i, t_pos: Vector2i) -> void:
 			),
 		)
 	)
+
+
+## Returns [code]true[/code] if the target item at [param target_pos] can be displaced
+## to make room for the held item at [param held_pos] to land at [param to_pos].
+##
+## Valid when the target has at least one open parking position that does not
+## overlap [param to_pos] (treating the held item's footprint as free space), and
+## the held item fits at [param to_pos] with the target excluded.
+func can_displace_item(held_pos: Vector2i, to_pos: Vector2i, target_pos: Vector2i) -> bool:
+	var held_slot: ItemState = _get_slot_at(held_pos)
+	var target_slot: ItemState = _get_slot_at(target_pos)
+	if held_slot == null or target_slot == null or held_slot == target_slot:
+		return false
+	# Treat both the held item's and target's current cells as free (both are vacating),
+	# and the destination (to_pos) as claimed so the target cannot land where held is going.
+	var claimed: Array[Rect2i] = [Rect2i(to_pos, held_slot.data.inventory_size)]
+	if _find_open_position(target_slot.data, [held_slot, target_slot], claimed) == Vector2i(-1, -1):
+		return false
+	# Safety guard: held must fit at to_pos with both itself and target excluded.
+	# Held is excluded because its current footprint may partially overlap to_pos
+	# (normal for multi-cell items when the cursor shifts by less than the item's width).
+	# Target is excluded because it is moving away to make room.
+	return can_place(held_slot.data, to_pos, [held_slot, target_slot])
+
+
+## Displaces the target item at [param target_pos] to its parking position,
+## moves the held item to [param to_pos], and returns the parking position
+## where the displaced item now lives.
+##
+## Call [method can_displace_item] first — invalid arguments crash via [method OS.crash].
+func displace_item(held_pos: Vector2i, to_pos: Vector2i, target_pos: Vector2i) -> Vector2i:
+	(
+		Utils
+		. require(
+			can_displace_item(held_pos, to_pos, target_pos),
+			(
+				"PlayerInventory.displace_item: cannot displace — held at %s, to %s, target at %s"
+				% [held_pos, to_pos, target_pos]
+			),
+		)
+	)
+	var held_slot: ItemState = _get_slot_at(held_pos)
+	var target_slot: ItemState = _get_slot_at(target_pos)
+	var claimed: Array[Rect2i] = [Rect2i(to_pos, held_slot.data.inventory_size)]
+	var parking_pos: Vector2i = _find_open_position(
+		target_slot.data, [held_slot, target_slot], claimed
+	)
+	# parking_pos is guaranteed valid — can_displace_item confirmed it above.
+	# Move target to its parking position first, then held to to_pos.
+	target_slot.position = parking_pos
+	held_slot.position = to_pos
+	return parking_pos
 
 
 ## Resets all inventory state for a new game session.

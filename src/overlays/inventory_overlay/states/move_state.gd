@@ -6,11 +6,13 @@ extends InventoryBaseState
 ## Movement keys shift the footprint one cell at a time. Pressing confirm attempts a
 ## drop; pressing cancel returns to [BrowseState] without modifying inventory.
 ##
-## Drop resolution order (mutually exclusive by item_architecture constraints):
+## Drop resolution order:
 ## 1. Move to empty space
 ## 2. Stack merge — same ID, stackable, target has enough remaining capacity
 ## 3. Weapon upgrade — held is WEAPON_UPGRADE, target is WEAPON
 ## 4. Recipe combine — held and target IDs match a recipe
+## 5. Displace — target moves to a free parking position; player then holds the displaced item
+## (outcomes 2–4 are mutually exclusive by item_architecture constraints)
 ##
 ## See: "res://docs/decisions/inventory_overlay.md"
 
@@ -106,12 +108,12 @@ func _on_drop() -> void:
 		print("InventoryOverlay: cannot drop '%s' here" % held.data.ui_name)
 		return
 
-	_try_drop_onto_occupied(held, target)
+	_try_drop_onto_occupied(held, target, to_pos)
 
 
-## Attempts the three occupied-cell interactions (stack merge, weapon upgrade, recipe combine)
-## in spec order. Prints feedback and stays in Move state if none apply.
-func _try_drop_onto_occupied(held: ItemState, target: ItemState) -> void:
+## Attempts the four occupied-cell interactions (stack merge, weapon upgrade, recipe combine,
+## displace) in spec order. Prints feedback and stays in Move state if none apply.
+func _try_drop_onto_occupied(held: ItemState, target: ItemState, to_pos: Vector2i) -> void:
 	# Stack merge — same item type, stackable, and target has enough capacity for all held units.
 	if (
 		held.data.id == target.data.id
@@ -156,6 +158,22 @@ func _try_drop_onto_occupied(held: ItemState, target: ItemState) -> void:
 		PlayerInventory.combine_items(held.position, target.position)
 		_sm.overlay.refresh_slots()
 		_sm.go_to_browse()
+		return
+
+	# Displace — target is moved to a free parking position; held takes to_pos.
+	# The player then holds the displaced item and can place it freely.
+	# Cancel returns the displaced item to its already-committed parking position.
+	if PlayerInventory.can_displace_item(held.position, to_pos, target.position):
+		var displaced_pos: Vector2i = PlayerInventory.displace_item(
+			held.position, to_pos, target.position
+		)
+		_sm.selected_snapshot = PlayerInventory.get_slot_at(displaced_pos)
+		# Start the footprint at the parking position. Pressing confirm immediately
+		# is treated as a no-op (cursor_cell == held.position), returning to Browse
+		# with the displaced item already committed there.
+		_sm.cursor_cell = displaced_pos
+		_sm.overlay.refresh_slots()
+		_sm.overlay.queue_redraw()
 		return
 
 	# No outcome — stay in Move state.
