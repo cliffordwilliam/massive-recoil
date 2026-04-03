@@ -171,7 +171,7 @@ func _try_drop_onto_occupied(held: ItemState, target: ItemState, to_pos: Vector2
 		# Start the footprint at the parking position. Pressing confirm immediately
 		# is treated as a no-op (cursor_cell == held.position), returning to Browse
 		# with the displaced item already committed there.
-		_sm.cursor_cell = displaced_pos
+		_sm.cursor_cell = target.position
 		_sm.overlay.refresh_slots()
 		_sm.overlay.queue_redraw()
 		return
