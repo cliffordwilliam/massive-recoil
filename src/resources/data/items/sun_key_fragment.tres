@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://1p8xtet0ix4f"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_jeja3"]
+[ext_resource type="Texture2D" uid="uid://md0q3jdgbclu" path="res://assets/images/static/ui/ui_sun_key_fragment_slot.png" id="2_61nw4"]
+
+[resource]
+script = ExtResource("1_jeja3")
+id = &"sun_key_fragment"
+type = 6
+ui_name = "Sun Fragment"
+description = "A fragment of a broken key."
+slot_texture = ExtResource("2_61nw4")
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

@@ -15,13 +15,7 @@ extends Node
 ## The parent [StateMachine] that owns this state.
 ## For typed access to the concrete machine and its sibling states, create an intermediate
 ## base class that performs the cast once — see [InventoryBaseState] for the pattern.
-## Children are readied before parents, but get_parent() is valid at _ready time.
 @onready var state_machine: StateMachine = get_parent() as StateMachine
-
-
-## Validates that this state is a direct child of a [StateMachine].
-func _ready() -> void:
-	Utils.require(state_machine is StateMachine, "BaseState._ready: parent must be a StateMachine")
 
 
 ## Called when this state becomes active.

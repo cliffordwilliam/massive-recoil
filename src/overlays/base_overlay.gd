@@ -5,8 +5,6 @@ extends Node2D
 ## Subclasses implement [method _hydrate_ui] to populate their UI. Activation is
 ## controlled entirely through [member is_active] — subclasses must not touch
 ## [member Node.process_mode] or [member CanvasItem.visible] directly.
-##
-## See: "res://docs/decisions/overlay_router.md"
 
 ## Controls whether this overlay is the currently displayed one.
 ##
@@ -16,9 +14,6 @@ extends Node2D
 ## Only [code]OverlayRouter[/code] should write this property.
 var is_active: bool:
 	set(value):
-		# Godot 4 GDScript detects self-assignment within a setter and writes
-		# directly to the backing store — this does NOT cause infinite recursion.
-		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		var was_active: bool = is_active
 		is_active = value
 		process_mode = Node.PROCESS_MODE_INHERIT if is_active else Node.PROCESS_MODE_DISABLED

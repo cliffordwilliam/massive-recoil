@@ -6,18 +6,16 @@ extends RefCounted
 ## registered in Project Settings.
 
 
-## Crashes via [method OS.crash] if [param valid_condition] is false.
-##
-## Use this to catch impossible or invalid states during runtime, programmer
-## errors, and broken-build conditions that should never occur in correct code.
-##
-## In development builds, this also triggers [code]assert()[/code] so the error
-## message appears in the debugger. Note that [code]assert()[/code] is ignored
-## in release builds, so [method OS.crash] is still required to enforce failure.
-static func require(valid_condition: bool, message: String) -> void:
-	if not valid_condition:
-		assert(false, message)
-		OS.crash(message)
+## Returns [code]-1[/code], [code]0[/code], or [code]1[/code] depending on which of
+## [param negative_action] and [param positive_action] are pressed in [param event].
+## Mirrors [method Input.get_axis] for use in [method Node._unhandled_key_input] handlers.
+static func get_axis(
+	event: InputEvent, negative_action: StringName, positive_action: StringName
+) -> int:
+	return (
+		int(event.is_action_pressed(positive_action))
+		- int(event.is_action_pressed(negative_action))
+	)
 
 
 ## Parses a JSON scalar as an integer.

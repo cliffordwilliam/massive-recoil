@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CraftingRecipe" format=3 uid="uid://c8df7b6b4ve8o"]
+
+[ext_resource type="Resource" uid="uid://1p8xtet0ix4f" path="res://src/resources/data/items/sun_key_fragment.tres" id="1_m2hfk"]
+[ext_resource type="Script" uid="uid://pvxs3p7srlg0" path="res://src/resources/items/crafting_recipe.gd" id="1_tflu2"]
+[ext_resource type="Resource" uid="uid://batle01gbr6m" path="res://src/resources/data/items/moon_key_fragment.tres" id="2_8bpn1"]
+[ext_resource type="Resource" uid="uid://cupd3eq1qpwfx" path="res://src/resources/data/items/sun_moon_key.tres" id="3_a0ghq"]
+
+[resource]
+script = ExtResource("1_tflu2")
+ingredient_a = ExtResource("1_m2hfk")
+ingredient_b = ExtResource("2_8bpn1")
+result = ExtResource("3_a0ghq")

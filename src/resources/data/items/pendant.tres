@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://4jkjkecupkds"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_fh8g6"]
+[ext_resource type="Texture2D" uid="uid://s3avg20klu3o" path="res://assets/images/static/ui/ui_ornate_pendant_slot.png" id="2_27q36"]
+
+[resource]
+script = ExtResource("1_fh8g6")
+id = &"pendant"
+type = 5
+ui_name = "Pendant"
+description = "Pendant with an empty gem socket."
+slot_texture = ExtResource("2_27q36")
+sell_price = 4000
+sellable = true
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

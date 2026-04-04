@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://cdg8iswh1wxd1"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_adqtr"]
+[ext_resource type="Texture2D" uid="uid://ckyr0tshts2r" path="res://assets/images/static/ui/ui_handgun_slot.png" id="2_xhikc"]
+[ext_resource type="Script" uid="uid://tsyldxs1g6g2" path="res://src/resources/items/track_data.gd" id="3_d5ddl"]
+[ext_resource type="Script" uid="uid://bjytvipssfyl6" path="res://src/resources/items/weapon_track.gd" id="4_sqh3e"]
+
+[sub_resource type="Resource" id="Resource_d5ddl"]
+script = ExtResource("3_d5ddl")
+range_min = 10
+range_max = 20
+step = 2
+metadata/_custom_type_script = "uid://tsyldxs1g6g2"
+
+[sub_resource type="Resource" id="Resource_sqh3e"]
+script = ExtResource("3_d5ddl")
+range_min = 20
+range_max = 60
+step = 10
+metadata/_custom_type_script = "uid://tsyldxs1g6g2"
+
+[sub_resource type="Resource" id="Resource_un471"]
+script = ExtResource("3_d5ddl")
+range_min = 30
+range_max = 60
+step = 10
+metadata/_custom_type_script = "uid://tsyldxs1g6g2"
+
+[sub_resource type="Resource" id="Resource_qjkrt"]
+script = ExtResource("3_d5ddl")
+range_min = 50
+range_max = 80
+step = 10
+metadata/_custom_type_script = "uid://tsyldxs1g6g2"
+
+[sub_resource type="Resource" id="Resource_6pgar"]
+script = ExtResource("4_sqh3e")
+power = SubResource("Resource_sqh3e")
+rate_of_fire = SubResource("Resource_un471")
+reload_speed = SubResource("Resource_qjkrt")
+ammo_capacity = SubResource("Resource_d5ddl")
+metadata/_custom_type_script = "uid://bjytvipssfyl6"
+
+[resource]
+script = ExtResource("1_adqtr")
+id = &"handgun"
+type = 3
+ui_name = "Handgun"
+description = "Reliable semi-auto handgun."
+slot_texture = ExtResource("2_xhikc")
+inventory_size = Vector2i(3, 2)
+buy_price = 8000
+sell_price = 4000
+buyable = true
+sellable = true
+weapon_track = SubResource("Resource_6pgar")
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

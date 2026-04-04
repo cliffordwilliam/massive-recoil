@@ -1,168 +1,36 @@
 # Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
 # This is the RecipeRegistry autoload
 extends Node
-## Validated recipe catalog. Provides ingredient-pair → result lookups.
+## Recipe catalog. Provides ingredient-pair → result lookups.
 ##
-## Loads recipes from [RecipeDefinitions] at startup, validates all ingredient
-## and result IDs against [ItemRegistry], and builds an order-independent lookup
-## table for the combine system.
-##
-## Must be registered in Project Settings after [code]ItemRegistry[/code].
-## See: "res://docs/decisions/autoload_registration_order.md"
+## Loads all [CraftingRecipe] resources from [code]res://data/recipes/[/code] at startup
+## and builds an order-independent lookup table for the combine system.
 
 ## Maps a canonical ingredient-pair key (see [method _make_key]) to a result id.
 var _recipes: Dictionary[String, StringName] = {}
 
 
-## Validates all recipes from [RecipeDefinitions] against [ItemRegistry] and
-## builds the ingredient-pair → result lookup table.
 func _ready() -> void:
-	Utils.require(
-		ItemRegistry.is_node_ready(), "RecipeRegistry: needs ItemRegistry autoload to be ready."
-	)
-
-	var seen_result_ids: Array[StringName] = []
-	for result: StringName in RecipeDefinitions.RECIPES:
-		var ids: Array[StringName] = _validate_recipe(result, RecipeDefinitions.RECIPES[result])
-		var id_a: StringName = ids[0]
-		var id_b: StringName = ids[1]
-		var result_id: StringName = ids[2]
-		var key: String = _make_key(id_a, id_b)
-
-		Utils.require(
-			not seen_result_ids.has(result_id),
-			"RecipeDefinitions: duplicate result id '%s'" % result_id
-		)
-		Utils.require(
-			not _recipes.has(key),
-			"RecipeDefinitions: duplicate recipe for ingredients '%s' and '%s'" % [id_a, id_b]
-		)
-
-		seen_result_ids.append(result_id)
-		_recipes[key] = result_id
+	for i: CraftingRecipe in [
+		preload("uid://dyim1576xnwr7"),
+		preload("uid://c8df7b6b4ve8o"),
+		preload("uid://lw7wxncte2h2"),
+	]:
+		_recipes[_make_key(i.ingredient_a.id, i.ingredient_b.id)] = i.result.id
 
 
 ## Returns the result item id when combining [param id_a] and [param id_b].
-## Returns an empty [StringName] ([code]&""[/code]) if no recipe exists for this pair.
-## Use [method has_recipe] when you only need existence; use this when you need the result id.
+## Returns [code]&""[/code] (falsy) if no recipe exists — callers can use [code]if result:[/code].
 ## Ingredient order does not matter.
 func get_result(id_a: StringName, id_b: StringName) -> StringName:
 	return _recipes.get(_make_key(id_a, id_b), &"")
 
 
-## Returns [code]true[/code] if a recipe exists for combining [param id_a] and [param id_b].
-## Prefer this over checking [method get_result] against [code]&""[/code]
-## when you only need existence.
-## Ingredient order does not matter.
-func has_recipe(id_a: StringName, id_b: StringName) -> bool:
-	return _recipes.has(_make_key(id_a, id_b))
-
-
 ## Returns a canonical, order-independent key for an ingredient pair.
 ## Sorting lexicographically ensures [code]_make_key(a, b) == _make_key(b, a)[/code].
-##
-## [ItemValidator] validates item IDs never contain [code]|[/code]. The current naming
-## convention (lowercase letters, digits, and underscores only) makes a collision impossible.
-## [ItemRegistry] validates that there are no duplicate IDs.
-## This convention never changes.
 static func _make_key(id_a: StringName, id_b: StringName) -> String:
 	var a: String = String(id_a)
 	var b: String = String(id_b)
 	if a <= b:
 		return a + "|" + b
 	return b + "|" + a
-
-
-## Validates drop-action exclusivity for a single recipe ingredient.
-##
-## A recipe ingredient must not be stackable or a [constant ItemData.Type.WEAPON_UPGRADE].
-## If it were, dropping it on a matching item could satisfy two outcomes simultaneously
-## (combine + stack, or combine + upgrade), creating unresolvable ambiguity.
-## Crashes via [method Utils.require] on the first violation.
-## See: "res://docs/decisions/item_architecture.md"
-func _validate_ingredient(data: ItemData) -> void:
-	Utils.require(
-		data.stack_size == ItemSchema.MIN_STACK,
-		(
-			(
-				"RecipeDefinitions: ingredient '%s' is stackable"
-				+ " — recipe ingredients must not be stackable"
-			)
-			% data.id
-		)
-	)
-	Utils.require(
-		data.type != ItemData.Type.WEAPON_UPGRADE,
-		(
-			(
-				"RecipeDefinitions: ingredient '%s' is a WEAPON_UPGRADE"
-				+ " — recipe ingredients must not be weapon upgrades"
-			)
-			% data.id
-		)
-	)
-
-
-## Validates the structure and item IDs of a single recipe entry.
-## Returns [code][id_a, id_b, result_id][/code] as [StringName] values for the caller to use.
-## Crashes via [method Utils.require] on the first violation.
-## Not static: calls ItemRegistry (an autoload), which is not accessible from a static context.
-func _validate_recipe(result: StringName, ingredients: Variant) -> Array[StringName]:
-	Utils.require(not result.is_empty(), "RecipeDefinitions: result must be a non-empty StringName")
-	Utils.require(
-		ingredients is Array and (ingredients as Array).size() == 2,
-		"RecipeDefinitions: each recipe must have exactly 2 ingredients"
-	)
-
-	var arr: Array = ingredients as Array
-	Utils.require(
-		arr[0] is StringName and not (arr[0] as StringName).is_empty(),
-		(
-			"RecipeDefinitions: ingredient must be a non-empty StringName (got %s)"
-			% type_string(typeof(arr[0]))
-		)
-	)
-	Utils.require(
-		arr[1] is StringName and not (arr[1] as StringName).is_empty(),
-		(
-			"RecipeDefinitions: ingredient must be a non-empty StringName (got %s)"
-			% type_string(typeof(arr[1]))
-		)
-	)
-
-	var id_a: StringName = arr[0] as StringName
-	var id_b: StringName = arr[1] as StringName
-	var result_id: StringName = result
-
-	var data_a: ItemData = ItemRegistry.get_item_or_crash(id_a)
-	var data_b: ItemData = ItemRegistry.get_item_or_crash(id_b)
-	var data_result: ItemData = ItemRegistry.get_item_or_crash(result_id)
-
-	# data_result is not validated as an ingredient — the result item may be stackable or a
-	# WEAPON_UPGRADE. Drop-action exclusivity only constrains items that can be dropped onto others.
-	_validate_ingredient(data_a)
-	_validate_ingredient(data_b)
-
-	Utils.require(
-		(
-			data_a.inventory_size == data_b.inventory_size
-			and data_a.inventory_size == data_result.inventory_size
-		),
-		(
-			(
-				"RecipeDefinitions: all items in a recipe must share inventory_size"
-				+ " — '%s' is %s, '%s' is %s, result '%s' is %s"
-			)
-			% [
-				data_a.id,
-				data_a.inventory_size,
-				data_b.id,
-				data_b.inventory_size,
-				data_result.id,
-				data_result.inventory_size
-			]
-		)
-	)
-
-	var out: Array[StringName] = [id_a, id_b, result_id]
-	return out

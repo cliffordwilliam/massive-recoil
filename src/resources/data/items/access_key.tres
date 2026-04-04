@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://c01y5d8m85ab0"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_xv6q2"]
+[ext_resource type="Texture2D" uid="uid://dyn8dkh0sious" path="res://assets/images/static/ui/ui_maintenance_key_slot.png" id="2_qm0or"]
+
+[resource]
+script = ExtResource("1_xv6q2")
+id = &"access_key"
+type = 6
+ui_name = "Access Key"
+description = "Access key for service doors."
+slot_texture = ExtResource("2_qm0or")
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

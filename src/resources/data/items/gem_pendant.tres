@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://c7mdcqxfnn2ti"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_u4fcw"]
+[ext_resource type="Texture2D" uid="uid://bc7mvih6mca77" path="res://assets/images/static/ui/ui_jeweled_pendant_slot.png" id="2_cgris"]
+
+[resource]
+script = ExtResource("1_u4fcw")
+id = &"gem_pendant"
+type = 5
+ui_name = "Gem Pendant"
+description = "Pendant fitted with a brilliant ruby."
+slot_texture = ExtResource("2_cgris")
+sell_price = 9000
+sellable = true
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

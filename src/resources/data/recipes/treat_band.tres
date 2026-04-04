@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CraftingRecipe" format=3 uid="uid://lw7wxncte2h2"]
+
+[ext_resource type="Script" uid="uid://pvxs3p7srlg0" path="res://src/resources/items/crafting_recipe.gd" id="1_aciep"]
+[ext_resource type="Resource" uid="uid://moxj1rp26lkl" path="res://src/resources/data/items/sterile_band.tres" id="1_apaxo"]
+[ext_resource type="Resource" uid="uid://b36gx4cx8i36c" path="res://src/resources/data/items/antiseptic.tres" id="2_ehtyx"]
+[ext_resource type="Resource" uid="uid://2von02lr0f3t" path="res://src/resources/data/items/treat_band.tres" id="3_xh25u"]
+
+[resource]
+script = ExtResource("1_aciep")
+ingredient_a = ExtResource("1_apaxo")
+ingredient_b = ExtResource("2_ehtyx")
+result = ExtResource("3_xh25u")

@@ -2,9 +2,6 @@ class_name ItemData
 extends Resource
 ## Static definition for any item that can exist in the game world.
 ##
-## Bounds are in [ItemSchema]. Constructed and validated in [method _init].
-## [ItemValidator] enforces field constraints; [code]PlayerInventory[/code] enforces business rules.
-##
 ## See: "res://docs/decisions/item_architecture.md"
 
 ## Type determines item behaviour and gameplay role.
@@ -26,177 +23,54 @@ enum Type {
 }
 
 ## Stat targeted by a [constant Type.WEAPON_UPGRADE] item.
-## [constant NONE] on all other item types (enforced by [ItemValidator]).
+## [constant NONE] on all other item types.
 enum UpgradeStat {
-	## Not a weapon upgrade — assigned to all non-[constant Type.WEAPON_UPGRADE] items.
-	## Enforced by [ItemValidator].
 	NONE,
-	## Targets weapon power.
 	POWER,
-	## Targets weapon rate of fire.
 	RATE_OF_FIRE,
-	## Targets weapon reload speed.
 	RELOAD_SPEED,
-	## Targets weapon ammo capacity.
 	AMMO_CAPACITY,
 }
 
-## Unique snake_case identifier. Used as the lookup key in [ItemRegistry].
-## See field invariants in "res://docs/decisions/item_architecture.md".
-var id: StringName = &"":
-	set(value):
-		Utils.require(not _initialized, "ItemData.id: immutable after initialization")
-		id = value
-
+@export_category("Identity")
+## Unique identifier used as the lookup key in [ItemRegistry]. snake_case, 1–32 characters.
+@export var id: StringName = &""
 ## Determines gameplay role and behaviour. See [enum Type].
-var type: Type = Type.MED:
-	set(value):
-		Utils.require(not _initialized, "ItemData.type: immutable after initialization")
-		type = value
+@export var type: Type = Type.MED
 
-## Display name shown in the inventory and shop UI.
-var ui_name: String = "":
-	set(value):
-		Utils.require(not _initialized, "ItemData.ui_name: immutable after initialization")
-		ui_name = value
+@export_category("Display")
+## Display name shown in the inventory and shop UI. 1–12 characters.
+@export var ui_name: String = ""
+## Flavour text shown in the Examine modal. 1–50 characters.
+@export_multiline var description: String = ""
+## Icon shown in UI.
+@export var slot_texture: Texture2D
 
-## Flavour text shown in the Examine modal.
-var description: String = "":
-	set(value):
-		Utils.require(not _initialized, "ItemData.description: immutable after initialization")
-		description = value
+@export_category("Inventory")
+## Grid footprint in inventory cells (columns × rows). Each axis 1–8.
+@export var inventory_size: Vector2i = Vector2i(1, 1)
+## Maximum number of this item that can occupy a single inventory slot. 1–99.
+@export_range(1, 99) var stack_size: int = 1
+## Whether this item can stack in a single inventory slot.
+@export var stackable: bool = false
+## Whether this item has a use action in the inventory overlay.
+@export var usable: bool = false
 
-## Grid footprint in inventory cells (columns × rows).
-var inventory_size: Vector2i = Vector2i(1, 1):
-	set(value):
-		Utils.require(not _initialized, "ItemData.inventory_size: immutable after initialization")
-		inventory_size = value
+@export_category("Shop")
+## Purchase price. 0–999999.
+@export_range(0, 999999) var buy_price: int = 0
+## Sale price. 0–999999.
+@export_range(0, 999999) var sell_price: int = 0
+## Earliest chapter in which this item becomes available in the shop. 1–4.
+@export_range(1, 4) var availability: int = 1
+## Whether this item can be purchased from the shop.
+@export var buyable: bool = false
+## Whether this item can be sold to the shop.
+@export var sellable: bool = false
 
-## Price to purchase this item from the shop. [code]0[/code] means not buyable.
-var buy_price: int = 0:
-	set(value):
-		Utils.require(not _initialized, "ItemData.buy_price: immutable after initialization")
-		buy_price = value
-
-## Price received when selling this item to the shop. [code]0[/code] means not sellable.
-var sell_price: int = 0:
-	set(value):
-		Utils.require(not _initialized, "ItemData.sell_price: immutable after initialization")
-		sell_price = value
-
-## Maximum number of this item that can occupy a single inventory slot.
-var stack_size: int = 1:
-	set(value):
-		Utils.require(not _initialized, "ItemData.stack_size: immutable after initialization")
-		stack_size = value
-
-## Earliest chapter in which this item becomes available in the shop.
-## See field invariants in "res://docs/decisions/item_architecture.md".
-var availability: int = ItemSchema.AVAILABILITY_NOT_FOR_SALE:
-	set(value):
-		Utils.require(not _initialized, "ItemData.availability: immutable after initialization")
-		availability = value
-
-## Weapon-specific data. Non-[code]null[/code] only when [member type] is
-## [constant Type.WEAPON]. Enforced by [ItemValidator].
-## See: "res://docs/decisions/item_architecture.md"
-var weapon_data: WeaponData = null:
-	set(value):
-		Utils.require(not _initialized, "ItemData.weapon_data: immutable after initialization")
-		weapon_data = value
-
+@export_category("Weapon")
+## Weapon-specific data. Non-[code]null[/code] only when [member type] is [constant Type.WEAPON].
+@export var weapon_track: WeaponTrack = null
 ## Stat targeted by this upgrade item. [constant UpgradeStat.NONE] for all
-## non-[constant Type.WEAPON_UPGRADE] items. Enforced by [ItemValidator].
-## See: "res://docs/decisions/item_architecture.md"
-var upgrade_stat: UpgradeStat = UpgradeStat.NONE:
-	set(value):
-		Utils.require(not _initialized, "ItemData.upgrade_stat: immutable after initialization")
-		upgrade_stat = value
-
-## Godot resource path to this item's inventory slot texture
-## (e.g. [code]"res://assets/images/static/ui/ui_handgun_slot.png"[/code]).
-## Drawn at natural image size when rendering the inventory grid.
-var slot_texture_path: String = "":
-	set(value):
-		Utils.require(
-			not _initialized, "ItemData.slot_texture_path: immutable after initialization"
-		)
-		slot_texture_path = value
-
-## Write-once — only the [code]false → true[/code] transition is allowed.
-## Set by [method _init] after all fields are assigned and validated.
-## Guards all fields against reassignment once set.
-##
-## [b]Convention:[/b] every field added to this class must include a setter that
-## checks [member _initialized] to keep the immutability contract enforced.
-##
-## See: "res://docs/godot/can_other_mutate_prop_before_init.md"
-var _initialized: bool = false:
-	set(value):
-		Utils.require(
-			not _initialized and value,
-			"ItemData._initialized: write-once — can only transition from false to true"
-		)
-		_initialized = value
-
-
-## Constructs, validates, and freezes this [ItemData] instance.
-## Crashes via [method Utils.require] on the first constraint violation.
-## See: "res://docs/decisions/item_architecture.md"
-# gdlint:ignore = function-arguments-number
-func _init(
-	given_id: StringName,
-	given_type: Type,
-	given_ui_name: String,
-	given_description: String,
-	given_inventory_size: Vector2i,
-	given_buy_price: int,
-	given_sell_price: int,
-	given_stack_size: int,
-	given_availability: int,
-	given_slot_texture_path: String,
-	given_weapon_data: WeaponData = null,
-	given_upgrade_stat: UpgradeStat = UpgradeStat.NONE,
-) -> void:
-	self.id = given_id
-	self.type = given_type
-	self.ui_name = given_ui_name
-	self.description = given_description
-	self.inventory_size = given_inventory_size
-	self.buy_price = given_buy_price
-	self.sell_price = given_sell_price
-	self.stack_size = given_stack_size
-	self.availability = given_availability
-	self.slot_texture_path = given_slot_texture_path
-	self.weapon_data = given_weapon_data
-	self.upgrade_stat = given_upgrade_stat
-	ItemValidator.validate(self)
-	_initialized = true
-
-
-## Returns [code]true[/code] if this item can form a stack of more than one unit.
-##
-## See: "res://docs/decisions/item_architecture.md"
-func is_stackable() -> bool:
-	return stack_size > ItemSchema.MIN_STACK
-
-
-## Returns [code]true[/code] if this item has a use action in the inventory overlay.
-##
-## [constant Type.WEAPON_UPGRADE] is excluded: it targets a specific weapon and is applied
-## by dragging it onto that weapon in Move state — Use cannot resolve the target because one
-## upgrade item may apply to any of several weapons in the inventory.
-##
-## See: "res://docs/decisions/inventory_overlay.md"
-func is_usable() -> bool:
-	return type in [Type.MED, Type.INVENTORY_UPGRADE, Type.WEAPON]
-
-
-## Returns [code]true[/code] if this item is available for purchase in the shop.
-func is_buyable() -> bool:
-	return buy_price > 0
-
-
-## Returns [code]true[/code] if this item can be sold to the shop.
-func is_sellable() -> bool:
-	return sell_price > 0
+## non-[constant Type.WEAPON_UPGRADE] items.
+@export var upgrade_stat: UpgradeStat = UpgradeStat.NONE

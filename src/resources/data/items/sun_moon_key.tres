@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://cupd3eq1qpwfx"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_rt7x7"]
+[ext_resource type="Texture2D" uid="uid://b48at5u6ef40j" path="res://assets/images/static/ui/ui_sun_moon_key_slot.png" id="2_dboer"]
+
+[resource]
+script = ExtResource("1_rt7x7")
+id = &"sun_moon_key"
+type = 6
+ui_name = "Sun/Moon Key"
+description = "Two fragments forming a complete key."
+slot_texture = ExtResource("2_dboer")
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

@@ -3,62 +3,21 @@ extends PanelContainer
 ## A vertically stacked selectable list with a moving cursor.
 ##
 ## Add [Control] children to [member _item_container] in the scene editor by enabling
-## "Editable Children" on the instance. The list validates at startup that all direct
-## children of [member _item_container] are [Control] nodes.
+## "Editable Children" on the instance.
 
-## Index of the currently selected item.
-## Repositions the cursor on every write.
 var _current_index: int = 0:
 	set(value):
-		# Self-assignment writes directly to the backing store — no infinite recursion.
-		# See: "res://docs/godot/recursion_does_not_happen_in_self_assign_in_its_own_setter.md"
 		_current_index = value
 		_update_cursor()
 
-## Callbacks registered via [method bind], keyed by item node.
-## Write-once per item — set during owner initialisation and never changed.
 var _callbacks: Dictionary[Control, Callable] = {}
 
 @onready var _item_container: VBoxContainer = $MarginContainer/ItemContainer
 @onready var _cursor: Sprite2D = $Cursor
 
 
-## Validates children then defers cursor scale computation until after the first layout pass.
 func _ready() -> void:
-	(
-		Utils
-		. require(
-			_item_container.get_child_count() > 0,
-			(
-				"UISimpleList._ready: item_container has no children"
-				+ " — add Control nodes as children in the scene editor"
-			),
-		)
-	)
-	for child: Node in _item_container.get_children():
-		(
-			Utils
-			. require(
-				child is Control,
-				"UISimpleList._ready: child '%s' is not a Control node" % child.name,
-			)
-		)
 	_cursor.centered = false
-	(
-		Utils
-		. require(
-			_cursor.texture != null,
-			"UISimpleList._ready: cursor has no texture — assign one in the scene editor",
-		)
-	)
-	var tex_size: Vector2 = _cursor.texture.get_size()
-	(
-		Utils
-		. require(
-			tex_size.x > 0.0 and tex_size.y > 0.0,
-			"UISimpleList._ready: cursor texture size must be positive, got %s" % tex_size,
-		)
-	)
 	_update_cursor()
 
 
@@ -95,51 +54,19 @@ func get_item_count() -> int:
 
 
 ## Binds [param callback] to [param item] so [method confirm] calls it when [param item]
-## is selected. Write-once per item — crashes if [param item] is already bound.
-## [param item] must be a direct child of [member _item_container].
+## is selected. [param item] must be a direct child of [member _item_container].
 func bind(item: Control, callback: Callable) -> void:
-	(
-		Utils
-		. require(
-			item.get_parent() == _item_container,
-			"UISimpleList.bind: '%s' is not a direct child of item_container" % item.name,
-		)
-	)
-	(
-		Utils
-		. require(
-			not _callbacks.has(item),
-			"UISimpleList.bind: '%s' is already bound — bind is write-once per item" % item.name,
-		)
-	)
 	_callbacks[item] = callback
 
 
 ## Calls the callback bound to the currently selected item.
-## Crashes if the selected item has no binding — call [method bind] for every item first.
 func confirm() -> void:
-	var item: Control = get_selected_item()
-	(
-		Utils
-		. require(
-			_callbacks.has(item),
-			"UISimpleList.confirm: no callback bound for '%s' — call bind() first" % item.name,
-		)
-	)
-	_callbacks[item].call()
+	_callbacks[get_selected_item()].call()
 
 
 ## Returns the currently selected item node.
 func get_selected_item() -> Control:
-	var item: Control = _item_container.get_child(_current_index) as Control
-	(
-		Utils
-		. require(
-			item != null,
-			"UISimpleList.get_selected_item: child at index %d is not a Control" % _current_index,
-		)
-	)
-	return item
+	return _item_container.get_child(_current_index) as Control
 
 
 ## Positions and scales the cursor to cover the currently selected item.

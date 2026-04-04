@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://batle01gbr6m"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_gprud"]
+[ext_resource type="Texture2D" uid="uid://clx7p2cbvvt5i" path="res://assets/images/static/ui/ui_moon_key_fragment_slot.png" id="2_47g02"]
+
+[resource]
+script = ExtResource("1_gprud")
+id = &"moon_key_fragment"
+type = 6
+ui_name = "Moon Shard"
+description = "A curved fragment of a key."
+slot_texture = ExtResource("2_47g02")
+metadata/_custom_type_script = "uid://bg4g413gmidq7"

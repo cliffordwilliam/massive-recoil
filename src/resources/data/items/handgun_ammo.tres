@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bt75dgxrfeqjo"]
+
+[ext_resource type="Script" uid="uid://bg4g413gmidq7" path="res://src/resources/items/item_data.gd" id="1_yt2g0"]
+[ext_resource type="Texture2D" uid="uid://bi5s4ikpwyj5h" path="res://assets/images/static/ui/ui_handgun_ammo_slot.png" id="2_usebn"]
+
+[resource]
+script = ExtResource("1_yt2g0")
+id = &"handgun_ammo"
+type = 1
+ui_name = "Handgun Ammo"
+description = "Standard handgun cartridges."
+slot_texture = ExtResource("2_usebn")
+inventory_size = Vector2i(2, 1)
+stack_size = 50
+stackable = true
+sell_price = 50
+sellable = true
+metadata/_custom_type_script = "uid://bg4g413gmidq7"
