@@ -17,7 +17,7 @@ extends Node
 ## extends StateMachine
 ##
 ## @onready var browse: BrowseState = $BrowseState
-## @onready var action_menu: ActionMenuState = $ActionMenuState
+## @onready var _action_menu: ActionMenuState = $ActionMenuState
 ##
 ## func go_to_browse() -> void:
 ##     transition_to(browse)

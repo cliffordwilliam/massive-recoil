@@ -6,13 +6,12 @@ Follow it when adding new features or reviewing existing ones.
 ## Philosophy
 
 Write GDScript as GDScript. The language is dynamically typed with optional static
-annotations — use the annotations where they add clarity or catch real bugs, not to
-simulate a stricter language. Favour the golden path: assume internal callers are
+annotations — use the annotations everywhere but favour the golden path: assume internal callers are
 correct, keep functions short, and reach for complexity only when the problem demands it.
 
 Lean code is easier to read and maintain than defensive code. Do not add guards,
 comments, or validation for scenarios that cannot happen. Trust internal code and
-framework guarantees.
+framework guarantees. No need to overthink, keep it simple and straight forward.
 
 ## Tooling
 
@@ -25,8 +24,6 @@ gdlint file.gd
 
 `gdformat` is the canonical formatter. Never hand-format a file differently from what
 `gdformat` would produce — if the output looks odd, the formatter wins.
-
-The Git hook runs both tools automatically. See `README.md` for installation.
 
 ## File and folder naming
 
@@ -47,19 +44,19 @@ src/
   autoload/      → global singletons registered in Project Settings
   custom_nodes/  → reusable Node subclasses (state machine infrastructure, etc.)
   editor/        → editor utility scripts (run once, never shipped)
-  entities/      → scene objects (Node) and gameplay UI
+  entities/      → scene objects
   overlays/      → UI overlays shown above the current scene
-  resources/     → static data definitions and validation
-  state/         → runtime gameplay state (RefCounted objects)
+  resources/     → static data definitions
+  state/         → runtime gameplay state
   utils.gd       → shared helper functions
 ```
 
 **Layer rules:**
-- `state/` objects are plain data holders — no scene references, no autoload calls inside constructors.
-- `resources/` classes define structure and validate it — they do not drive gameplay or hold runtime state.
-- `entities/` and `overlays/` read from autoloads but do not store long-lived references to internal autoload state. Pass live state to UI and trust it not to mutate. See `docs/decisions/item_architecture.md`.
-- `autoload/` singletons are the only objects allowed to own mutable shared state across the session.
-- `custom_nodes/` classes are pure node infrastructure — no autoload calls, no game-specific logic.
+- `state/` objects are plain data holders.
+- `resources/` classes define structure.
+- `entities/` and `overlays/` read from autoloads. Pass live state to UI and trust it not to mutate.
+- `autoload/` singletons own mutable shared state across the session.
+- `custom_nodes/` classes are pure node infrastructure.
 
 ## Naming
 
@@ -71,7 +68,7 @@ src/
 | Private members | `_snake_case` (leading underscore) | `_slots`, `_parse_slot_entry` |
 | Enums | `PascalCase` name, `SCREAMING_SNAKE_CASE` values | `Type.WEAPON`, `AmmoType.HANDGUN_AMMO` |
 | Signals | `snake_case`, past or present tense verb phrase | `inventory_changed`, `selection_changed` |
-| `StringName` literals | `&"..."` syntax | `&"handgun"`, `&""` |
+| `StringName` literals | `snake_case` | `&"handgun_ammo"`, `&""` |
 
 Public members come before private members within each member category. See
 [Member ordering](#member-ordering).
@@ -95,7 +92,7 @@ Within a script, declare members in this order:
 9. Public functions
 10. Private functions (`_` prefix)
 
-Within each category, public members appear before private ones.
+Within each category, public members appear before private ones. See `docs/godot/how_to_document_gdscript.md` for complete script example.
 
 ## Documentation
 
@@ -103,9 +100,9 @@ Use `##` (double-hash) for doc comments. Use `#` (single hash) for inline
 implementation comments. Never mix them for the same thing.
 
 ```gdscript
-## Brief one-line summary of what this does.
+## Brief succinct one-line summary of what this does.
 ##
-## Extended explanation if needed. Reference related types with
+## Extended explanation only when needed. Reference related types with
 ## [ClassName] or [member ClassName.property] for IDE cross-links.
 ##
 ## See: "res://docs/decisions/some_decision.md"
@@ -116,13 +113,13 @@ func my_function() -> void:
 
 **What requires a `##` doc comment:**
 - Every `class_name` (placed immediately after `extends`)
-- Every public variable, constant, signal, and function
-- Every enum and its values when the meaning is not obvious from the name
-- Private members whose behaviour or purpose is not obvious from the name and type
+- Every public variable, constant, signal, and function only when the meaning is not obvious
+- Every enum and its values when the meaning is not obvious
+- Private members whose behaviour or purpose is not obvious
 
 **What does not need a `##` doc comment:**
 - `@onready` vars that are simple node references obvious from their name and type
-- Private helpers whose name and signature make their purpose self-evident
+- Anything whose name and signature make their purpose self-evident
 - Anything already explained by the surrounding public API doc
 
 **Cross-references:** When a design decision explains why something works a certain way,
@@ -163,14 +160,14 @@ See `docs/godot/how_to_enable_static_typing.md`.
 ## Error handling
 
 Trust internal code. Do not add precondition guards on internal functions — if a caller
-passes a bad value, the bug will surface during development and get fixed there.
+passes a bad value, the bug will surface during development and get fixed there. No need to overthing on edge cases, just focus on golden path.
 
 Use `assert` only for **editor misconfiguration**: nodes or exports that must be wired
 up in the Inspector and would produce a cryptic downstream error if left unset.
 
 ```gdscript
 func _ready() -> void:
-    assert(initial_state is BaseState, "initial_state not set in Inspector")
+	assert(initial_state is BaseState, "initial_state not set in Inspector")
 ```
 
 For expected failure paths, return a sentinel value — never assert:
@@ -224,13 +221,7 @@ inventory_changed.emit()
 
 ## Autoloads
 
-Autoloads cannot use `class_name`. Add a comment at the top of every autoload:
-
-```gdscript
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the MyAutoload autoload
-extends Node
-```
+Autoloads cannot use `class_name`.
 
 Register autoloads in the correct order — see
 `docs/decisions/autoload_registration_order.md`.
@@ -260,7 +251,7 @@ See `docs/godot/how_to_do_int_division.md`.
 ## Unreachable return statements
 
 GDScript's type checker sometimes requires a `return` after a branch that is
-provably exhaustive. Add a comment marking it unreachable:
+provably exhaustive. No need to add a comment marking it unreachable, trust the caller:
 
 ```gdscript
 func _get_render_mode_name() -> String:
@@ -269,5 +260,4 @@ func _get_render_mode_name() -> String:
 			return "buy"
 		RenderMode.SELL:
 			return "sell"
-	return ""  # Unreachable — render_mode is a typed enum. Required by the type checker.
 ```

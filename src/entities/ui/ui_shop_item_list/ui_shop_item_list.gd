@@ -41,7 +41,6 @@ var _current_index: int = -1:
 
 func _ready() -> void:
 	_cursor.centered = false
-	_scrollbar_background.show_behind_parent = true
 
 
 ## Draws the scrollbar thumb when the list spans more than one page.

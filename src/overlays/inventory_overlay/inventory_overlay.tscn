@@ -9,12 +9,25 @@
 [ext_resource type="Script" uid="uid://vrivqywk3gro" path="res://src/overlays/inventory_overlay/states/move_state.gd" id="5_mvs"]
 [ext_resource type="Script" uid="uid://bt0ec1bbk724q" path="res://src/overlays/inventory_overlay/states/examine_state.gd" id="6_exs"]
 [ext_resource type="Texture2D" uid="uid://iisip7weacxo" path="res://assets/images/static/ui/ui_item.png" id="9_2fpbm"]
+[ext_resource type="Texture2D" uid="uid://ckyr0tshts2r" path="res://assets/images/static/ui/ui_handgun_slot.png" id="11_2fpbm"]
 [ext_resource type="PackedScene" uid="uid://cdpxqvtwkcedi" path="res://src/entities/ui/ui_simple_list/ui_simple_list.tscn" id="12_tqd4m"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_tqd4m"]
+blend_mode = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2fpbm"]
+bg_color = Color(0.039215688, 0.05882353, 0.11372549, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
 
 [node name="InventoryOverlay" type="Node2D" unique_id=1145918844]
 script = ExtResource("1_qa4x4")
 
 [node name="Grid" type="PanelContainer" parent="." unique_id=1917426765]
+show_behind_parent = true
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 32.0
@@ -147,5 +160,192 @@ theme_override_constants/margin_bottom = 4
 [node name="Label" type="Label" parent="UISimpleList/MarginContainer/ItemContainer/Discard/MarginContainer" unique_id=1193669131]
 layout_mode = 2
 text = "Discard"
+
+[node name="DetailContainer" type="ColorRect" parent="." unique_id=2077664194]
+material = SubResource("CanvasItemMaterial_tqd4m")
+offset_right = 320.0
+offset_bottom = 180.0
+color = Color(0.25882354, 0.25882354, 0.2784314, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DetailContainer" unique_id=169989887]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="CenterContainer" type="CenterContainer" parent="DetailContainer/VBoxContainer" unique_id=1434216331]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Icon" type="TextureRect" parent="DetailContainer/VBoxContainer/CenterContainer" unique_id=1408777285]
+layout_mode = 2
+texture = ExtResource("11_2fpbm")
+
+[node name="TrackContainer" type="PanelContainer" parent="DetailContainer/VBoxContainer" unique_id=664338526]
+custom_minimum_size = Vector2(308, 0)
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="DetailContainer/VBoxContainer/TrackContainer" unique_id=2124046041]
+layout_mode = 2
+texture = ExtResource("1_8ccl4")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="DetailContainer/VBoxContainer/TrackContainer" unique_id=340043580]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="GridContainer" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer" unique_id=824864350]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+columns = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer" unique_id=1406713204]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1932438109]
+layout_mode = 2
+text = "Power"
+
+[node name="PowerTrack" type="Panel" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=477264245]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2fpbm")
+
+[node name="PowerRange" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer/PowerTrack" unique_id=997809664]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 6.0
+
+[node name="PowerFill" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer/PowerTrack" unique_id=1142589901]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 41.0
+offset_bottom = 5.0
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer" unique_id=1923808233]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1955905250]
+layout_mode = 2
+text = "Rate of Fire"
+
+[node name="RateOfFireTrack" type="Panel" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=114608173]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2fpbm")
+
+[node name="RateOfFireRange" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer2/RateOfFireTrack" unique_id=1390891778]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 6.0
+
+[node name="RateOfFireFill" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer2/RateOfFireTrack" unique_id=267887647]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 41.0
+offset_bottom = 5.0
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer" unique_id=6607615]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer3" unique_id=229790731]
+layout_mode = 2
+text = "Reload Speed"
+
+[node name="ReloadSpeedTrack" type="Panel" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer3" unique_id=1973783074]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2fpbm")
+
+[node name="ReloadSpeedRange" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer3/ReloadSpeedTrack" unique_id=1204510411]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 6.0
+
+[node name="ReloadSpeedFill" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer3/ReloadSpeedTrack" unique_id=1973206216]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 41.0
+offset_bottom = 5.0
+
+[node name="VBoxContainer4" type="VBoxContainer" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer" unique_id=1352172571]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer4" unique_id=1017162203]
+layout_mode = 2
+text = "Ammo Capacity"
+
+[node name="AmmoCapacityTrack" type="Panel" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer4" unique_id=1352123899]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_2fpbm")
+
+[node name="AmmoCapacityRange" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer4/AmmoCapacityTrack" unique_id=1265992988]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 6.0
+
+[node name="AmmoCapacityFill" type="ColorRect" parent="DetailContainer/VBoxContainer/TrackContainer/MarginContainer/HBoxContainer/VBoxContainer4/AmmoCapacityTrack" unique_id=447759558]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 41.0
+offset_bottom = 5.0
+
+[node name="PanelContainer" type="PanelContainer" parent="DetailContainer/VBoxContainer" unique_id=711438822]
+custom_minimum_size = Vector2(308, 0)
+layout_mode = 2
+
+[node name="NinePatchRect" type="NinePatchRect" parent="DetailContainer/VBoxContainer/PanelContainer" unique_id=931609325]
+layout_mode = 2
+texture = ExtResource("1_8ccl4")
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="DetailContainer/VBoxContainer/PanelContainer" unique_id=273251472]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DetailContainer/VBoxContainer/PanelContainer/MarginContainer" unique_id=657374201]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="UIName" type="Label" parent="DetailContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1129572392]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Treat Band"
+clip_text = true
+
+[node name="Description" type="Label" parent="DetailContainer/VBoxContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1150360135]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Bandage treated with antiseptic. Restores health."
+clip_text = true
 
 [editable path="UISimpleList"]

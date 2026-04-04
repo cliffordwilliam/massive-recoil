@@ -1,17 +1,10 @@
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the OverlayRouter autoload
+# OverlayRouter autoload
 extends CanvasLayer
 ## Manages all full-screen overlays for the duration of the game session.
 ##
 ## At most one [BaseOverlay] child is active at a time. Opening an overlay
 ## while another overlay is already open is ignored.
 ## The game tree is paused while an overlay is open and unpaused on close.
-##
-## Uses [constant Node.PROCESS_MODE_ALWAYS] so input is received even while the
-## tree is paused. PROCESS_MODE_ALWAYS is intentional — not PROCESS_MODE_WHEN_PAUSED.
-## The player can press "inventory" during live gameplay (game not yet paused),
-## so this node must process input before any pause is set. Switching to
-## PROCESS_MODE_WHEN_PAUSED would silently drop that initial keypress.
 ##
 ## See: "res://docs/decisions/overlay_router.md"
 
@@ -29,7 +22,6 @@ func _ready() -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
-	# Cancel with no active overlay is intentionally unhandled — let it propagate.
 	if event.is_action_pressed(InputActions.CANCEL) and _current_overlay:
 		_current_overlay.is_active = false
 		_current_overlay = null
@@ -43,12 +35,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		open_buy_overlay()
 
 
-## Opens the shop buy overlay.
 func open_buy_overlay() -> void:
 	_open_overlay(_buy_overlay)
 
 
-## Opens the inventory overlay.
 func open_inventory_overlay() -> void:
 	_open_overlay(_inventory_overlay)
 

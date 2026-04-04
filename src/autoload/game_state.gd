@@ -1,13 +1,11 @@
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the GameState autoload
+# GameState autoload
 extends Node
 ## Tracks game-wide progression state.
 ##
 ## Holds the current chapter, the player's gold, and the set of shop item IDs the
 ## player has already seen. All three are persisted to the save file.
 ##
-## The current chapter is used by [code]BuyOverlay[/code] to
-## filter which items appear in the shop.
+## The current chapter is used by [code]BuyOverlay[/code] to filter which items appear in the shop.
 ##
 ## The seen-item set drives the NEW badge in the shop buy overlay: any item whose id
 ## is absent from [member _seen_shop_item_ids] is considered unseen and shown as new.
@@ -16,24 +14,17 @@ const _DEFAULT_CHAPTER: int = 1
 const _DEFAULT_GOLD: int = _MAX_GOLD
 const _MAX_GOLD: int = 99999999
 
-## Current chapter. Controls which items are available in the shop.
 var chapter: int = _DEFAULT_CHAPTER
 
-## Current gold amount. Used in game to buy items from the shop.
 var gold: int = _DEFAULT_GOLD
 
-## IDs of items the player has already seen in the shop buy overlay.
-## Used as a set — values are always [code]true[/code] and carry no meaning.
-## GDScript has no native Set type; [Dictionary] with constant values is the idiomatic substitute.
 var _seen_shop_item_ids: Dictionary[StringName, bool] = {}
 
 
-## Returns [code]true[/code] if the player has not yet seen [param id] in the shop.
 func is_shop_item_new(id: StringName) -> bool:
 	return not _seen_shop_item_ids.has(id)
 
 
-## Marks [param id] as seen, clearing its NEW badge in the shop.
 func mark_shop_item_seen(id: StringName) -> void:
 	_seen_shop_item_ids[id] = true
 
@@ -57,7 +48,7 @@ func spend_gold(amount: int) -> int:
 
 
 ## Resets all state to defaults for a new game session.
-func new_game() -> void:
+func reset_state() -> void:
 	chapter = _DEFAULT_CHAPTER
 	gold = _DEFAULT_GOLD
 	_seen_shop_item_ids.clear()
@@ -65,10 +56,10 @@ func new_game() -> void:
 
 ## Returns state serialized for saving.
 func get_save_data() -> Dictionary[String, Variant]:
-	var ids: Array[String] = []
-	for k: StringName in _seen_shop_item_ids:
-		ids.append(str(k))
-	return {"chapter": chapter, "gold": gold, "seen_shop_item_ids": ids}
+	# See: "res://docs/godot/how_to_save_stringname.md"
+	return {
+		"chapter": chapter, "gold": gold, "seen_shop_item_ids": Array(_seen_shop_item_ids.keys())
+	}
 
 
 ## Hydrates state from [param save_data].

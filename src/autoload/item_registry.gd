@@ -1,10 +1,6 @@
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the ItemRegistry autoload
+# ItemRegistry
 extends Node
 ## Static catalog of all [ItemData] definitions.
-##
-## This autoload holds no runtime state — use [code]PlayerInventory[/code] for inventory
-## instances and [code]GameState[/code] for progression state.
 
 var _items: Dictionary[StringName, ItemData] = {}
 var _all: Array[ItemData] = []
@@ -34,7 +30,6 @@ func _ready() -> void:
 		_all.append(i)
 
 
-## Returns all items in the catalog.
 func get_all_items() -> Array[ItemData]:
 	return _all
 

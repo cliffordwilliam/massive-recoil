@@ -17,10 +17,10 @@ var cursor_cell: Vector2i = Vector2i.ZERO
 var selected_snapshot: ItemState = null
 
 @onready var overlay: InventoryOverlay = get_parent() as InventoryOverlay
-@onready var browse: InventoryBrowseState = $InventoryBrowseState
-@onready var action_menu: InventoryActionMenuState = $InventoryActionMenuState
-@onready var move: InventoryMoveState = $InventoryMoveState
-@onready var examine: InventoryExamineState = $InventoryExamineState
+@onready var _browse: InventoryBrowseState = $InventoryBrowseState
+@onready var _action_menu: InventoryActionMenuState = $InventoryActionMenuState
+@onready var _move: InventoryMoveState = $InventoryMoveState
+@onready var _examine: InventoryExamineState = $InventoryExamineState
 
 
 func _ready() -> void:
@@ -29,17 +29,17 @@ func _ready() -> void:
 
 func go_to_browse() -> void:
 	selected_snapshot = null
-	transition_to(browse)
+	transition_to(_browse)
 
 
 func go_to_action_menu(snapshot: ItemState) -> void:
 	selected_snapshot = snapshot
-	transition_to(action_menu)
+	transition_to(_action_menu)
 
 
 func go_to_move() -> void:
-	transition_to(move)
+	transition_to(_move)
 
 
 func go_to_examine() -> void:
-	transition_to(examine)
+	transition_to(_examine)

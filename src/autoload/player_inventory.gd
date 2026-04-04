@@ -1,5 +1,4 @@
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the PlayerInventory autoload
+# PlayerInventory autoload
 extends Node
 ## Single source of truth for all items in the player's possession.
 ##
@@ -8,7 +7,7 @@ extends Node
 ## [member ItemData.inventory_size].
 ##
 ## All mutations go through this autoload. Every mutating method returns a result
-## (bool or int) that tells the caller whether and how much state changed — the UI
+## that tells the caller whether and how much state changed — the UI
 ## re-queries [method get_slots] after each successful call. No signals are emitted;
 ## callers drive redraws explicitly on success.
 ##
@@ -33,23 +32,10 @@ var _grid_tier: int = 0
 var _slots: Array[ItemState] = []
 
 
-## Places a new item identified by [param id] at [param position] with a
-## [member ItemState.stack_count] of [param count].
-## Marks the item as seen in [GameState] on success if it is buyable.
-## Returns [code]false[/code] without mutating state if placement is invalid.
-func place_item(id: StringName, position: Vector2i, count: int = 1) -> bool:
-	if not _place(id, position, count):
-		return false
-	var item: ItemData = ItemRegistry.get_item(id)
-	if item and item.buyable:
-		GameState.mark_shop_item_seen(id)
-	return true
-
-
 ## Adds [param count] to the stack at [param position].
 ## Returns the overflow count, or [code]-1[/code] if the slot is invalid or a different item.
 func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
-	var slot: ItemState = _get_slot_at(position)
+	var slot: ItemState = get_slot_at(position)
 	if slot == null or slot.data.id != id or slot.stack_count >= slot.data.stack_size:
 		return -1
 	var space: int = slot.data.stack_size - slot.stack_count
@@ -58,14 +44,13 @@ func add_to_stack(id: StringName, position: Vector2i, count: int) -> int:
 	return count - added
 
 
-## Places [param count] of [param id] into inventory atomically. Used by buy and pick up action.
-## Returns [code]false[/code] if the inventory has insufficient space — no state is mutated.
+## Creates [param count] of [param id] into inventory atomically.
+## Used in game actions (e.g. pick up, buy, etc).
+## Returns [code]false[/code] if the inventory has insufficient space.
 ##
-## [b]New slots only:[/b] always opens new grid slots, does not top up existing stacks.
-## So if it is insufficient on buy or pickup action,
-## player has to organize their inventory by stacking up to make space.
+## New slots only, does not top up existing stacks.
 ## See: "res://docs/decisions/item_architecture.md"
-func place_batch(id: StringName, count: int) -> bool:
+func create_batch(id: StringName, count: int) -> bool:
 	var data: ItemData = ItemRegistry.get_item(id)
 
 	# Dry run: find all required positions before touching any state.
@@ -80,11 +65,11 @@ func place_batch(id: StringName, count: int) -> bool:
 		claimed_rects.append(Rect2i(pos, data.inventory_size))
 		remaining -= mini(remaining, data.stack_size)
 
-	# Commit: all positions confirmed, place every batch.
+	# Commit: all positions confirmed, create every batch.
 	remaining = count
 	for pos: Vector2i in positions:
 		var batch: int = mini(remaining, data.stack_size)
-		place_item(id, pos, batch)
+		_create_item(id, pos, batch)
 		remaining -= batch
 
 	return true
@@ -92,13 +77,13 @@ func place_batch(id: StringName, count: int) -> bool:
 
 ## Removes the slot whose footprint contains [param position].
 func remove_item_at(position: Vector2i) -> void:
-	_slots.erase(_get_slot_at(position))
+	_slots.erase(get_slot_at(position))
 
 
 ## Moves the item at [param from_pos] so its top-left corner is at [param to_pos].
 ## Returns [code]false[/code] if no slot exists at [param from_pos] or the placement is invalid.
 func move_item(from_pos: Vector2i, to_pos: Vector2i) -> bool:
-	var slot: ItemState = _get_slot_at(from_pos)
+	var slot: ItemState = get_slot_at(from_pos)
 	if slot == null or not _can_place(slot.data, to_pos, [slot]):
 		return false
 	slot.position = to_pos
@@ -112,7 +97,10 @@ func get_slots() -> Array[ItemState]:
 
 ## Returns the slot whose footprint contains [param position], or [code]null[/code].
 func get_slot_at(position: Vector2i) -> ItemState:
-	return _get_slot_at(position)
+	for slot: ItemState in _slots:
+		if Rect2i(slot.position, slot.data.inventory_size).has_point(position):
+			return slot
+	return null
 
 
 ## Advances the grid to the next size tier.
@@ -128,8 +116,8 @@ func upgrade_grid() -> bool:
 ## and removes the upgrade item from inventory.
 ## Returns [code]false[/code] if the upgrade cannot be applied (wrong types, stat already maxed).
 func upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> bool:
-	var weapon_slot: ItemState = _get_slot_at(weapon_pos)
-	var upgrade_slot: ItemState = _get_slot_at(upgrade_pos)
+	var weapon_slot: ItemState = get_slot_at(weapon_pos)
+	var upgrade_slot: ItemState = get_slot_at(upgrade_pos)
 	if (
 		weapon_slot == null
 		or weapon_slot.data.type != ItemData.Type.WEAPON
@@ -168,8 +156,8 @@ func upgrade_weapon(weapon_pos: Vector2i, upgrade_pos: Vector2i) -> bool:
 ## Returns [code]false[/code] if no recipe exists for the pair.
 ## See: "res://docs/decisions/item_architecture.md"
 func combine_items(h_pos: Vector2i, t_pos: Vector2i) -> bool:
-	var h_slot: ItemState = _get_slot_at(h_pos)
-	var t_slot: ItemState = _get_slot_at(t_pos)
+	var h_slot: ItemState = get_slot_at(h_pos)
+	var t_slot: ItemState = get_slot_at(t_pos)
 	if h_slot == null or t_slot == null or h_slot == t_slot:
 		return false
 
@@ -180,7 +168,7 @@ func combine_items(h_pos: Vector2i, t_pos: Vector2i) -> bool:
 	var target_pos: Vector2i = t_slot.position
 	remove_item_at(h_slot.position)
 	remove_item_at(t_slot.position)
-	place_item(result_id, target_pos)
+	_create_item(result_id, target_pos)
 	return true
 
 
@@ -188,8 +176,8 @@ func combine_items(h_pos: Vector2i, t_pos: Vector2i) -> bool:
 ## moves the held item to [param to_pos]. Returns the parking position.
 ## Returns [code]Vector2i(-1, -1)[/code] if the displacement is not possible.
 func displace_item(held_pos: Vector2i, to_pos: Vector2i, target_pos: Vector2i) -> Vector2i:
-	var held: ItemState = _get_slot_at(held_pos)
-	var target: ItemState = _get_slot_at(target_pos)
+	var held: ItemState = get_slot_at(held_pos)
+	var target: ItemState = get_slot_at(target_pos)
 	if held == null or target == null or held == target:
 		return Vector2i(-1, -1)
 
@@ -204,7 +192,7 @@ func displace_item(held_pos: Vector2i, to_pos: Vector2i, target_pos: Vector2i) -
 
 
 ## Resets all inventory state for a new game session.
-func new_game() -> void:
+func reset_state() -> void:
 	_slots.clear()
 	_grid_tier = 0
 
@@ -220,12 +208,12 @@ func get_save_data() -> Dictionary:
 			"position": {"x": slot.position.x, "y": slot.position.y},
 		}
 		if slot.data.type == ItemData.Type.WEAPON:
-			var stats: WeaponPointer = slot.weapon_pointer
+			var pointer: WeaponPointer = slot.weapon_pointer
 			slot_dict["weapon_stats"] = {
-				"power": stats.power,
-				"rate_of_fire": stats.rate_of_fire,
-				"reload_speed": stats.reload_speed,
-				"ammo_capacity": stats.ammo_capacity,
+				"power": pointer.power,
+				"rate_of_fire": pointer.rate_of_fire,
+				"reload_speed": pointer.reload_speed,
+				"ammo_capacity": pointer.ammo_capacity,
 			}
 		slots_data.append(slot_dict)
 
@@ -241,12 +229,25 @@ func load_save(save_data: Dictionary) -> void:
 			_parse_and_append_slot_entry(entry as Dictionary)
 
 
+## Creates a new item identified by [param id] at [param position] with a
+## [member ItemState.stack_count] of [param count].
+## Marks the item as seen in [GameState] on success if it is buyable.
+## Returns [code]false[/code] without mutating state if placement is invalid.
+func _create_item(id: StringName, position: Vector2i, count: int = 1) -> bool:
+	if not _create(id, position, count):
+		return false
+	var item: ItemData = ItemRegistry.get_item(id)
+	if item and item.buyable:
+		GameState.mark_shop_item_seen(id)
+	return true
+
+
 ## Returns [code]true[/code] if [param item_data] can be placed at [param position].
 ##
 ## Checks that the item's footprint fits within [member grid_size] and does not
 ## overlap any existing other item's footprints. Slots in [param excluded_slots] are treated as if
 ## already removed — used by move and combine checks. Rects in [param extra_rects] are
-## treated as additional occupied footprints — used by [method place_batch] during its
+## treated as additional occupied footprints — used by [method create_batch] during its
 ## dry run to prevent two planned batches from claiming the same open slot.
 func _can_place(
 	item_data: ItemData,
@@ -272,13 +273,6 @@ func _can_place(
 	return true
 
 
-func _get_slot_at(position: Vector2i) -> ItemState:
-	for slot: ItemState in _slots:
-		if Rect2i(slot.position, slot.data.inventory_size).has_point(position):
-			return slot
-	return null
-
-
 ## Returns the first open position where [param item_data] fits, scans left-to-right top-to-bottom.
 ## Returns [code]Vector2i(-1, -1)[/code] if no space is available.
 func _find_open_position(
@@ -292,7 +286,7 @@ func _find_open_position(
 	return Vector2i(-1, -1)
 
 
-func _place(id: StringName, position: Vector2i, count: int) -> bool:
+func _create(id: StringName, position: Vector2i, count: int) -> bool:
 	var data: ItemData = ItemRegistry.get_item(id)
 	if not _can_place(data, position):
 		return false

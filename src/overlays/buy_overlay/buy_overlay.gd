@@ -13,7 +13,7 @@ func _on_close() -> void:
 	pass
 
 
-func _hydrate_ui() -> void:
+func _on_open() -> void:
 	var chapter: int = GameState.chapter
 	var buyable: Array[ItemData] = ItemRegistry.get_all_items().filter(
 		func(item: ItemData) -> bool: return item.buyable and item.availability <= chapter
@@ -39,7 +39,7 @@ func _try_buy() -> void:
 	var item_data: ItemData = _ui_shop_item_list.get_selected_buy_item()
 	if item_data == null or GameState.gold < item_data.buy_price:
 		return
-	if not PlayerInventory.place_batch(item_data.id, 1):
+	if not PlayerInventory.create_batch(item_data.id, 1):
 		return
 	GameState.spend_gold(item_data.buy_price)
-	_hydrate_ui()
+	_on_open()

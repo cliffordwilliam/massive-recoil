@@ -16,27 +16,43 @@ const _CELL_PX: int = 16
 ## Fill colour for the single-cell cursor in Browse state.
 const _CURSOR_COLOR: Color = Color(1.0, 1.0, 1.0, 0.35)
 
+## Fill colour for the move footprint highlight in Move state.
+const _MOVE_CURSOR_COLOR: Color = Color(0.4, 0.8, 1.0, 0.35)
+
 var _slots: Array[ItemState] = []
 
 ## Textures keyed by slot position, loaded once in [method refresh_slots] and reused each draw.
 var _slot_textures: Dictionary[Vector2i, Texture2D] = {}
 
-@onready var action_menu: UISimpleList = $UISimpleList
-@onready var use: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Use
-@onready var move: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Move
-@onready var examine: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Examine
-@onready var discard: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Discard
+@onready var _action_menu: UISimpleList = $UISimpleList
+@onready var _use: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Use
+@onready var _move: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Move
+@onready var _examine: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Examine
+@onready var _discard: PanelContainer = $UISimpleList/MarginContainer/ItemContainer/Discard
 @onready var _grid: PanelContainer = $Grid
 @onready var _sm: InventoryStateMachine = $InventoryStateMachine
+@onready var _detail_container: ColorRect = $DetailContainer
+@onready var _icon: TextureRect = $DetailContainer/VBoxContainer/CenterContainer/Icon
+@onready var _track_container: PanelContainer = $DetailContainer/VBoxContainer/TrackContainer
+@onready var _power_range: ColorRect = %PowerRange
+@onready var _power_fill: ColorRect = %PowerFill
+@onready var _rate_of_fire_range: ColorRect = %RateOfFireRange
+@onready var _rate_of_fire_fill: ColorRect = %RateOfFireFill
+@onready var _reload_speed_range: ColorRect = %ReloadSpeedRange
+@onready var _reload_speed_fill: ColorRect = %ReloadSpeedFill
+@onready var _ammo_capacity_range: ColorRect = %AmmoCapacityRange
+@onready var _ammo_capacity_fill: ColorRect = %AmmoCapacityFill
+@onready var _ui_name: Label = %UIName
+@onready var _description: Label = %Description
 
 
 func _ready() -> void:
-	_grid.show_behind_parent = true
 	hide_action_menu()
-	action_menu.bind(use, func() -> void: use_item())
-	action_menu.bind(move, func() -> void: _sm.go_to_move())
-	action_menu.bind(examine, func() -> void: _sm.go_to_examine())
-	action_menu.bind(discard, func() -> void: discard_item())
+	_detail_container.hide()
+	_action_menu.bind(_use, func() -> void: use_item())
+	_action_menu.bind(_move, func() -> void: _sm.go_to_move())
+	_action_menu.bind(_examine, func() -> void: _sm.go_to_examine())
+	_action_menu.bind(_discard, func() -> void: discard_item())
 
 
 func _draw() -> void:
@@ -52,15 +68,15 @@ func show_action_menu() -> void:
 		+ (Vector2(slot.position.x + slot.data.inventory_size.x, slot.position.y) * _CELL_PX)
 	)
 	var viewport_size: Vector2 = get_viewport_rect().size
-	action_menu.position = Vector2(
-		clampf(item_top_right.x, 0.0, viewport_size.x - action_menu.size.x),
-		clampf(item_top_right.y, 0.0, viewport_size.y - action_menu.size.y),
+	_action_menu.position = Vector2(
+		clampf(item_top_right.x, 0.0, viewport_size.x - _action_menu.size.x),
+		clampf(item_top_right.y, 0.0, viewport_size.y - _action_menu.size.y),
 	)
-	action_menu.visible = true
+	_action_menu.visible = true
 
 
 func hide_action_menu() -> void:
-	action_menu.visible = false
+	_action_menu.visible = false
 
 
 ## Executes the Use action for the selected item.
@@ -135,7 +151,7 @@ func draw_move_footprint() -> void:
 	draw_texture(_slot_textures[slot.position], cursor_origin)
 	draw_rect(
 		Rect2(cursor_origin, Vector2(slot.data.inventory_size) * _CELL_PX),
-		_CURSOR_COLOR,
+		_MOVE_CURSOR_COLOR,
 	)
 
 
@@ -150,12 +166,41 @@ func draw_item_footprints(skip_pos: Vector2i = Vector2i(-1, -1)) -> void:
 		draw_texture(_slot_textures[pos], grid_origin + Vector2(pos) * _CELL_PX)
 
 
+## Populates and shows the detail panel for [param slot].
+## The weapon stat track panel is shown only for [constant ItemData.Type.WEAPON] items.
+func show_detail(slot: ItemState) -> void:
+	_icon.texture = slot.data.slot_texture
+	_ui_name.text = slot.data.ui_name
+	_description.text = slot.data.description
+	var is_weapon: bool = slot.data.type == ItemData.Type.WEAPON
+	_track_container.visible = is_weapon
+	if is_weapon:
+		var wt: WeaponTrack = slot.data.weapon_track
+		var ptr: WeaponPointer = slot.weapon_pointer
+		_set_track(_power_range, _power_fill, wt.power, ptr.power)
+		_set_track(_rate_of_fire_range, _rate_of_fire_fill, wt.rate_of_fire, ptr.rate_of_fire)
+		_set_track(_reload_speed_range, _reload_speed_fill, wt.reload_speed, ptr.reload_speed)
+		_set_track(_ammo_capacity_range, _ammo_capacity_fill, wt.ammo_capacity, ptr.ammo_capacity)
+	_detail_container.show()
+
+
+func hide_detail() -> void:
+	_detail_container.hide()
+
+
+func _set_track(
+	range_rect: ColorRect, fill_rect: ColorRect, track: TrackData, pointer_value: int
+) -> void:
+	range_rect.position.x = float(track.range_max)
+	fill_rect.size.x = float(pointer_value)
+
+
 func _on_close() -> void:
 	# Reset to Browse so cursor and selection state are clean on the next open.
 	_sm.reset()
 
 
-func _hydrate_ui() -> void:
+func _on_open() -> void:
 	var gs: Vector2i = PlayerInventory.grid_size
 	_sm.cursor_cell = _sm.cursor_cell.clamp(Vector2i.ZERO, gs - Vector2i.ONE)
 	refresh_slots()

@@ -1,10 +1,8 @@
-# Autoload cannot have class_name, read "res://docs/godot/can_autoload_have_class_name.md"
-# This is the RecipeRegistry autoload
+# RecipeRegistry autoload
 extends Node
 ## Recipe catalog. Provides ingredient-pair → result lookups.
 ##
-## Loads all [CraftingRecipe] resources from [code]res://data/recipes/[/code] at startup
-## and builds an order-independent lookup table for the combine system.
+## Builds an order-independent lookup table for the combine system.
 
 ## Maps a canonical ingredient-pair key (see [method _make_key]) to a result id.
 var _recipes: Dictionary[String, StringName] = {}

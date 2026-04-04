@@ -71,17 +71,25 @@ func _on_drop() -> void:
 
 
 func _try_drop_onto_occupied(held: ItemState, target: ItemState, to_pos: Vector2i) -> void:
-	# Stack merge — same item type, stackable, target has enough capacity for all held units.
+	# Stack merge — same item type, stackable, target has room for at least one unit.
+	# Pours as many as fit; if all units transferred, go to browse. If overflow remains,
+	# update the held stack count and stay in move state.
 	if (
 		held.data.id == target.data.id
 		and held.data.stackable
-		and (target.data.stack_size - target.stack_count) >= held.stack_count
+		and (target.data.stack_size - target.stack_count) > 0
 	):
-		# overflow ignored — capacity pre-checked above
-		PlayerInventory.add_to_stack(held.data.id, target.position, held.stack_count)
-		PlayerInventory.remove_item_at(held.position)
-		_sm.overlay.refresh_slots()
-		_sm.go_to_browse()
+		var overflow: int = PlayerInventory.add_to_stack(
+			held.data.id, target.position, held.stack_count
+		)
+		if overflow == 0:
+			PlayerInventory.remove_item_at(held.position)
+			_sm.overlay.refresh_slots()
+			_sm.go_to_browse()
+		else:
+			held.stack_count = overflow
+			_sm.overlay.refresh_slots()
+			_sm.overlay.queue_redraw()
 		return
 
 	# Weapon upgrade — held is WEAPON_UPGRADE, target is WEAPON.
