@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://c6dqylbiduyg1"]
+
+[ext_resource type="Script" uid="uid://nd61l3gbv5ay" path="res://src/entities/actors/player/player.gd" id="1_2fn0v"]
+[ext_resource type="SpriteFrames" uid="uid://c2i3esxt8e6pg" path="res://assets/images/dynamic/player_spritesheet_body.tres" id="1_ri2ve"]
+[ext_resource type="PackedScene" uid="uid://c5a1e1qdpaocb" path="res://src/custom_nodes/chained_animated_sprite_2d/chained_animated_sprite_2d.tscn" id="2_q8rf2"]
+[ext_resource type="Script" uid="uid://nu57e0epyv5u" path="res://src/entities/actors/player/states/player_state_machine.gd" id="3_q8rf2"]
+[ext_resource type="Script" uid="uid://48shn7toqv3f" path="res://src/entities/actors/player/states/player_idle_state.gd" id="4_hw85n"]
+[ext_resource type="Script" uid="uid://cs2fcegvvfc1i" path="res://src/entities/actors/player/states/player_walk_state.gd" id="6_hvu4l"]
+[ext_resource type="Script" uid="uid://cwa7162fkdd41" path="res://src/entities/actors/player/states/player_turn_state.gd" id="7_hw85n"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2fn0v"]
+size = Vector2(8, 24)
+
+[node name="Player" type="CharacterBody2D" unique_id=1883003127]
+script = ExtResource("1_2fn0v")
+
+[node name="Body" parent="." unique_id=120492052 instance=ExtResource("2_q8rf2")]
+position = Vector2(0, -21)
+sprite_frames = ExtResource("1_ri2ve")
+animation = &"idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=300317543]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_2fn0v")
+
+[node name="PlayerStateMachine" type="Node" parent="." unique_id=388357126 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("3_q8rf2")
+initial_state = NodePath("PlayerIdleState")
+metadata/_custom_type_script = "uid://nu57e0epyv5u"
+
+[node name="PlayerIdleState" type="Node" parent="PlayerStateMachine" unique_id=1724685404]
+script = ExtResource("4_hw85n")
+metadata/_custom_type_script = "uid://48shn7toqv3f"
+
+[node name="PlayerTurnState" type="Node" parent="PlayerStateMachine" unique_id=36723253]
+script = ExtResource("7_hw85n")
+metadata/_custom_type_script = "uid://cwa7162fkdd41"
+
+[node name="PlayerWalkState" type="Node" parent="PlayerStateMachine" unique_id=705226687]
+script = ExtResource("6_hvu4l")
+metadata/_custom_type_script = "uid://cs2fcegvvfc1i"

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://c5a1e1qdpaocb"]
+
+[ext_resource type="Script" uid="uid://b6utb61c55r3d" path="res://src/custom_nodes/chained_animated_sprite_2d/chained_animated_sprite_2d.gd" id="1_0tk47"]
+
+[node name="ChainedAnimatedSprite2d" type="AnimatedSprite2D" unique_id=120492052]
+script = ExtResource("1_0tk47")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]

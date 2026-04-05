@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cygnrervhe8qc"]
+
+[ext_resource type="PackedScene" uid="uid://c6dqylbiduyg1" path="res://src/entities/actors/player/player.tscn" id="1_11l44"]
+
+[node name="VillageEntrance" type="Node" unique_id=1080990133]
+
+[node name="Player" parent="." unique_id=1883003127 instance=ExtResource("1_11l44")]
+position = Vector2(64, 128)

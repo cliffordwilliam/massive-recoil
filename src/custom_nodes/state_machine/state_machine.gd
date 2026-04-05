@@ -29,41 +29,41 @@ extends Node
 ## The initial state entered when the parent owner is ready. Set in the Inspector.
 @export var initial_state: BaseState
 
-## The currently active state. Private — transitions are the only valid way to change it.
-var _current_state: BaseState = null
+## The currently active state. Transitions are the only valid way to change it.
+var current_state: BaseState = null
 
 
 ## Disables processing until the parent owner is ready, then enters [member initial_state].
 func _ready() -> void:
 	assert(initial_state is BaseState, "initial_state not set in Inspector")
-	_current_state = initial_state
+	current_state = initial_state
 	process_mode = Node.PROCESS_MODE_DISABLED
 	await get_parent().ready
-	_current_state.enter(null)
+	current_state.enter(null)
 	process_mode = Node.PROCESS_MODE_INHERIT
 
 
 func _physics_process(delta: float) -> void:
-	_current_state.physics_update(delta)
+	current_state.physics_update(delta)
 
 
 ## Only fires for [InputEventKey] — accepts [InputEvent] because Godot's virtual method
 ## signature types the parameter as the base class.
 func _unhandled_key_input(event: InputEvent) -> void:
-	_current_state.handle_input(event)
+	current_state.handle_input(event)
 
 
 ## Transitions from the current state to [param target].
 func transition_to(target: BaseState) -> void:
-	var previous_state: BaseState = _current_state
-	_current_state.exit()
-	_current_state = target
-	_current_state.enter(previous_state)
+	var previous_state: BaseState = current_state
+	current_state.exit()
+	current_state = target
+	current_state.enter(previous_state)
 
 
-## Delegates [method BaseState.draw] to [member _current_state].
+## Delegates [method BaseState.draw] to [member current_state].
 func draw_state() -> void:
-	_current_state.draw()
+	current_state.draw()
 
 
 ## Resets to [member initial_state].
