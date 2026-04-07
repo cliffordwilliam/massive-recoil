@@ -1,3 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# ASE watcher compiled binaries
+addons/ase_watcher/ase_watch/ase_watch
+addons/ase_watcher/ase_watch/ase_watch_*

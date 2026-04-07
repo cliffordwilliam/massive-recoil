@@ -37,23 +37,31 @@ src/
 
 ## ASE Watcher (Auto SpriteFrames Importer)
 
-Requires `inotify-tools` and `uv` on Ubuntu:
+Requires the [Aseprite CLI](https://www.aseprite.org/) and [Go](https://go.dev/) (via [mise](https://mise.jdx.dev/) or any other method).
+
+Build the watcher binary once:
 
 ```bash
-sudo apt install inotify-tools
-# uv: https://docs.astral.sh/uv/getting-started/installation/
+cd addons/ase_watcher/ase_watch
+go build -o ase_watch .
+```
+
+Cross-compile for macOS if needed:
+
+```bash
+GOOS=darwin GOARCH=arm64 go build -o ase_watch_mac .
 ```
 
 The plugin lives in `res://addons/ase_watcher/` and auto-generates a `SpriteFrames` resource (`.tres`) per layer whenever an `.ase` file is saved. No manual steps needed — it behaves like nodemon.
 
 **How it works:**
 
-The Python watcher (`ase_watch.py`) and the Godot plugin communicate over a local TCP socket (port 9876):
+The Go watcher (`ase_watch/`) and the Godot plugin communicate over a local TCP socket (port 9876):
 
-1. `inotifywait` detects a `.ase` save
-2. Python runs Aseprite CLI for each layer in parallel, writing PNG + JSON to `assets/images/dynamic/`
-3. Python parses the JSON and writes each `.tres` directly as a text file referencing the PNG
-4. Python signals Godot via the socket to scan the filesystem and hot-reload the resources
+1. `fsnotify` detects a `.ase` save (works on Linux and macOS natively — no `inotify-tools` needed)
+2. The watcher runs Aseprite CLI for each layer in parallel, writing PNG + JSON to `assets/images/dynamic/`
+3. It parses the JSON and writes each `.tres` directly as a text file referencing the PNG
+4. It signals Godot via the socket to scan the filesystem and hot-reload the resources
 5. Godot imports the new PNGs then reloads the `SpriteFrames` — open scenes update live
 
 Output per layer:
