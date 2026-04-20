@@ -9,3 +9,5 @@
 - [ ] Make a resource for transition anim, and make it be auto gen too.
 - [ ] Min 1 px to cursor in inventory, since grid box right and bottom is 1 px less.
 - [ ] Think of a good sprite for the sell and buy area.
+- [ ] Improve the rest of the player sprites. Idle, Turn, and Walk has been improved.
+- [ ] Make the shop idle animation.

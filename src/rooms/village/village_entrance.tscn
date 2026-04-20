@@ -1,8 +1,14 @@
 [gd_scene format=3 uid="uid://cygnrervhe8qc"]
 
 [ext_resource type="PackedScene" uid="uid://c6dqylbiduyg1" path="res://src/entities/actors/player/player.tscn" id="1_11l44"]
+[ext_resource type="Texture2D" uid="uid://b3kbkb32j2n45" path="res://assets/images/static/backgrounds/shop.png" id="2_dh578"]
 
 [node name="VillageEntrance" type="Node" unique_id=1080990133]
 
 [node name="Player" parent="." unique_id=1883003127 instance=ExtResource("1_11l44")]
 position = Vector2(64, 128)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1748553255]
+position = Vector2(176, 82)
+texture = ExtResource("2_dh578")
+centered = false
