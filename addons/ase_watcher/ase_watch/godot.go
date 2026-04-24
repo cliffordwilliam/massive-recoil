@@ -64,7 +64,7 @@ func godotSend(message string, expectResponse bool) string {
 
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), timeout)
 	if err != nil {
-		fmt.Printf("[ase] Socket error: %v\n", err)
+		logf("[ase] Socket error: %v\n", err)
 		return ""
 	}
 	defer conn.Close()

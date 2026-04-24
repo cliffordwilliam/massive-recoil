@@ -39,15 +39,15 @@ func _enter_tree() -> void:
 		"filesystem_changed", _on_filesystem_changed
 	)
 
-	var script := ProjectSettings.globalize_path(
-		get_script().resource_path.get_base_dir() + "/ase_watch.py"
+	var binary := ProjectSettings.globalize_path(
+		get_script().resource_path.get_base_dir() + "/ase_watch/ase_watch"
 	)
 	var watch_abs := ProjectSettings.globalize_path(ASE_DIR)
 	var output_abs := ProjectSettings.globalize_path(OUTPUT_DIR)
 
-	_watcher_pid = OS.create_process("uv", ["run", script, watch_abs, output_abs, str(PORT)])
+	_watcher_pid = OS.create_process(binary, [watch_abs, output_abs, str(PORT)])
 	if _watcher_pid == -1:
-		printerr("[ase] Failed to start watcher script")
+		printerr("[ase] Failed to start watcher binary")
 		return
 	print("[ase] Watcher started (pid %d)" % _watcher_pid)
 

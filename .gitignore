@@ -5,3 +5,6 @@
 # ASE watcher compiled binaries
 addons/ase_watcher/ase_watch/ase_watch
 addons/ase_watcher/ase_watch/ase_watch_*
+
+# ASE watcher runtime log
+assets/images/dynamic/ase_watch.log

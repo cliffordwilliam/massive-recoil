@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -48,9 +47,9 @@ func exportLayer(asePath, layer, key string) bool {
 	).Run()
 
 	if err == nil {
-		fmt.Printf("[ase]   → %s\n", key)
+		logf("[ase]   → %s\n", key)
 		return true
 	}
-	fmt.Printf("[ase]   ✗ failed: %s\n", layer)
+	logf("[ase]   ✗ failed: %s\n", layer)
 	return false
 }

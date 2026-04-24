@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +23,14 @@ var (
 	port        int
 	projectRoot string // absolute path to dir containing project.godot, or ""
 	gitRoot     string // absolute path to git repo root, or ""
+
+	logWriter io.Writer = os.Stdout
 )
+
+func logf(format string, args ...any) {
+	msg := fmt.Sprintf(format, args...)
+	fmt.Fprint(logWriter, msg)
+}
 
 func findProjectRoot(start string) string {
 	dir := start
@@ -70,6 +78,18 @@ func main() {
 	projectRoot = findProjectRoot(outputDir)
 	gitRoot = findGitRoot(outputDir)
 
+	logPath := filepath.Join(outputDir, "ase_watch.log")
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err == nil {
+		logWriter = io.MultiWriter(os.Stdout, f)
+		defer f.Close()
+	} else {
+		fmt.Fprintf(os.Stderr, "[ase] Could not open log file %s: %v\n", logPath, err)
+	}
+
+	logf("[ase] Starting (pid %d)\n", os.Getpid())
+	logf("[ase] watch_dir=%s output_dir=%s port=%d\n", watchDir, outputDir, port)
+
 	watch()
 }
 
@@ -84,11 +104,11 @@ func watch() {
 	defer watcher.Close()
 
 	if err := watcher.Add(watchDir); err != nil {
-		fmt.Fprintln(os.Stderr, "[ase] Failed to watch directory:", err)
+		logf("[ase] Failed to watch directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("[ase] Watching %s\n", watchDir)
+	logf("[ase] Watching %s\n", watchDir)
 
 	lastSeen := make(map[string]int64)
 
@@ -116,7 +136,7 @@ func watch() {
 			if !ok {
 				return
 			}
-			fmt.Println("[ase] Watcher error:", err)
+			logf("[ase] Watcher error: %v\n", err)
 		}
 	}
 }
@@ -129,11 +149,11 @@ func safeKey(layer string) string {
 func handleChange(fname string) {
 	base := strings.TrimSuffix(fname, filepath.Ext(fname))
 	asePath := filepath.Join(watchDir, fname)
-	fmt.Printf("[ase] %s changed — exporting layers…\n", base)
+	logf("[ase] %s changed — exporting layers…\n", base)
 
 	layers := listLayers(asePath)
 	if len(layers) == 0 {
-		fmt.Printf("[ase] No layers found for %s\n", base)
+		logf("[ase] No layers found for %s\n", base)
 		return
 	}
 
@@ -165,7 +185,7 @@ func handleChange(fname string) {
 	wg.Wait()
 
 	if len(exported) == 0 {
-		fmt.Printf("[ase] All exports failed for %s\n", base)
+		logf("[ase] All exports failed for %s\n", base)
 		return
 	}
 
@@ -174,7 +194,7 @@ func handleChange(fname string) {
 	for _, key := range exported {
 		tresUID := getTresUID(key)
 		if tresUID == "" {
-			fmt.Printf("[ase] Could not get UID for %s — skipping\n", key)
+			logf("[ase] Could not get UID for %s — skipping\n", key)
 			continue
 		}
 		if writeTres(key, tresUID, getPNGUID(key)) {
@@ -196,7 +216,7 @@ func handleChange(fname string) {
 		if !newKeys[stem] {
 			os.Remove(png)
 			os.Remove(filepath.Join(outputDir, stem+".tres"))
-			fmt.Printf("[ase]   removed stale: %s\n", stem)
+			logf("[ase]   removed stale: %s\n", stem)
 		}
 	}
 
